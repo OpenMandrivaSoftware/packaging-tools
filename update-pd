@@ -1,0 +1,54 @@
+#!/bin/sh
+# Usage: update-pd version [startfrom]
+# 	version: Plasma Desktop version to update to
+#	startfrom: Package to start from (e.g. to continue where
+#		a previous build left off because of a patch rebase
+#		or file list issue)
+#
+# (C) 2015 Bernhard Rosenkränzer <bero@lindev.ch>
+# Released under the terms of the GPLv3
+
+error() {
+	echo "$1 failed to build -- please see above and fix."
+	exit 1
+}
+
+if [ "$#" -lt 1 ]; then
+	echo "Specify the version to update to"
+	exit 1
+fi
+
+VERSION="$1"
+PACKAGES="oxygen-fonts libbluedevil5 libkscreen5 libksysguard libmm-qt5 bluedevil5 kde-cli-tools kdecoration kde-gtk-config5 kfilemetadata5 baloo5 khelpcenter khotkeys kinfocenter kio-extras kmenuedit kscreen5 ksshaskpass ksysguard kwayland kwin breeze kwrited milou muon oxygen plasma-workspace plasma-desktop plasma-nm5 plasma-workspace-wallpapers kdeplasma-addons5 polkit-kde-agent-1 powerdevil sddm-kcm systemsettings user-manager kcm-touchpad5"
+REALVERSION="${VERSION}"
+
+if [ "$#" -ge 2 ]; then
+	P=""
+	RELEVANT=0
+	for i in $PACKAGES; do
+		[ "$i" = "$2" ] && RELEVANT=1
+		[ "$RELEVANT" = "1" ] && P="$P $i"
+	done
+	PACKAGES="$P"
+fi
+
+for i in $PACKAGES; do
+	rm -rf ${i}
+	git clone git@abf.io:/openmandriva/${i}.git || error $i
+	cd ${i}
+	OLDVERSION="$(grep -i '^Version[[:space:]]*:' *.spec |cut -d: -f2 |xargs echo)"
+	OLDEXP="$(echo ${OLDVERSION} |sed -e 's,\.,\\.,g')"
+	sed -i -e "/${OLDEXP}\.tar/d" .abf.yml
+	sed -i -e "s,/frameworks/%{version},/frameworks/%(echo %{version} |cut -d. -f1-2),g" *.spec
+	sed -i -e "s,^\(Version.*:.*\)${OLDEXP},\1${VERSION}," *.spec
+	sed -i -e "s,^\(Release.*:\s*\)[0-9]*,\11," *.spec
+	sudo urpmi --auto --buildrequires *.spec
+	abb build || error $i
+	[ -d RPMS/`uname -m` ] || [ -d RPMS/noarch ] || error $i
+	abb store *-${VERSION}.tar* || error $i
+	git commit -am "Update to ${VERSION}" || error $i
+	git push origin master
+	sudo urpmi --auto RPMS/*/*.rpm
+	cd ..
+	VERSION="${REALVERSION}"
+done

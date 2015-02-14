@@ -1,0 +1,54 @@
+#!/bin/sh
+# Usage: update-kapps version [startfrom]
+# 	version: KDE Applications version to update to
+#	startfrom: Package to start from (e.g. to continue where
+#		a previous build left off because of a patch rebase
+#		or file list issue)
+#
+# (C) 2015 Bernhard Rosenkränzer <bero@lindev.ch>
+# Released under the terms of the GPLv3
+
+error() {
+	echo "$1 failed to build -- please see above and fix."
+	exit 1
+}
+
+if [ "$#" -lt 1 ]; then
+	echo "Specify the version to update to"
+	exit 1
+fi
+
+VERSION="$1"
+PACKAGES="libkcddb libkcompactdisc libkdcraw libkdeedu libkdegames libkeduvocdocument libkexiv2 libkface libkipi libkmahjongg libkomparediff2 libksane amor analitza ark artikulate kde4-audiocd blinken bomber bovo cantor cervisia dolphin-plugins dragonplayer ffmpegthumbs filelight granatier gwenview jovie juk kaccessible kajongg kalgebra kalzium kamera kanagram kapman kapptemplate kate katomic kblackbox kblocks kbounce kbreakout kbruch kcachegrind kcalc kdeartwork kde-baseapps kde-base-artwork kde-dev-scripts kde-dev-utils kdeedu-data kdegraphics-mobipocket kdegraphics-strigi-analyzer kdegraphics-thumbnailers kdenetwork-filesharing kdenetwork-strigi-analyzers kde-runtime kdesdk-kioslaves kdesdk-strigi-analyzers kdesdk-thumbnailers kde-wallpapers kdewebdev kdf kdiamond kfloppy kfourinline kgamma kgeography kget kgoldrunner kgpg khangman kig kigo killbots kiriki kiten kjumpingcube klettres klickety klines kmag kmahjongg kmines kmix kmousetool kmouth kmplot knavalbattle knetwalk kolf kollision kolourpaint kompare konquest konsole kopete kpat kppp kqtquickcharts krdc kremotecontrol kreversi krfb kruler ksaneplugin kscd kshisen ksirk ksnakeduel ksnapshot kspaceduel ksquares kstars ksudoku ksystemlog kteatime ktimer ktouch ktuberling kturtle ktux kubrick kuser kwalletmanager kwordquiz lokalize lskat marble mplayerthumbs okteta okular oxygen-icons pairs palapeli parley picmi poxml print-manager rocs step superkaramba svgpart sweeper umbrello zeroconf-ioslace"
+REALVERSION="${VERSION}"
+
+if [ "$#" -ge 2 ]; then
+	P=""
+	RELEVANT=0
+	for i in $PACKAGES; do
+		[ "$i" = "$2" ] && RELEVANT=1
+		[ "$RELEVANT" = "1" ] && P="$P $i"
+	done
+	PACKAGES="$P"
+fi
+
+for i in $PACKAGES; do
+	rm -rf ${i}
+	git clone git@abf.io:/openmandriva/${i}.git || error $i
+	cd ${i}
+	OLDVERSION="$(grep -i '^Version[[:space:]]*:' *.spec |cut -d: -f2 |xargs echo)"
+	OLDEXP="$(echo ${OLDVERSION} |sed -e 's,\.,\\.,g')"
+	sed -i -e "/${OLDEXP}\.tar/d" .abf.yml
+	sed -i -e "s,/%{stable}/%{version},/%{stable}/applications/%{version},g" *.spec
+	sed -i -e "s,^\(Version.*:.*\)${OLDEXP},\1${VERSION}," *.spec
+	sed -i -e "s,^\(Release.*:\s*\)[0-9]*,\11," *.spec
+	sudo urpmi --auto --buildrequires *.spec
+	abb build || error $i
+	[ -d RPMS/`uname -m` ] || [ -d RPMS/noarch ] || error $i
+	abb store *-${VERSION}.tar* || error $i
+	git commit -am "Update to ${VERSION}" || error $i
+	git push origin master
+	sudo urpmi --auto RPMS/*/*.rpm
+	cd ..
+	VERSION="${REALVERSION}"
+done
