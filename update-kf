@@ -19,7 +19,8 @@ if [ "$#" -lt 1 ]; then
 fi
 
 VERSION="$1"
-PACKAGES="extra-cmake-modules5 attica5 networkmanager-qt kitemmodels kitemviews karchive kcodecs kconfig kcoreaddons kdbusaddons kguiaddons kidletime kimageformats kplotting kwidgetsaddons kwindowsystem kcrash solid sonnet threadweaver ki18n kglobalaccel kjs kdnssd5 kauth kcompletion kdoctools kjobwidgets kunitconversion kpty kservice kjsembed kconfigwidgets kdesu kemoticons kiconthemes kapidox knotifications ktextwidgets kxmlgui kwallet5 kbookmarks kcmutils kio kparts kinit kdeclarative knewstuff knotifyconfig kactivities frameworkintegration kdesignerplugin khtml ktexteditor kdewebkit kross kpackage plasma-framework krunner kmediaplayer kded kdelibs4support"
+#PACKAGES="extra-cmake-modules5 attica5 networkmanager-qt kitemmodels kitemviews karchive kcodecs kconfig kcoreaddons kdbusaddons kguiaddons kidletime kimageformats kplotting kwidgetsaddons kwindowsystem kcrash solid sonnet threadweaver ki18n kglobalaccel kjs kdnssd5 kauth kcompletion kdoctools kjobwidgets kunitconversion kpty kservice kjsembed kconfigwidgets kdesu kemoticons kiconthemes kapidox knotifications ktextwidgets kxmlgui kwallet5 kbookmarks kcmutils kio kparts kinit kdeclarative knewstuff knotifyconfig kactivities frameworkintegration kdesignerplugin khtml ktexteditor kdewebkit kross kpackage plasma-framework krunner kmediaplayer kded kdelibs4support"
+PACKAGES="$(cat $(dirname $0)/kf.buildlist |sed -e 's,openmandriva/,,g')"
 REALVERSION="${VERSION}"
 
 if [ "$#" -ge 2 ]; then
@@ -55,3 +56,5 @@ for i in $PACKAGES; do
 	cd ..
 	VERSION="${REALVERSION}"
 done
+
+abf chain_build -b master --update-type enhancement -i $(dirname $0)/kf.buildlist

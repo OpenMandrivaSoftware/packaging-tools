@@ -1,0 +1,34 @@
+openmandriva/extra-cmake-modules5
+openmandriva/attica5
+openmandriva/networkmanager-qt openmandriva/kitemmodels openmandriva/kitemviews openmandriva/karchive openmandriva/kcodecs openmandriva/kconfig openmandriva/kcoreaddons openmandriva/kdbusaddons openmandriva/kguiaddons openmandriva/kidletime openmandriva/kimageformats openmandriva/kplotting openmandriva/kwidgetsaddons openmandriva/kwindowsystem openmandriva/kcrash openmandriva/solid openmandriva/sonnet openmandriva/threadweaver openmandriva/ki18n openmandriva/kglobalaccel openmandriva/kjs openmandriva/kdnssd5
+openmandriva/kauth openmandriva/kcompletion openmandriva/kdoctools openmandriva/kjobwidgets openmandriva/kunitconversion openmandriva/kpty
+openmandriva/kservice openmandriva/kjsembed openmandriva/kconfigwidgets
+openmandriva/kdesu
+openmandriva/kemoticons
+openmandriva/kiconthemes
+openmandriva/kapidox
+openmandriva/knotifications
+openmandriva/ktextwidgets
+openmandriva/kxmlgui
+openmandriva/kwallet5
+openmandriva/kbookmarks
+openmandriva/kcmutils
+openmandriva/kio
+openmandriva/kparts
+openmandriva/kinit
+openmandriva/kdeclarative
+openmandriva/knewstuff
+openmandriva/knotifyconfig
+openmandriva/kactivities
+openmandriva/frameworkintegration
+openmandriva/kdesignerplugin
+openmandriva/khtml
+openmandriva/ktexteditor
+openmandriva/kdewebkit
+openmandriva/kross
+openmandriva/kpackage
+openmandriva/plasma-framework
+openmandriva/krunner
+openmandriva/kmediaplayer
+openmandriva/kded
+openmandriva/kdelibs4support
