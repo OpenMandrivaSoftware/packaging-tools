@@ -19,7 +19,7 @@ if [ "$#" -lt 1 ]; then
 fi
 
 VERSION="$1"
-PACKAGES="extra-cmake-modules5 attica5 networkmanager-qt kitemmodels kitemviews karchive kcodecs kconfig kcoreaddons kdbusaddons kglobalaccel kguiaddons kidletime kimageformats kplotting kwidgetsaddons kwindowsystem solid sonnet threadweaver ki18n kjs kdnssd5 kauth kcompletion kcrash kdoctools kjobwidgets kunitconversion kpty kservice kjsembed kconfigwidgets kdesu kemoticons kiconthemes kapidox knotifications ktextwidgets kxmlgui kwallet5 kbookmarks kcmutils kio kparts kinit kdeclarative knewstuff knotifyconfig kactivities frameworkintegration kdesignerplugin khtml ktexteditor kdewebkit kross kpackage plasma-framework krunner kmediaplayer kded kdelibs4support"
+PACKAGES="extra-cmake-modules5 attica5 networkmanager-qt kitemmodels kitemviews karchive kcodecs kconfig kcoreaddons kdbusaddons kguiaddons kidletime kimageformats kplotting kwidgetsaddons kwindowsystem kcrash solid sonnet threadweaver ki18n kglobalaccel kjs kdnssd5 kauth kcompletion kdoctools kjobwidgets kunitconversion kpty kservice kjsembed kconfigwidgets kdesu kemoticons kiconthemes kapidox knotifications ktextwidgets kxmlgui kwallet5 kbookmarks kcmutils kio kparts kinit kdeclarative knewstuff knotifyconfig kactivities frameworkintegration kdesignerplugin khtml ktexteditor kdewebkit kross kpackage plasma-framework krunner kmediaplayer kded kdelibs4support"
 REALVERSION="${VERSION}"
 
 if [ "$#" -ge 2 ]; then
