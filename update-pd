@@ -19,7 +19,7 @@ if [ "$#" -lt 1 ]; then
 fi
 
 VERSION="$1"
-PACKAGES="oxygen-fonts libbluedevil5 libkscreen5 libksysguard libmm-qt5 bluedevil5 kde-cli-tools kdecoration kde-gtk-config5 kfilemetadata5 baloo5 khelpcenter khotkeys kinfocenter kio-extras kmenuedit kscreen5 ksshaskpass ksysguard kwayland kwin breeze kwrited milou muon oxygen plasma-workspace plasma-desktop plasma-nm5 plasma-workspace-wallpapers kdeplasma-addons5 polkit-kde-agent-1 powerdevil sddm-kcm systemsettings user-manager kcm-touchpad5"
+PACKAGES="$(cat $(dirname $0)/pd.buildlist |sed -e 's,openmandriva/,,g')"
 REALVERSION="${VERSION}"
 
 if [ "$#" -ge 2 ]; then
@@ -40,15 +40,21 @@ for i in $PACKAGES; do
 	OLDEXP="$(echo ${OLDVERSION} |sed -e 's,\.,\\.,g')"
 	sed -i -e "/${OLDEXP}\.tar/d" .abf.yml
 	sed -i -e "s,/frameworks/%{version},/frameworks/%(echo %{version} |cut -d. -f1-2),g" *.spec
-	sed -i -e "s,^\(Version.*:.*\)${OLDEXP},\1${VERSION}," *.spec
+	PKGVERSION=${VERSION}
+	if [ "$i" = "kfilemetadata5" -o "$i" = "baloo5" ]; then
+		PKGVERSION=$(echo ${VERSION} |cut -d. -f1).$(expr $(echo ${VERSION} |cut -d. -f2) + 4).$(echo ${VERSION} |cut -d. -f3-)
+	fi
+	sed -i -e "s,^\(Version.*:.*\)${OLDEXP},\1${PKGVERSION}," *.spec
 	sed -i -e "s,^\(Release.*:\s*\)[0-9]*,\11," *.spec
 	sudo urpmi --auto --buildrequires *.spec
 	abb build || error $i
 	[ -d RPMS/`uname -m` ] || [ -d RPMS/noarch ] || error $i
-	abb store *-${VERSION}.tar* || error $i
-	git commit -am "Update to ${VERSION}" || error $i
+	abb store *-${PKGVERSION}.tar* || error $i
+	git commit -am "Update to ${PKGVERSION}" || error $i
 	git push origin master
 	sudo urpmi --auto RPMS/*/*.rpm
 	cd ..
 	VERSION="${REALVERSION}"
 done
+
+abf chain_build -b master --update-type enhancement -i $(dirname $0)/pd.buildlist
