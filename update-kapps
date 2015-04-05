@@ -19,7 +19,7 @@ if [ "$#" -lt 1 ]; then
 fi
 
 VERSION="$1"
-PACKAGES="libkcddb libkcompactdisc libkdcraw libkdeedu libkdegames libkeduvocdocument libkexiv2 libkface libkipi libkmahjongg libkomparediff2 libksane amor analitza ark artikulate kde4-audiocd blinken bomber bovo cantor cervisia dolphin-plugins dragonplayer ffmpegthumbs filelight granatier gwenview jovie juk kaccessible kajongg kalgebra kalzium kamera kanagram kapman kapptemplate kate katomic kblackbox kblocks kbounce kbreakout kbruch kcachegrind kcalc kdeartwork kde-baseapps kde-base-artwork kde-dev-scripts kde-dev-utils kdeedu-data kdegraphics-mobipocket kdegraphics-strigi-analyzer kdegraphics-thumbnailers kdenetwork-filesharing kdenetwork-strigi-analyzers kde-runtime kdesdk-kioslaves kdesdk-strigi-analyzers kdesdk-thumbnailers kde-wallpapers kdewebdev kdf kdiamond kfloppy kfourinline kgamma kgeography kget kgoldrunner kgpg khangman kig kigo killbots kiriki kiten kjumpingcube klettres klickety klines kmag kmahjongg kmines kmix kmousetool kmouth kmplot knavalbattle knetwalk kolf kollision kolourpaint kompare konquest konsole kopete kpat kppp kqtquickcharts krdc kremotecontrol kreversi krfb kruler ksaneplugin kscd kshisen ksirk ksnakeduel ksnapshot kspaceduel ksquares kstars ksudoku ksystemlog kteatime ktimer ktouch ktuberling kturtle ktux kubrick kuser kwalletmanager kwordquiz lokalize lskat marble mplayerthumbs okteta okular oxygen-icons pairs palapeli parley picmi poxml print-manager rocs step superkaramba svgpart sweeper umbrello zeroconf-ioslace"
+PACKAGES="$(cat $(dirname $0)/kapps.buildlist |sed -e 's,openmandriva/,,g')"
 REALVERSION="${VERSION}"
 
 if [ "$#" -ge 2 ]; then
@@ -39,16 +39,18 @@ for i in $PACKAGES; do
 	OLDVERSION="$(grep -i '^Version[[:space:]]*:' *.spec |cut -d: -f2 |xargs echo)"
 	OLDEXP="$(echo ${OLDVERSION} |sed -e 's,\.,\\.,g')"
 	sed -i -e "/${OLDEXP}\.tar/d" .abf.yml
-	sed -i -e "s,/%{stable}/%{version},/%{stable}/applications/%{version},g" *.spec
-	sed -i -e "s,^\(Version.*:.*\)${OLDEXP},\1${VERSION}," *.spec
+	PKGVERSION=${VERSION}
+	sed -i -e "s,^\(Version.*:.*\)${OLDEXP},\1${PKGVERSION}," *.spec
 	sed -i -e "s,^\(Release.*:\s*\)[0-9]*,\11," *.spec
 	sudo urpmi --auto --buildrequires *.spec
 	abb build || error $i
 	[ -d RPMS/`uname -m` ] || [ -d RPMS/noarch ] || error $i
-	abb store *-${VERSION}.tar* || error $i
-	git commit -am "Update to ${VERSION}" || error $i
+	abb store *-${PKGVERSION}.tar* || error $i
+	git commit -am "Update to ${PKGVERSION}" || error $i
 	git push origin master
 	sudo urpmi --auto RPMS/*/*.rpm
 	cd ..
 	VERSION="${REALVERSION}"
 done
+
+abf chain_build -b master --update-type enhancement -i $(dirname $0)/kapps.buildlist
