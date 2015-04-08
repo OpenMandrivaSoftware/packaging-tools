@@ -1,6 +1,6 @@
 #!/bin/sh
 # Usage: update-papyros $(date +%Y%m%d)
-# (C) 2015 Alexander Khryukinr <alexander@mezon.ru>
+# (C) 2015 Alexander Khryukin <alexander@mezon.ru>
 # Released under the terms of the GPLv3
 error() {
 	echo "$1 failed to build -- please see above and fix."
