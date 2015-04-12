@@ -12,11 +12,12 @@ openmandriva/ktextwidgets
 openmandriva/kxmlgui
 openmandriva/kwallet5
 openmandriva/kbookmarks
-openmandriva/kcmutils
 openmandriva/kio
 openmandriva/kparts
 openmandriva/kinit
+openmandriva/kpackage
 openmandriva/kdeclarative
+openmandriva/kcmutils
 openmandriva/knewstuff
 openmandriva/knotifyconfig
 openmandriva/kactivities
@@ -26,7 +27,6 @@ openmandriva/khtml
 openmandriva/ktexteditor
 openmandriva/kdewebkit
 openmandriva/kross
-openmandriva/kpackage
 openmandriva/plasma-framework
 openmandriva/krunner
 openmandriva/kmediaplayer
