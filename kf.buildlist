@@ -1,6 +1,6 @@
 openmandriva/extra-cmake-modules5
 openmandriva/attica5
-openmandriva/networkmanager-qt openmandriva/kitemmodels openmandriva/kitemviews openmandriva/karchive openmandriva/kcodecs openmandriva/kconfig openmandriva/kcoreaddons openmandriva/kdbusaddons openmandriva/kguiaddons openmandriva/kidletime openmandriva/kimageformats openmandriva/kplotting openmandriva/kwidgetsaddons openmandriva/kwindowsystem openmandriva/solid openmandriva/sonnet openmandriva/threadweaver openmandriva/ki18n
+openmandriva/networkmanager-qt openmandriva/modemmanager-qt openmandriva/kitemmodels openmandriva/kitemviews openmandriva/karchive openmandriva/kcodecs openmandriva/kconfig openmandriva/kcoreaddons openmandriva/kdbusaddons openmandriva/kguiaddons openmandriva/kidletime openmandriva/kimageformats openmandriva/kplotting openmandriva/kwidgetsaddons openmandriva/kwindowsystem openmandriva/solid openmandriva/sonnet openmandriva/threadweaver openmandriva/ki18n
 openmandriva/kcrash openmandriva/kglobalaccel openmandriva/kjs openmandriva/kdnssd5
 openmandriva/kauth openmandriva/kcompletion openmandriva/kdoctools openmandriva/kjobwidgets openmandriva/kunitconversion openmandriva/kpty
 openmandriva/kservice openmandriva/kjsembed openmandriva/kconfigwidgets
@@ -11,10 +11,12 @@ openmandriva/kapidox
 openmandriva/knotifications
 openmandriva/ktextwidgets
 openmandriva/kxmlgui
+openmandriva/kxmlrpcclient
 openmandriva/kwallet5
 openmandriva/kbookmarks
 openmandriva/kio
 openmandriva/kparts
+openmandriva/kpeople
 openmandriva/kinit
 openmandriva/kpackage
 openmandriva/kdeclarative
