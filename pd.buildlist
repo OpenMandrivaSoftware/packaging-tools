@@ -1,8 +1,7 @@
 openmandriva/oxygen-fonts
-openmandriva/libkscreen5 openmandriva/libksysguard
+openmandriva/libkscreen5 openmandriva/libksysguard openmandriva/bluez-qt
 openmandriva/bluedevil5 openmandriva/kde-cli-tools
 openmandriva/kdecoration openmandriva/kde-gtk-config5 openmandriva/kfilemetadata5
-openmandriva/bluez-qt
 openmandriva/baloo5
 openmandriva/khelpcenter
 openmandriva/khotkeys
