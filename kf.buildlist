@@ -12,10 +12,10 @@ openmandriva/kapidox
 openmandriva/knotifications
 openmandriva/ktextwidgets
 openmandriva/kxmlgui
-openmandriva/kxmlrpcclient
 openmandriva/kwallet5
 openmandriva/kbookmarks
 openmandriva/kio
+openmandriva/kxmlrpcclient
 openmandriva/kparts
 openmandriva/kpeople
 openmandriva/kinit
