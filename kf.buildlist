@@ -5,34 +5,14 @@ openmandriva/kcrash
 openmandriva/kglobalaccel openmandriva/kjs openmandriva/kdnssd5
 openmandriva/kauth openmandriva/kcompletion openmandriva/kdoctools openmandriva/kjobwidgets openmandriva/kunitconversion openmandriva/kpty
 openmandriva/kservice openmandriva/kjsembed openmandriva/kconfigwidgets
-openmandriva/kdesu
-openmandriva/kemoticons
-openmandriva/kiconthemes
-openmandriva/kapidox
-openmandriva/knotifications
-openmandriva/ktextwidgets
-openmandriva/kxmlgui
-openmandriva/kwallet5
+openmandriva/kdesu openmandriva/kemoticons openmandriva/kiconthemes openmandriva/kapidox
+openmandriva/knotifications openmandriva/ktextwidgets
+openmandriva/kxmlgui openmandriva/kwallet5
 openmandriva/kbookmarks
 openmandriva/kio
-openmandriva/kxmlrpcclient
-openmandriva/kparts
-openmandriva/kpeople
-openmandriva/kinit
-openmandriva/kpackage
-openmandriva/kdeclarative
-openmandriva/kcmutils
 openmandriva/knewstuff
-openmandriva/knotifyconfig
-openmandriva/kactivities
-openmandriva/frameworkintegration
-openmandriva/kdesignerplugin
-openmandriva/khtml
-openmandriva/ktexteditor
-openmandriva/kdewebkit
-openmandriva/kross
-openmandriva/plasma-framework
-openmandriva/krunner
-openmandriva/kmediaplayer
-openmandriva/kded
-openmandriva/kdelibs4support
+openmandriva/kxmlrpcclient openmandriva/kparts openmandriva/kpeople openmandriva/kinit openmandriva/kpackage
+openmandriva/kmediaplayer openmandriva/kdeclarative openmandriva/kded
+openmandriva/kcmutils openmandriva/knotifyconfig
+openmandriva/kactivities openmandriva/frameworkintegration openmandriva/kdesignerplugin openmandriva/khtml openmandriva/ktexteditor openmandriva/kdewebkit openmandriva/kross openmandriva/plasma-framework
+openmandriva/krunner openmandriva/kdelibs4support
