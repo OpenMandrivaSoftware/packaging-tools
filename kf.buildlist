@@ -14,5 +14,5 @@ openmandriva/knewstuff
 openmandriva/kxmlrpcclient openmandriva/kparts openmandriva/kpeople openmandriva/kinit openmandriva/kpackage
 openmandriva/kmediaplayer openmandriva/kdeclarative openmandriva/kded
 openmandriva/kcmutils openmandriva/knotifyconfig
-openmandriva/kactivities openmandriva/frameworkintegration openmandriva/kdesignerplugin openmandriva/khtml openmandriva/ktexteditor openmandriva/kdewebkit openmandriva/kross openmandriva/plasma-framework
-openmandriva/krunner openmandriva/kdelibs4support
+openmandriva/kactivities openmandriva/frameworkintegration openmandriva/kdesignerplugin openmandriva/khtml openmandriva/ktexteditor openmandriva/kdewebkit openmandriva/kross
+openmandriva/plasma-framework openmandriva/krunner openmandriva/kdelibs4support
