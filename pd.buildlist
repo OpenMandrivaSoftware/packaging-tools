@@ -1,31 +1,13 @@
 openmandriva/oxygen-fonts
-openmandriva/libkscreen5 openmandriva/libksysguard openmandriva/bluez-qt
+openmandriva/libkscreen5 openmandriva/libksysguard
 openmandriva/bluedevil5 openmandriva/kde-cli-tools
 openmandriva/kdecoration openmandriva/kde-gtk-config5 openmandriva/kfilemetadata5
-openmandriva/baloo5
-openmandriva/khelpcenter
-openmandriva/khotkeys
-openmandriva/kinfocenter
-openmandriva/kio-extras
-openmandriva/kmenuedit
-openmandriva/kscreen5
-openmandriva/ksshaskpass
-openmandriva/ksysguard
-openmandriva/kwayland
-openmandriva/kwin
-openmandriva/breeze
-openmandriva/kwrited
-openmandriva/milou
-openmandriva/muon
+openmandriva/baloo5 openmandriva/khelpcenter openmandriva/khotkeys openmandriva/kinfocenter
+openmandriva/kio-extras openmandriva/kmenuedit openmandriva/kscreen5 openmandriva/ksshaskpass openmandriva/ksysguard
+openmandriva/kwayland openmandriva/kwin openmandriva/breeze openmandriva/kwrited openmandriva/milou openmandriva/muon
 openmandriva/oxygen
 openmandriva/plasma-workspace
 openmandriva/plasma-desktop
 openmandriva/plasma-nm
 openmandriva/plasma-workspace-wallpapers
-openmandriva/kdeplasma-addons5
-openmandriva/polkit-kde-agent-1
-openmandriva/powerdevil
-openmandriva/sddm-kcm
-openmandriva/systemsettings
-openmandriva/plasma-mediacenter
-openmandriva/plasma-sdk
+openmandriva/kdeplasma-addons5 openmandriva/polkit-kde-agent-1 openmandriva/powerdevil openmandriva/sddm-kcm openmandriva/systemsettings openmandriva/plasma-mediacenter openmandriva/plasma-sdk
