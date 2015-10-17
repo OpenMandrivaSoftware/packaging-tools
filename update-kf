@@ -41,22 +41,30 @@ for i in $PACKAGES; do
 	#fi
 	rm -rf ${i}
 	git clone git@abf.io:/openmandriva/${i}.git || error $i
-	cd ${i}
+	 pushd ${i}
 	OLDVERSION="$(grep -i '^Version[[:space:]]*:' *.spec |cut -d: -f2 |xargs echo)"
 	OLDEXP="$(echo ${OLDVERSION} |sed -e 's,\.,\\.,g')"
 	sed -i -e "/${OLDEXP}\.tar/d" .abf.yml
 	sed -i -e "s,/frameworks/%{version},/frameworks/%(echo %{version} |cut -d. -f1-2),g" *.spec
 	sed -i -e "s,^\(Version.*:.*\)${OLDEXP},\1${VERSION}," *.spec
 	sed -i -e "s,^\(Release.*:\s*\)[0-9]*,\11," *.spec
-	sudo urpmi --auto --buildrequires *.spec
-	abb build || error $i
-	[ -d RPMS/`uname -m` ] || [ -d RPMS/noarch ] || error $i
-	abb store *-${VERSION}.tar* || error $i
+	if [ "$i" = "attica5" -o "$i" = "kdnssd5" -o "$i" = "kwallet5" ]; then
+            wget http://download.kde.org/stable/frameworks/$(echo $REALVERSION |cut -d. -f1-2)/${i%?}-$REALVERSION.tar.xz || error $i
+            sha1sum ${i%?}-${REALVERSION}.tar.xz | awk '{print "  "$2": "  $1}' >> .abf.yml || error $i
+        elif [ "$i" = "kdelibs4support" -o "$i" = "khtml" -o "$i" = "kjs" -o "$i" = "kjsembed" -o "$i" = "kmediaplayer" -o "$i" = "kross" -o "$i" = "krunner" ]; then
+            wget http://download.kde.org/stable/frameworks/$(echo $REALVERSION |cut -d. -f1-2)/portingAids/${i}-$REALVERSION.tar.xz || error $i
+	    sha1sum ${i}-${REALVERSION}.tar.xz | awk '{print "  "$2": "  $1}' >> .abf.yml || error $i
+        else
+	    wget http://download.kde.org/stable/frameworks/$(echo $REALVERSION |cut -d. -f1-2)/${i}-$REALVERSION.tar.xz || error $i
+	    sha1sum ${i}-${REALVERSION}.tar.xz | awk '{print "  "$2": "  $1}' >> .abf.yml || error $i
+	fi
+
+	abf store *-$REALVERSION.tar* || error $i
+	rm -rf $i*-$REALVERSION.tar.xz
 	git commit -am "Update to ${VERSION}" || error $i
 	git push origin master
-	sudo urpmi --auto RPMS/*/*.rpm
-	cd ..
+	popd
 	VERSION="${REALVERSION}"
 done
 
-abf chain_build -b master --update-type enhancement -i $(dirname $0)/kf.buildlist
+#abf chain_build -b master --update-type enhancement -i $(dirname $0)/kf.buildlist

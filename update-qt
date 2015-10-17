@@ -42,15 +42,28 @@ for i in $PACKAGES; do
 	PKGVERSION=${VERSION}
 	sed -i -e "s,^\(Version.*:.*\)${OLDEXP},\1${PKGVERSION}," *.spec
 	sed -i -e "s,^\(Release.*:\s*\)[0-9]*,\11," *.spec
-	sudo urpmi --auto --buildrequires *.spec
-	abb build || error $i
-	[ -d RPMS/`uname -m` ] || [ -d RPMS/noarch ] || error $i
-	abb store *-${PKGVERSION}.tar* || error $i
-	git commit -am "Update to ${PKGVERSION}" || error $i
+	sed -i -e "s,define beta rc,define beta %nil," *.spec
+#	sed -i -e "s/^Release.*:.*%{beta}.*/Release:\t0.%{beta}.1/" *.spec
+#	wget http://download.qt.io/development_releases/qt/5.5/5.5.0-beta/submodules/$(echo ${i}-opensource-src-5.5.0-beta.tar.xz | sed -i -e 's/qt5-//')
+	name=${i##qt5-}-opensource-src-$PKGVERSION.tar.xz
+	#wget http://download.qt.io/development_releases/qt/5.5/5.5.0-rc/submodules/$name || error $i
+	wget http://download.qt.io/official_releases/qt/5.5/$PKGVERSION/submodules/$name || error $i
+	sed -i -e "/qt.*alpha.tar.xz.*/d" .abf.yml
+	sed -i -e "/qt.*beta.tar.xz.*/d" .abf.yml
+	sed -i -e "/qt.*rc.tar.xz.*/d" .abf.yml
+	sha1sum qt*-opensource-src-$PKGVERSION.tar.xz | awk '{print "  "$2": "  $1}' >> .abf.yml
+
+
+#	sudo urpmi --auto --buildrequires *.spec
+#	abb build || error $i
+#	[ -d RPMS/`uname -m` ] || [ -d RPMS/noarch ] || error $i
+	abf store qt*-opensource-src-$PKGVERSION.tar.xz || error $i
+	rm -rf qt*-opensource-src-$PKGVERSION.tar.xz
+	git commit -am "Update to $PKGVERSION final" || error $i
 	git push origin master
-	sudo urpmi --auto RPMS/*/*.rpm
+#	sudo urpmi --auto RPMS/*/*.rpm
 	cd ..
 	VERSION="${REALVERSION}"
 done
 
-abf chain_build -b master --update-type enhancement -i $(dirname $0)/qt.buildlist
+#abf chain_build -b master --update-type enhancement -i $(dirname $0)/qt.buildlist

@@ -42,15 +42,20 @@ for i in $PACKAGES; do
 	PKGVERSION=${VERSION}
 	sed -i -e "s,^\(Version.*:.*\)${OLDEXP},\1${PKGVERSION}," *.spec
 	sed -i -e "s,^\(Release.*:\s*\)[0-9]*,\11," *.spec
-	sudo urpmi --auto --buildrequires *.spec
-	abb build || error $i
-	[ -d RPMS/`uname -m` ] || [ -d RPMS/noarch ] || error $i
-	abb store *-${PKGVERSION}.tar* || error $i
+	wget http://download.kde.org/stable/applications/${PKGVERSION}/src/${i}-${PKGVERSION}.tar.xz || error $i
+	sha1sum ${i}-${PKGVERSION}.tar.xz | awk '{print "  "$2": "  $1}' >> .abf.yml  || error $i
+#	sudo urpmi --auto --buildrequires *.spec
+#	abb build || error $i
+#	[ -d RPMS/`uname -m` ] || [ -d RPMS/noarch ] || error $i
+	abf store *-${PKGVERSION}.tar* || error $i
+	rm -rf ${i}-${PKGVERSION}.tar.xz
 	git commit -am "Update to ${PKGVERSION}" || error $i
 	git push origin master
-	sudo urpmi --auto RPMS/*/*.rpm
+	git remote set-url --add --push origin git@github.com:OpenMandrivaAssociation/${i}.git
+	git push
+#	sudo urpmi --auto RPMS/*/*.rpm
 	cd ..
 	VERSION="${REALVERSION}"
 done
 
-abf chain_build -b master --update-type enhancement -i $(dirname $0)/kapps.buildlist
+#abf chain_build -b master --update-type enhancement -i $(dirname $0)/kapps.buildlist

@@ -35,26 +35,42 @@ fi
 for i in $PACKAGES; do
 	rm -rf ${i}
 	git clone git@abf.io:/openmandriva/${i}.git || error $i
+#	 pushd ${i}
+#        if `ls *.spec >/dev/null`;  then
+#            for branch in `git branch -a | grep remotes | grep -v HEAD | grep -v master`; do
+#                git branch --track ${branch##*/} $branch
+#            done
+#            git fetch --all
+#            git pull --all
+#            git remote set-url --push origin git@github.com:OpenMandrivaAssociation/${i}.git
+#            git push --mirror git@github.com:OpenMandrivaAssociation/${i}.git
+#        else
+#            echo "No spec file found"
+#        fi
+#    popd
+
 	cd ${i}
 	OLDVERSION="$(grep -i '^Version[[:space:]]*:' *.spec |cut -d: -f2 |xargs echo)"
 	OLDEXP="$(echo ${OLDVERSION} |sed -e 's,\.,\\.,g')"
 	sed -i -e "/${OLDEXP}\.tar/d" .abf.yml
 	sed -i -e "s,/frameworks/%{version},/frameworks/%(echo %{version} |cut -d. -f1-2),g" *.spec
 	PKGVERSION=${VERSION}
-	if [ "$i" = "kfilemetadata5" -o "$i" = "baloo5" ]; then
-		PKGVERSION=$(echo ${VERSION} |cut -d. -f1).$(expr $(echo ${VERSION} |cut -d. -f2) + 4).$(echo ${VERSION} |cut -d. -f3-)
-	fi
 	sed -i -e "s,^\(Version.*:.*\)${OLDEXP},\1${PKGVERSION}," *.spec
 	sed -i -e "s,^\(Release.*:\s*\)[0-9]*,\11," *.spec
-	sudo urpmi --auto --buildrequires *.spec
-	abb build || error $i
-	[ -d RPMS/`uname -m` ] || [ -d RPMS/noarch ] || error $i
-	abb store *-${PKGVERSION}.tar* || error $i
-	git commit -am "Update to ${PKGVERSION}" || error $i
+	if [ "$i" = "libkscreen5" -o "$i" = "bluedevil5" -o "$i" = "kde-gtk-config5" -o "$i" = "kscreen5" -o "$i" = "kdeplasma-addons5" ]; then
+	    wget http://download.kde.org/stable/plasma/$VERSION/${i%?}-$PKGVERSION.tar.xz || error $i
+	    sha1sum ${i%?}-${PKGVERSION}.tar.xz | awk '{print "  "$2": "  $1}' >> .abf.yml
+	else
+		wget http://download.kde.org/stable/plasma/$VERSION/${i}-$PKGVERSION.tar.xz || error $i
+		sha1sum ${i}-${PKGVERSION}.tar.xz | awk '{print "  "$2": "  $1}' >> .abf.yml
+	fi
+
+        abf store *-$PKGVERSION.tar.* || error $i
+        rm -rf *-$PKGVERSION.tar.xz
+	git commit -am "Update to $PKGVERSION" || error $i
 	git push origin master
-	sudo urpmi --auto RPMS/*/*.rpm
 	cd ..
-	VERSION="${REALVERSION}"
+	VERSION="$REALVERSION"
 done
 
-abf chain_build -b master --update-type enhancement -i $(dirname $0)/pd.buildlist
+#abf chain_build -b master --update-type enhancement -i $(dirname $0)/pd.buildlist
