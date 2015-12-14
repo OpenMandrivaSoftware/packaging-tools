@@ -1,8 +1,8 @@
 openmandriva/extra-cmake-modules
 openmandriva/attica5 openmandriva/bluez-qt openmandriva/breeze-icons
 openmandriva/networkmanager-qt openmandriva/modemmanager-qt openmandriva/kitemmodels openmandriva/kitemviews openmandriva/karchive openmandriva/kcodecs openmandriva/kconfig openmandriva/kcoreaddons openmandriva/kdbusaddons openmandriva/kguiaddons openmandriva/kidletime openmandriva/kimageformats openmandriva/kplotting openmandriva/kwidgetsaddons openmandriva/kwindowsystem openmandriva/solid openmandriva/sonnet openmandriva/threadweaver openmandriva/ki18n
-openmandriva/kcrash 
-openmandriva/kglobalaccel openmandriva/kjs openmandriva/kdnssd5
+openmandriva/kcrash
+openmandriva/kglobalaccel openmandriva/kjs openmandriva/kdnssd
 openmandriva/kauth openmandriva/kcompletion openmandriva/kdoctools openmandriva/kjobwidgets openmandriva/kunitconversion openmandriva/kpty
 openmandriva/kservice openmandriva/kjsembed openmandriva/kconfigwidgets
 openmandriva/kdesu openmandriva/kemoticons openmandriva/kiconthemes openmandriva/kapidox
