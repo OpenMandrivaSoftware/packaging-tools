@@ -1,9 +1,9 @@
 openmandriva/oxygen-icons openmandriva/akonadi
-openmandriva/akonadi-calendar openmandriva/akonadi-search openmandriva/baloo-widgets openmandriva/dolphin openmandriva/gpgmepp openmandriva/kalarmcal openmandriva/kblog openmandriva/kcalcore openmandriva/kcalutils openmandriva/kcontacts openmandriva/kholidays openmandriva/kidentitymanagement openmandriva/kimap openmandriva/kldap openmandriva/kmailtransport openmandriva/kmbox openmandriva/kmime openmandriva/kontactinterface openmandriva/kpimtextedit openmandriva/ktnef
+openmandriva/akonadi-calendar openmandriva/baloo-widgets openmandriva/dolphin openmandriva/gpgmepp openmandriva/kalarmcal openmandriva/kblog openmandriva/kcalcore openmandriva/kcalutils openmandriva/kcontacts openmandriva/kholidays openmandriva/kimap openmandriva/kldapopenmandriva/kmbox openmandriva/kmime openmandriva/kontactinterface openmandriva/ktnef
 openmandriva/kdelibs
 openmandriva/kdepimlibs
-openmandriva/kdegraphics-mobipocket
-openmandriva/kde-runtime
+openmandriva/kpimtextedit openmandriva/kdegraphics-mobipocket openmandriva/akonadi-search
+openmandriva/kde-runtime openmandriva/kidentitymanagement openmandriva/kmailtransport
 openmandriva/kde-baseapps
 openmandriva/kdepim-runtime
 openmandriva/kdepim
