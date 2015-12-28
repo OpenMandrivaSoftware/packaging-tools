@@ -8,49 +8,6 @@
 # (C) 2015 Bernhard Rosenkränzer <bero@lindev.ch>
 # Released under the terms of the GPLv3
 
-error() {
-	echo "$1 failed to build -- please see above and fix."
-	exit 1
-}
-
-if [ "$#" -lt 1 ]; then
-	echo "Specify the version to update to"
-	exit 1
-fi
-
-VERSION="$1"
-PACKAGES="$(cat $(dirname $0)/kapps.buildlist |sed -e 's,openmandriva/,,g')"
-REALVERSION="${VERSION}"
-
-if [ "$#" -ge 2 ]; then
-	P=""
-	RELEVANT=0
-	for i in $PACKAGES; do
-		[ "$i" = "$2" ] && RELEVANT=1
-		[ "$RELEVANT" = "1" ] && P="$P $i"
-	done
-	PACKAGES="$P"
-fi
-
-for i in $PACKAGES; do
-	rm -rf ${i}
-	git clone git@abf.io:/openmandriva/${i}.git || error $i
-	cd ${i}
-	OLDVERSION="$(grep -i '^Version[[:space:]]*:' *.spec |cut -d: -f2 |xargs echo)"
-	OLDEXP="$(echo ${OLDVERSION} |sed -e 's,\.,\\.,g')"
-	sed -i -e "/${OLDEXP}\.tar/d" .abf.yml
-	PKGVERSION=${VERSION}
-	sed -i -e "s,^\(Version.*:.*\)${OLDEXP},\1${PKGVERSION}," *.spec
-	sed -i -e "s,^\(Release.*:\s*\)[0-9]*,\11," *.spec
-	sudo urpmi --auto --buildrequires *.spec
-	abb build || error $i
-	[ -d RPMS/`uname -m` ] || [ -d RPMS/noarch ] || error $i
-	abb store *-${PKGVERSION}.tar* || error $i
-	git commit -am "Update to ${PKGVERSION}" || error $i
-	git push origin master
-	sudo urpmi --auto RPMS/*/*.rpm
-	cd ..
-	VERSION="${REALVERSION}"
-done
-
-abf chain_build -b master --update-type enhancement -i $(dirname $0)/kapps.buildlist
+echo "$0 is deprecated -- use:"
+echo "update kapps $@"
+exec $(dirname $0)/update kapps "$@"
