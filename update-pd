@@ -57,7 +57,7 @@ for i in $PACKAGES; do
 	PKGVERSION=${VERSION}
 	sed -i -e "s,^\(Version.*:.*\)${OLDEXP},\1${PKGVERSION}," *.spec
 	sed -i -e "s,^\(Release.*:\s*\)[0-9]*,\11," *.spec
-	if [ "$i" = "libkscreen5" -o "$i" = "bluedevil5" -o "$i" = "kde-gtk-config5" -o "$i" = "kscreen5" -o "$i" = "kdeplasma-addons5" ]; then
+	if [ "$i" = "libkscreen5" -o "$i" = "bluedevil5" -o "$i" = "kscreen5" ]; then
 	    wget http://download.kde.org/stable/plasma/$VERSION/${i%?}-$PKGVERSION.tar.xz || error $i
 	    sha1sum ${i%?}-${PKGVERSION}.tar.xz | awk '{print "  "$2": "  $1}' >> .abf.yml
 	else
