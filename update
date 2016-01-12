@@ -47,13 +47,13 @@ for i in $PACKAGES; do
 	fi
 	sed -i -e "s,^\(Version.*:.*\)${OLDEXP},\1${PKGVERSION}," *.spec
 	sed -i -e "s,^\(Release.*:\s*\)[0-9]*,\11," *.spec
-	sudo urpmi --auto --buildrequires *.spec
+	sudo urpmi --auto --no-verify-rpm --buildrequires *.spec
 	abb build || error $i
 	[ -d RPMS/`uname -m` ] || [ -d RPMS/noarch ] || error $i
 	abb store *-${PKGVERSION}.tar* || error $i
 	git commit -am "Update to ${PKGVERSION}" || error $i
 	git push origin master
-	sudo urpmi --auto RPMS/*/*.rpm
+	sudo urpmi --auto --no-verify-rpm RPMS/*/*.rpm
 	cd ..
 	VERSION="${REALVERSION}"
 done
