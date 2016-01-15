@@ -48,7 +48,7 @@ for i in $PACKAGES; do
 	sed -i -e "s,/frameworks/%{version},/frameworks/%(echo %{version} |cut -d. -f1-2),g" *.spec
 	sed -i -e "s,^\(Version.*:.*\)${OLDEXP},\1${VERSION}," *.spec
 	sed -i -e "s,^\(Release.*:\s*\)[0-9]*,\11," *.spec
-	if [ "$i" = "attica5" -o "$i" = "kdnssd5" -o "$i" = "kwallet5" ]; then
+	if [ "$i" = "attica5" -o "$i" = "kwallet5" -o "$i" = "baloo5" -o "$i" = "kfilemetadata5" ]; the
             wget http://download.kde.org/stable/frameworks/$(echo $REALVERSION |cut -d. -f1-2)/${i%?}-$REALVERSION.tar.xz || error $i
             sha1sum ${i%?}-${REALVERSION}.tar.xz | awk '{print "  "$2": "  $1}' >> .abf.yml || error $i
         elif [ "$i" = "kdelibs4support" -o "$i" = "khtml" -o "$i" = "kjs" -o "$i" = "kjsembed" -o "$i" = "kmediaplayer" -o "$i" = "kross" -o "$i" = "krunner" ]; then
@@ -63,6 +63,8 @@ for i in $PACKAGES; do
 	rm -rf $i*-$REALVERSION.tar.xz
 	git commit -am "Update to ${VERSION}" || error $i
 	git push origin master
+	git remote set-url --add --push origin git@github.com:OpenMandrivaAssociation/${i}.git
+	git push
 	popd
 	VERSION="${REALVERSION}"
 done

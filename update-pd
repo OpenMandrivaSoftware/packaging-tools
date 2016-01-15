@@ -69,6 +69,8 @@ for i in $PACKAGES; do
         rm -rf *-$PKGVERSION.tar.xz
 	git commit -am "Update to $PKGVERSION" || error $i
 	git push origin master
+	git remote set-url --add --push origin git@github.com:OpenMandrivaAssociation/${i}.git
+	git push
 	cd ..
 	VERSION="$REALVERSION"
 done

@@ -61,6 +61,8 @@ for i in $PACKAGES; do
 	rm -rf qt*-opensource-src-$PKGVERSION.tar.xz
 	git commit -am "Update to $PKGVERSION final" || error $i
 	git push origin master
+	git remote set-url --add --push origin git@github.com:OpenMandrivaAssociation/${i}.git
+	git push
 #	sudo urpmi --auto RPMS/*/*.rpm
 	cd ..
 	VERSION="${REALVERSION}"
