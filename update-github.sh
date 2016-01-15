@@ -1,4 +1,6 @@
 #!/bin/sh
+# tpgyx@gmail.com
+# This script updates all branches of a package in github
 
 # update repos in github
 for i in `ls -d */`; do
