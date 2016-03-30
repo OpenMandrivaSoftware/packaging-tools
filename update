@@ -42,7 +42,7 @@ for i in $PACKAGES; do
 	OLDEXP="$(echo ${OLDVERSION} |sed -e 's,\.,\\.,g')"
 	sed -i -e "/${OLDEXP}\.tar/d" .abf.yml
 	PKGVERSION=${VERSION}
-	if [ "$i" = "attica5" -o "$i" = "kwallet5" -o "$i" = "baloo5" -o "$i" = "kfilemetadata5" -o "$i" = "kscreen5" ]; then
+	if [ "$i" = "attica5" -o "$i" = "kwallet5" -o "$i" = "baloo5" -o "$i" = "kfilemetadata5" ]; then
 		PKGVERSION=$(echo ${VERSION} |cut -d. -f1).$(expr $(echo ${VERSION} |cut -d. -f2) + 4).$(echo ${VERSION} |cut -d. -f3-)
 	fi
 	sed -i -e "s,^\(Version.*:.*\)${OLDEXP},\1${PKGVERSION}," *.spec
