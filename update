@@ -36,7 +36,7 @@ fi
 
 for i in $PACKAGES; do
 	rm -rf ${i}
-	git clone git@abf.io:/openmandriva/${i}.git || error $i
+	git clone git@github.com:OpenMandrivaAssociation/${i}.git || error $i
 	cd ${i}
 	OLDVERSION="$(grep -i '^Version[[:space:]]*:' *.spec |cut -d: -f2 |xargs echo)"
 	OLDEXP="$(echo ${OLDVERSION} |sed -e 's,\.,\\.,g')"
