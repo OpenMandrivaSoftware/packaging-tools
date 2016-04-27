@@ -19,6 +19,12 @@ if [ "$#" -lt 1 ]; then
 	exit 1
 fi
 
+if [ "$1" = "-a" -o "$1" = "--after" ]; then
+	AFTER=true
+	shift
+else
+	AFTER=false
+fi
 PROJECT="$1"
 VERSION="$2"
 PACKAGES="$(cat $(dirname $0)/$PROJECT.buildlist |sed -e 's,openmandriva/,,g')"
@@ -28,7 +34,12 @@ if [ "$#" -ge 3 ]; then
 	P=""
 	RELEVANT=0
 	for i in $PACKAGES; do
-		[ "$i" = "$3" ] && RELEVANT=1
+		if [ "$i" = "$3" ]; then
+			RELEVANT=1
+			if $AFTER; then
+				continue
+			fi
+		fi
 		[ "$RELEVANT" = "1" ] && P="$P $i"
 	done
 	PACKAGES="$P"
@@ -47,6 +58,9 @@ for i in $PACKAGES; do
 	# follow KF's versioning scheme)
 	sed -i -e "s,^\(Version.*:.*\)${OLDEXP},\1${PKGVERSION}," *.spec
 	sed -i -e "s,^\(Release.*:\s*\)[0-9]*,\11," *.spec
+	# Let's update download URLs while at it...
+	sed -i -e "s,ftp://ftp.kde.org/pub/kde,http://download.kde.org," *.spec
+	#sed -i -e "s,stable/%{ver,stable/applications/%{ver," *.spec
 	sudo urpmi --auto --no-verify-rpm --buildrequires *.spec
 	abb build || error $i
 	[ -d RPMS/`uname -m` ] || [ -d RPMS/noarch ] || error $i
