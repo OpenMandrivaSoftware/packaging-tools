@@ -1,5 +1,6 @@
 openmandriva/akonadi
-openmandriva/kmime openmandriva/kontactinterface openmandriva/kcontacts openmandriva/kholidays openmandriva/kimap openmandriva/kldap openmandriva/kmbox openmandriva/kcalcore openmandriva/kpimtextedit openmandriva/kidentitymanagement openmandriva/kcalutils
+openmandriva/kmime openmandriva/kontactinterface openmandriva/kcontacts openmandriva/kholidays openmandriva/kimap openmandriva/kldap openmandriva/kmbox openmandriva/kcalcore openmandriva/kpimtextedit openmandriva/kidentitymanagement
+openmandriva/kcalutils
 openmandriva/ktnef
 openmandriva/kalarmcal
 openmandriva/kdepimlibs
