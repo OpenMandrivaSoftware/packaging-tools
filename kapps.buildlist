@@ -27,9 +27,10 @@ openmandriva/eventviews
 openmandriva/incidenceeditor
 openmandriva/libksieve
 openmandriva/kdepim
+openmandriva/kdepim-addons
 openmandriva/kde-l10n
 openmandriva/kdewebdev openmandriva/kaccessible
-openmandriva/libkdeedu
+openmandriva/libkdeedu openmandriva/kdeedu-data
 openmandriva/kqtquickcharts openmandriva/artikulate openmandriva/marble openmandriva/libkexiv2 openmandriva/konsole openmandriva/libkipi openmandriva/libkdcraw openmandriva/libksane openmandriva/analitza openmandriva/ark openmandriva/blinken openmandriva/cantor openmandriva/filelight openmandriva/gwenview openmandriva/spectacle openmandriva/jovie openmandriva/kalgebra openmandriva/kalzium openmandriva/kamera openmandriva/kanagram openmandriva/kate openmandriva/kbruch openmandriva/kcalc openmandriva/kcharselect openmandriva/kcolorchooser openmandriva/okular openmandriva/kdegraphics-strigi-analyzer openmandriva/kdegraphics-thumbnailers openmandriva/kdf openmandriva/kfloppy
 openmandriva/libkdegames openmandriva/libkgeomap
 openmandriva/libkmahjongg
