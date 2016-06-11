@@ -27,7 +27,7 @@ else
 fi
 PROJECT="$1"
 VERSION="$2"
-PACKAGES="$(cat $(dirname $0)/$PROJECT.buildlist |sed -e 's,openmandriva/,,g')"
+PACKAGES="$(cat $(dirname $0)/$PROJECT.buildlist |grep -vE '^#' |sed -e 's,openmandriva/,,g')"
 REALVERSION="${VERSION}"
 
 if [ "$#" -ge 3 ]; then
