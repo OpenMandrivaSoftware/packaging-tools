@@ -56,6 +56,10 @@ for i in $PACKAGES; do
 	# PKGVERSION is a separate variable just in case we need to do
 	# preprocessing here again (e.g. earlier versions of baloo didn't
 	# follow KF's versioning scheme)
+	if [ "$OLDVERSION" = "${PKGVERSION}" ]; then
+		echo "$i seems to be up to date already, skipping"
+		continue
+	fi
 	sed -i -e "s,^\(Version.*:.*\)${OLDEXP},\1${PKGVERSION}," *.spec
 	sed -i -e "s,^\(Release.*:\s*\)[0-9]*,\11," *.spec
 	# Let's update download URLs while at it...
