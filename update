@@ -65,6 +65,7 @@ for i in $PACKAGES; do
 	# follow KF's versioning scheme)
 	if [ "$OLDVERSION" = "${PKGVERSION}" ]; then
 		echo "$i seems to be up to date already, skipping"
+		cd ..
 		continue
 	fi
 	sed -i -e "s,^\(Version.*:.*\)${OLDEXP},\1${PKGVERSION}," *.spec
@@ -75,9 +76,12 @@ for i in $PACKAGES; do
 	sudo urpmi --auto --no-verify-rpm --buildrequires *.spec
 	if ${PRERELEASE}; then
 		SCPDIR=ftpopenmandriva@depot.kde.org:/srv/ftp/pub/kde
-		TARNAME=$(echo ${i} |sed -e 's,5$,,')
 		if [ "${i}" = "oxygen-icons" ]; then
 			TARNAME=${i}5
+		elif [ "${i}" = "kgamma5" ]; then
+			TARNAME=${i}
+		else
+			TARNAME=$(echo ${i} |sed -e 's,5$,,')
 		fi
 		if [ "${PROJECT}" = "kf" ]; then
 			SCPDIR=$SCPDIR/stable/frameworks/$(echo ${VERSION} |sed -e 's,\.0$,,')
@@ -97,4 +101,4 @@ for i in $PACKAGES; do
 	VERSION="${REALVERSION}"
 done
 
-abf chain_build -b master --update-type enhancement -i $(dirname $0)/$PROJECT.buildlist
+abf chain_build -b master --update-type enhancement -i $PROJECT.buildlist
