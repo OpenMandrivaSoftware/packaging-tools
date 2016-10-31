@@ -1,17 +1,19 @@
 openmandriva/akonadi openmandriva/khelpcenter
-openmandriva/kmime openmandriva/kontactinterface openmandriva/kcontacts openmandriva/kholidays openmandriva/kimap openmandriva/kldap openmandriva/kmbox openmandriva/kcalcore openmandriva/kpimtextedit
-openmandriva/kidentitymanagement
+openmandriva/kmime openmandriva/kontactinterface openmandriva/kcontacts openmandriva/kholidays openmandriva/kimap
+openmandriva/kmbox openmandriva/kcalcore openmandriva/kpimtextedit
+openmandriva/kldap openmandriva/kidentitymanagement
 openmandriva/kcalutils
 openmandriva/ktnef
 openmandriva/kalarmcal
-openmandriva/kdepimlibs
+openmandriva/akonadi-mime
+openmandriva/akonadi-contacts openmandriva/akonadi-notes openmandriva/akonadi-calendar openmandriva/akonadi-search
 openmandriva/baloo-widgets openmandriva/dolphin openmandriva/gpgmepp
 openmandriva/syndication
 openmandriva/kblog openmandriva/kdelibs
-openmandriva/kdegraphics-mobipocket openmandriva/akonadi-search
+openmandriva/kdegraphics-mobipocket
 openmandriva/kde-runtime
 openmandriva/kde-baseapps
-openmandriva/kmailtransport openmandriva/akonadi-calendar
+openmandriva/kmailtransport
 openmandriva/kdepim-runtime
 openmandriva/libkdepim
 openmandriva/pimcommon
