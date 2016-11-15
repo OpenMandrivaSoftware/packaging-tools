@@ -5,7 +5,8 @@ openmandriva/kldap openmandriva/kidentitymanagement
 openmandriva/kcalutils
 openmandriva/ktnef
 openmandriva/kalarmcal
-openmandriva/akonadi-mime
+openmandriva/akonadi-mime 
+openmandriva/kmailtransport
 openmandriva/akonadi-contacts openmandriva/akonadi-notes openmandriva/akonadi-calendar openmandriva/akonadi-search
 openmandriva/baloo-widgets openmandriva/dolphin openmandriva/gpgmepp
 openmandriva/syndication
@@ -13,7 +14,6 @@ openmandriva/kblog openmandriva/kdelibs
 openmandriva/kdegraphics-mobipocket
 openmandriva/kde-runtime
 openmandriva/kde-baseapps
-openmandriva/kmailtransport
 openmandriva/kdepim-runtime
 openmandriva/libkdepim
 openmandriva/pimcommon
