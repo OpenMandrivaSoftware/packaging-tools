@@ -88,6 +88,8 @@ for i in $PACKAGES; do
 			grep -q portingAids *.spec && SCPDIR="${SCPDIR}/portingAids"
 		elif [ "${PROJECT}" = "pd" ]; then
 			SCPDIR=$SCPDIR/stable/plasma/${VERSION}
+		elif [ "${PROJECT}" = "kapps" ]; then
+			SCPDIR=$SCPDIR/stable/applications/${VERSION}/src
 		fi
 		scp ${SCPDIR}/${TARNAME}-${PKGVERSION}.tar.xz . || :
 	fi
