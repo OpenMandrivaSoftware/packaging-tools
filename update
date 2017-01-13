@@ -63,6 +63,7 @@ for i in $PACKAGES; do
 	# PKGVERSION is a separate variable just in case we need to do
 	# preprocessing here again (e.g. earlier versions of baloo didn't
 	# follow KF's versioning scheme)
+	[ "$i" = "kdelibs" ] && PKGVERSION=4.14.28
 	if [ "$OLDVERSION" = "${PKGVERSION}" ]; then
 		echo "$i seems to be up to date already, skipping"
 		cd ..
@@ -88,6 +89,8 @@ for i in $PACKAGES; do
 			grep -q portingAids *.spec && SCPDIR="${SCPDIR}/portingAids"
 		elif [ "${PROJECT}" = "pd" ]; then
 			SCPDIR=$SCPDIR/stable/plasma/${VERSION}
+		elif [ "${PROJECT}" = "kapps" ]; then
+			SCPDIR=$SCPDIR/stable/applications/${VERSION}/src
 		fi
 		scp ${SCPDIR}/${TARNAME}-${PKGVERSION}.tar.xz . || :
 	fi
