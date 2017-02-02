@@ -9,5 +9,4 @@ openmandriva/oxygen openmandriva/kwayland-integration openmandriva/kwin openmand
 openmandriva/plasma-workspace
 openmandriva/plasma-desktop
 openmandriva/plasma-nm
-openmandriva/plasma-workspace-wallpapers
-openmandriva/kdeplasma-addons openmandriva/polkit-kde-agent-1 openmandriva/powerdevil openmandriva/sddm-kcm openmandriva/systemsettings openmandriva/kscreenlocker openmandriva/plasma-sdk openmandriva/plasma-integration
+openmandriva/kdeplasma-addons openmandriva/polkit-kde-agent-1 openmandriva/powerdevil openmandriva/sddm-kcm openmandriva/systemsettings openmandriva/kscreenlocker openmandriva/plasma-sdk openmandriva/plasma-integration openmandriva/plasma-workspace-wallpapers
