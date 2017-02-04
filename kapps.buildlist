@@ -23,7 +23,6 @@ openmandriva/messagelib
 openmandriva/mailimporter
 openmandriva/mailcommon
 openmandriva/calendarsupport
-openmandriva/kdgantt2
 openmandriva/eventviews
 openmandriva/incidenceeditor
 openmandriva/libksieve
