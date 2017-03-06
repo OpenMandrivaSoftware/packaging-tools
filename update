@@ -76,7 +76,7 @@ for i in $PACKAGES; do
 	#sed -i -e "s,stable/%{ver,stable/applications/%{ver," *.spec
 	sudo urpmi --auto --no-verify-rpm --buildrequires *.spec
 	if ${PRERELEASE}; then
-		SCPDIR=ftpopenmandriva@depot.kde.org:/srv/ftp/pub/kde
+		SCPDIR=ftpopenmandriva@racnoss.kde.org:/srv/archives/ftp
 		if [ "${i}" = "oxygen-icons" ]; then
 			TARNAME=${i}5
 		elif [ "${i}" = "kgamma5" ]; then
