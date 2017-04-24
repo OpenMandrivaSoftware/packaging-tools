@@ -19,18 +19,22 @@ if [ "$#" -lt 1 ]; then
 	exit 1
 fi
 
-if [ "$1" = "-a" -o "$1" = "--after" ]; then
-	AFTER=true
+AFTER=false
+PRERELEASE=false
+while [ "$(echo $1 |cut -b1)" = "-" ]; do
+	case $1 in
+	-a|--after)
+		AFTER=true
+		;;
+	-p|--prerelease)
+		PRERELEASE=true
+		;;
+	*)
+		echo "WARNING: Unknown option $1"
+		;;
+	esac
 	shift
-else
-	AFTER=false
-fi
-if [ "$1" = "-p" -o "$1" = "--prerelease" ]; then
-	PRERELEASE=true
-	shift
-else
-	PRERELEASE=false
-fi
+done
 
 PROJECT="$1"
 VERSION="$2"
