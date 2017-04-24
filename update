@@ -63,7 +63,7 @@ for i in $PACKAGES; do
 	# PKGVERSION is a separate variable just in case we need to do
 	# preprocessing here again (e.g. earlier versions of baloo didn't
 	# follow KF's versioning scheme)
-	[ "$i" = "kdelibs" ] && PKGVERSION=4.14.28
+	[ "$i" = "kdelibs" ] && PKGVERSION=4.14.31
 	if [ "$OLDVERSION" = "${PKGVERSION}" ]; then
 		echo "$i seems to be up to date already, skipping"
 		cd ..
