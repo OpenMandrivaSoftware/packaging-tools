@@ -4,8 +4,8 @@ openmandriva/qt5-qtdeclarative
 openmandriva/qt5-qtscript
 openmandriva/qt5-qtsvg
 openmandriva/qt5-qtmultimedia
-openmandriva/qt5-qtdoc
 openmandriva/qt5-qttools
+openmandriva/qt5-qtdoc
 openmandriva/qt5-qtquick1 openmandriva/qt5-qtquickcontrols openmandriva/qt5-qtquickcontrols2 openmandriva/qt5-qtlocation openmandriva/qt5-qtimageformats openmandriva/qt5-qtgraphicaleffects openmandriva/qt5-qtenginio openmandriva/qt5-qtconnectivity openmandriva/qt5-qtx11extras openmandriva/qt5-qtserialport openmandriva/qt5-qtsensors openmandriva/qt5-qtwayland openmandriva/qt5-qtwebchannel openmandriva/qt5-qtwebsockets
 openmandriva/qt5-qtwebkit
 openmandriva/qt5-qtwebengine
