@@ -98,6 +98,7 @@ for i in $PACKAGES; do
 	fi
 	sed -i -e "s,^\(Version.*:.*\)${OLDEXP},\1${PKGVERSION}," *.spec
 	sed -i -e "s,^\(Release.*:\s*\)[0-9]*,\11," *.spec
+	sed -i -e "s,^\(Release.*:\s*\)[0-9]*\.%{beta}\.[0-9]*,\10.%{beta}.1," *.spec
 	if [ -n "$BETA" ]; then
 		sed -i -e "s,^%define beta .*,%define beta $BETA," *.spec
 	else
@@ -131,10 +132,9 @@ for i in $PACKAGES; do
 	abb build || error $i
 	[ -d RPMS/`uname -m` ] || [ -d RPMS/noarch ] || error $i
 	if [ -n "$BETA" ]; then
-		abb store *-${PKGVERSION}-${BETA}.tar* || error $i
-	else
-		abb store *-${PKGVERSION}.tar* || error $i
+		PKGVERSION="${PKGVERSION}-${BETA}"
 	fi
+	abb store *-${PKGVERSION}.tar* || error $i
 	git commit -am "Update to ${PKGVERSION}" || error $i
 	git push origin master
 	sudo urpmi --auto --no-verify-rpm RPMS/*/*.rpm
