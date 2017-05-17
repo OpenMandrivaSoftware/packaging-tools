@@ -21,10 +21,15 @@ fi
 
 AFTER=false
 PRERELEASE=false
+BETA=""
 while [ "$(echo $1 |cut -b1)" = "-" ]; do
 	case $1 in
 	-a|--after)
 		AFTER=true
+		;;
+	-b|--beta)
+		shift
+		BETA="$1"
 		;;
 	-p|--prerelease)
 		PRERELEASE=true
@@ -69,12 +74,29 @@ for i in $PACKAGES; do
 	# follow KF's versioning scheme)
 	[ "$i" = "kdelibs" ] && PKGVERSION=4.14.31
 	if [ "$OLDVERSION" = "${PKGVERSION}" ]; then
-		echo "$i seems to be up to date already, skipping"
-		cd ..
-		continue
+		if grep -q '^%define beta' *.spec; then
+			if [ -n "$BETA" ] && grep -q "^%define beta $BETA\$" *.spec; then
+				echo "$i seems to be up to date already, skipping"
+				cd ..
+				continue
+			elif grep -q '^%define beta %{nil}' *.spec; then
+				echo "$i seems to be up to date already, skipping"
+				cd ..
+				continue
+			fi
+		else
+			echo "$i seems to be up to date already, skipping"
+			cd ..
+			continue
+		fi
 	fi
 	sed -i -e "s,^\(Version.*:.*\)${OLDEXP},\1${PKGVERSION}," *.spec
 	sed -i -e "s,^\(Release.*:\s*\)[0-9]*,\11," *.spec
+	if [ -n "$BETA" ]; then
+		sed -i -e "s,^%define beta .*,%define beta $BETA," *.spec
+	else
+		sed -i -e "s,^%define beta .*,%define beta %{nil}," *.spec
+	fi
 	# Let's update download URLs while at it...
 	sed -i -e "s,ftp://ftp.kde.org/pub/kde,http://download.kde.org," *.spec
 	#sed -i -e "s,stable/%{ver,stable/applications/%{ver," *.spec
