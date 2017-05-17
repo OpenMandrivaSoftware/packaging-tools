@@ -67,6 +67,12 @@ for i in $PACKAGES; do
 	cd ${i}
 	OLDVERSION="$(grep -i '^Version[[:space:]]*:' *.spec |cut -d: -f2 |xargs echo)"
 	OLDEXP="$(echo ${OLDVERSION} |sed -e 's,\.,\\.,g')"
+	if grep -q "^%define beta " *.spec; then
+		OLDBETA="$(cat *.spec |grep "^%define beta " |sed -e 's,^%define beta ,,')"
+		if [ "${OLDBETA}" != "%{nil}" ]; then
+			OLDEXP="${OLDEXP}-${OLDBETA}"
+		fi
+	fi
 	sed -i -e "/${OLDEXP}\.tar/d" .abf.yml
 	PKGVERSION=${VERSION}
 	# PKGVERSION is a separate variable just in case we need to do
@@ -124,7 +130,11 @@ for i in $PACKAGES; do
 	fi
 	abb build || error $i
 	[ -d RPMS/`uname -m` ] || [ -d RPMS/noarch ] || error $i
-	abb store *-${PKGVERSION}.tar* || error $i
+	if [ -n "$BETA" ]; then
+		abb store *-${PKGVERSION}-${BETA}.tar* || error $i
+	else
+		abb store *-${PKGVERSION}.tar* || error $i
+	fi
 	git commit -am "Update to ${PKGVERSION}" || error $i
 	git push origin master
 	sudo urpmi --auto --no-verify-rpm RPMS/*/*.rpm
