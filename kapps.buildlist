@@ -9,6 +9,16 @@ openmandriva/akonadi-mime
 openmandriva/kmailtransport
 openmandriva/akonadi-contacts openmandriva/akonadi-notes
 openmandriva/akonadi-calendar openmandriva/akonadi-search
+openmandriva/libkdepim
+openmandriva/pimcommon
+openmandriva/grantleetheme
+openmandriva/libkleo
+openmandriva/kdepim-apps-libs
+openmandriva/calendarsupport
+openmandriva/mailimporter
+openmandriva/libgravatar
+openmandriva/messagelib
+openmandriva/mailcommon
 openmandriva/baloo-widgets openmandriva/dolphin openmandriva/akonadi-calendar-tools openmandriva/akonadi-import-wizard
 openmandriva/syndication
 openmandriva/kblog openmandriva/kdelibs
@@ -17,15 +27,6 @@ openmandriva/kde-runtime
 openmandriva/kdav
 openmandriva/libkgapi
 openmandriva/kdepim-runtime
-openmandriva/libkdepim
-openmandriva/pimcommon
-openmandriva/libgravatar
-openmandriva/libkleo openmandriva/grantleetheme
-openmandriva/kdepim-apps-libs
-openmandriva/messagelib
-openmandriva/mailimporter
-openmandriva/mailcommon
-openmandriva/calendarsupport
 openmandriva/eventviews
 openmandriva/incidenceeditor
 openmandriva/libksieve
