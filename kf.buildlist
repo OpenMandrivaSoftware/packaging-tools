@@ -19,4 +19,4 @@ openmandriva/kcmutils openmandriva/knotifyconfig openmandriva/syntax-highlightin
 openmandriva/kactivities openmandriva/frameworkintegration openmandriva/khtml openmandriva/ktexteditor openmandriva/kdewebkit openmandriva/kross
 openmandriva/kdesignerplugin openmandriva/plasma-framework openmandriva/kactivities-stats
 openmandriva/krunner openmandriva/kdelibs4support openmandriva/kfilemetadata5
-openmandriva/baloo5
+openmandriva/baloo5 openmandriva/kirigami
