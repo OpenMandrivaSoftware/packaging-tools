@@ -74,6 +74,10 @@ for i in $PACKAGES; do
 		fi
 	fi
 	sed -i -e "/${OLDEXP}\.tar/d" .abf.yml
+	if [ "$PROJECT" = "qt" ]; then
+		# Qt 5.10.0-beta2 changed tarball filenames... -beta2 is now only indicated in the directory
+		sed -i -E 's,(%define qttarballdir .*)-%\{beta\},\1,' *.spec
+	fi
 	PKGVERSION=${VERSION}
 	# PKGVERSION is a separate variable just in case we need to do
 	# preprocessing here again (e.g. earlier versions of baloo didn't
@@ -131,7 +135,7 @@ for i in $PACKAGES; do
 	fi
 	abb build || error $i
 	[ -d RPMS/`uname -m` ] || [ -d RPMS/noarch ] || error $i
-	if [ -n "$BETA" ]; then
+	if [ -n "$BETA" -a "$PROJECT" != "qt" ]; then
 		PKGVERSION="${PKGVERSION}-${BETA}"
 	fi
 	abb store *-${PKGVERSION}.tar* || error $i
