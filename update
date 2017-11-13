@@ -70,13 +70,17 @@ for i in $PACKAGES; do
 	if grep -q "^%define beta " *.spec; then
 		OLDBETA="$(cat *.spec |grep "^%define beta " |sed -e 's,^%define beta ,,')"
 		if [ "${OLDBETA}" != "%{nil}" ]; then
-			OLDEXP="${OLDEXP}-${OLDBETA}"
+			if [ "$PROJECT" != "qt" ]; then
+				OLDEXP="${OLDEXP}-${OLDBETA}"
+			fi
 		fi
 	fi
 	sed -i -e "/${OLDEXP}\.tar/d" .abf.yml
 	if [ "$PROJECT" = "qt" ]; then
 		# Qt 5.10.0-beta2 changed tarball filenames... -beta2 is now only indicated in the directory
 		sed -i -E 's,(%define qttarballdir .*)-%\{beta\},\1,' *.spec
+		# And as of -beta4, the filename is back to what it used to be...
+		sed -i -E '0,/^%define qttarballdir/s/(qttarballdir .*)/\1-%\{beta\}/' *.spec
 	fi
 	PKGVERSION=${VERSION}
 	# PKGVERSION is a separate variable just in case we need to do
@@ -135,7 +139,7 @@ for i in $PACKAGES; do
 	fi
 	abb build || error $i
 	[ -d RPMS/`uname -m` ] || [ -d RPMS/noarch ] || error $i
-	if [ -n "$BETA" -a "$PROJECT" != "qt" ]; then
+	if [ -n "$BETA" ]; then
 		PKGVERSION="${PKGVERSION}-${BETA}"
 	fi
 	abb store *-${PKGVERSION}.tar* || error $i
