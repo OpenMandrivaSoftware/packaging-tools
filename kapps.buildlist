@@ -21,9 +21,8 @@ openmandriva/messagelib
 openmandriva/mailcommon
 openmandriva/baloo-widgets openmandriva/dolphin openmandriva/akonadi-calendar-tools openmandriva/akonadi-import-wizard
 openmandriva/syndication
-openmandriva/kblog openmandriva/kdelibs
+openmandriva/kblog
 openmandriva/kdegraphics-mobipocket
-openmandriva/kde-runtime
 openmandriva/kdav
 openmandriva/libkgapi
 openmandriva/kdepim-runtime
