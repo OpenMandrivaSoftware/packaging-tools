@@ -77,10 +77,11 @@ for i in $PACKAGES; do
 	fi
 	sed -i -e "/${OLDEXP}\.tar/d" .abf.yml
 	if [ "$PROJECT" = "qt" ]; then
-		# Qt 5.10.0-beta2 changed tarball filenames... -beta2 is now only indicated in the directory
-		sed -i -E 's,(%define qttarballdir .*)-%\{beta\},\1,' *.spec
-		# And as of -beta4, the filename is back to what it used to be...
-		sed -i -E '0,/^%define qttarballdir/s/(qttarballdir .*)/\1-%\{beta\}/' *.spec
+		# Qt 5.10.0-rc1 is somewhat misnamed -- it's rc1 in the tarballs
+		# and filenames, but just "rc" in the directory name...
+		# Fortunately that's easy to adjust for (and equally easy to revert
+		# when 5.11.0-alpha1 or so is back to normal...)
+		sed -i -e 's#/%{version}-%{beta}/#/%{version}-%(echo %{beta} |sed -e "s,1$,,")/#' *.spec
 	fi
 	PKGVERSION=${VERSION}
 	# PKGVERSION is a separate variable just in case we need to do
