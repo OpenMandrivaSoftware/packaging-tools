@@ -125,6 +125,8 @@ for i in $PACKAGES; do
 			TARNAME=${i}5
 		elif [ "${i}" = "kgamma5" ]; then
 			TARNAME=${i}
+		elif [ "${i}" = "kirigami" ]; then
+			TARNAME=${i}2
 		else
 			TARNAME=$(echo ${i} |sed -e 's,5$,,')
 		fi
