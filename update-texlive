@@ -1,0 +1,144 @@
+#!/bin/sh
+# Automatically update all texlive related packages that are based on
+# TeXLive's tlnet CTAN repository
+#
+# (C) 2017 Bernhard Rosenkränzer <bero@lindev.ch>
+#
+# TeXLive extra packages are a bit of a mess -- upstream releases tarballs
+# with unversioned names at
+# https://ctan.org/tex-archive/systems/texlive/tlnet/archive
+# So we have to check file dates to determine when something has been updated...
+#
+# To make matters worse, some packages are versioned (just not their filenames),
+# so we have to look up versions at https://ctan.org/pkg/$PACKAGENAME
+
+update() {
+	local D=$(mktemp -d /tmp/autoupdate-$1.XXXXXX)
+	if [ -z "$D" ]; then
+		echo "$1: Error creating temporary directory"
+		return
+	fi
+	pushd "$D"
+	git clone git@github.com:OpenMandrivaAssociation/$1.git
+	cd $1
+	# Make sure we get fresh sources...
+	echo 'sources:' >.abf.yml
+	# Some old texlive packages are REALLY REALLY evil...
+	ls *.tar.* &>/dev/null && git rm *.tar.*
+	sudo urpmi --buildrequires --no-verify-rpm --force --auto *.spec
+	sed -i -e "s,^\(Version.*:\s*\).*,\1$2," *.spec
+	sed -i -e "s,^\(Release.*:\s*\)[0-9]*,\11," *.spec
+	sed -i -e "s,^\(Release.*:\s*\)[0-9]*\.%{beta}\.[0-9]*,\10.%{beta}.1," *.spec
+	if abb build 2>&1 |tee BUILD.LOG |grep -q 'RPM build errors:'; then
+		echo "$1: failed updating to $2"
+		return
+	fi
+	abb store *.tar.*
+	# Adding despite the "-a" flag to "git commit" for old
+	# packages that didn't use .abf.yml
+	git add .abf.yml
+	git commit -am "Update to $2"
+	git push origin master
+	if ! abf build -p openmandriva/$1 -b master --auto-publish --update-type enhancement; then
+		echo "$1: succeeded locally but failed to build in abf"
+	else
+		echo "$1: OK"
+	fi
+	popd
+	rm -rf "$D"
+}
+
+rm -f /tmp/tlnet.list
+curl -s -L ftp://ctan.org/pub/tex/systems/texlive/tlnet/archive/ >/tmp/tlnet.list
+urpmq --list |grep ^texlive |xargs urpmq --sourcerpm |cut -d' ' -f2- |rev |cut -d- -f2- |rev |sort |uniq |while read r; do
+	PACKAGE=$(echo $r |rev |cut -d- -f2- |rev)
+	OURVERSION=$(echo $r |rev |cut -d- -f1 |rev)
+	NAME=$(echo $PACKAGE |sed -e 's,^texlive-,,')
+	echo -n "$PACKAGE $OURVERSION: "
+	PKGINFO="$(grep -iE "^........................................................$NAME\.tar\.xz" /tmp/tlnet.list |cut -b44-)"
+	if [ -n "$PKGINFO" ]; then
+		MONTH=$(echo $PKGINFO |cut -b1-3)
+		case $MONTH in
+		Jan)
+			MONTH=01
+			;;
+		Feb)
+			MONTH=02
+			;;
+		Mar)
+			MONTH=03
+			;;
+		Apr)
+			MONTH=04
+			;;
+		May)
+			MONTH=05
+			;;
+		Jun)
+			MONTH=06
+			;;
+		Jul)
+			MONTH=07
+			;;
+		Aug)
+			MONTH=08
+			;;
+		Sep)
+			MONTH=09
+			;;
+		Oct)
+			MONTH=10
+			;;
+		Nov)
+			MONTH=11
+			;;
+		Dec)
+			MONTH=12
+			;;
+		*)
+			echo "Bogus month $MONTH for $PACKAGE" >&2
+			continue
+		esac
+		DAY=$(echo $PKGINFO |cut -d' ' -f2 |sed -e 's,^ ,0,')
+		YEAR=$(echo $PKGINFO |cut -d' ' -f3)
+		if echo $YEAR |grep -q ':'; then
+			YEAR=$(date +%Y)
+			[ $MONTH$DAY -gt $(date +%m%d) ] && YEAR=$((YEAR-1))
+		fi
+
+		THEIRVERSION="$(curl -s -L https://ctan.org/pkg/$NAME |sed -e 's,&shy;,,g' |grep -A1 '<td>Version</td>' |tail -n1 |sed -e 's,[^>]*>,,;s,<.*,,;s,^ ,,g;s, $,,g;s,-,,g;s,\.$,,g' |cut -d' ' -f1)"
+		if echo $OURVERSION |grep -qE '^[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]$'; then
+			if [ -n "$THEIRVERSION" ] && echo $THEIRVERSION |grep -q '\.'; then
+				echo "Updating to $THEIRVERSION and switching version scheme"
+				update $PACKAGE $THEIRVERSION
+			else
+				if [ -n "$THEIRVERSION" ]; then
+					echo "Maybe switch version scheme: $THEIRVERSION?"
+				else
+					echo "Versioned by year: $OURVERSION -> $YEAR$MONTH$DAY"
+				fi
+				if [ "$OURVERSION" -lt "$YEAR$MONTH$DAY" ]; then
+					echo "Updating to $YEAR$MONTH$DAY"
+					update $PACKAGE $YEAR$MONTH$DAY
+				elif [ "$OURVERSION" -gt "$YEAR$MONTH$DAY" ]; then
+					echo "Please check our version is actually more recent than upstream, seems wrong"
+				else
+					echo "Up to date"
+				fi
+			fi
+		else
+			if [ -z "$THEIRVERSION" ]; then
+				echo "Can't determine upstream version"
+			else
+				if [ "$OURVERSION" = "$THEIRVERSION" ]; then
+					echo "Up to date"
+				else
+					echo "Updating to $THEIRVERSION"
+					update $PACKAGE $THEIRVERSION
+				fi
+			fi
+		fi
+	else
+		echo "Not in tlnet"
+	fi
+done
