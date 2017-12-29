@@ -82,6 +82,11 @@ for i in $PACKAGES; do
 		# Fortunately that's easy to adjust for (and equally easy to revert
 		# when 5.11.0-alpha1 or so is back to normal...)
 		sed -i -e 's#/%{version}-%{beta}/#/%{version}-%(echo %{beta} |sed -e "s,1$,,")/#' *.spec
+		# Qt 5.10.0 renames the tarballs from *-opensource-* to *-everywhere-*
+		sed -i -e 's#-opensource-#-everywhere-#g' *.spec
+		# And a bug in earlier update scripts left some old -rc tarballs in place...
+		sed -i -e "/-beta[0-9]*\.tar/d" .abf.yml
+		sed -i -e "/-rc[0-9]*\.tar/d" .abf.yml
 	fi
 	PKGVERSION=${VERSION}
 	# PKGVERSION is a separate variable just in case we need to do
