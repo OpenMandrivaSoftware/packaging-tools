@@ -1,0 +1,401 @@
+#!/bin/sh
+
+# Expand $2 to $1 digits
+# Example: digits 3 4
+# Result: 004
+digits() {
+	local i
+	echo -n $(
+	 ( for i in `seq 1 $1`; do
+		echo -n 0;
+	done ; echo -n $2 ) | rev | cut -b1-$1 | rev)
+}
+
+debug() {
+	[ -n "$DEBUG" ] && echo "$@" >&2
+}
+
+# Determine the latest of a list of versions
+# Current assumptions for simplicity that might cause problems
+# in the future: Version numbers are fully numeric (no 1.2.3a),
+# and consist of at most 4 components of at most 3 digits each.
+#
+# Example: latest 1.2.3 1.2.3.1 1.1.4.99 0.99 1
+# Result: 1.2.3.1
+latest() {
+	local LATEST=0
+	local LATESTID=0
+	local VERSION
+	local VERSIONID
+	for VERSION in "$@"; do
+		if echo $VERSION |grep -q '\.'; then
+			VERSIONID=$(digits 4 $(echo $VERSION |cut -d. -f1))$(digits 4 $(echo $VERSION |cut -d. -f2))$(digits 4 $(echo $VERSION |cut -d. -f3))$(digits 4 $(echo $VERSION |cut -d. -f4))
+		else
+			VERSIONID=$VERSION
+		fi
+		[ $VERSIONID -lt $LATESTID ] && continue
+		LATEST=$VERSION
+		LATESTID=$VERSIONID
+	done
+	echo -n $LATEST
+}
+
+specname() {
+	case $1 in
+	NetworkManager|ModemManager)
+		echo -n $(echo $1 |tr A-Z a-z)
+		;;
+	imagemagick6)
+		echo -n ImageMagick6
+		;;
+	*)
+		echo -n $1
+		;;
+	esac
+}
+
+ourVersion() {
+	local VERSION
+	case $1 in
+	*)
+		# default: Assume Version: is set to a real number and not some
+		# macro magic in the spec file...
+		VERSION=$(curl -s -L https://github.com/OpenMandrivaAssociation/$1/raw/master/$(specname $1).spec |grep -iE '^Version[[:space:]]*:' |head -n1 |cut -d: -f2- |xargs echo -n)
+		if [ -z "$VERSION" ]; then
+			echo -n ERROR
+		else
+			echo -n $VERSION
+		fi
+		;;
+	esac
+}
+
+upstreamVersion() {
+	local SOURCE
+	local PKGNAME
+	local EXCLUDE
+	local VERSIONS
+	local IGNOREODD
+	local EXPR=""
+	local EXTRA=""
+	case $1 in
+	acpica)
+		echo -n $(curl -s -L -A 'Mozilla/5.0 (X11; Linux x86_64)' https://acpica.org/downloads |grep -E "href=.*acpica-unix-" |sed -e "s,.*acpica-unix-,,;s,\.tar.*,,")
+		;;
+	chromium-browser-*)
+		local CHANNEL=$(echo $1 |cut -d- -f3)
+		VERSIONS=$(curl -s -L "https://omahaproxy.appspot.com/all?os=linux&channel=$CHANNEL" |tail -n1 |cut -d, -f3)
+		echo -n $VERSIONS
+		;;
+	hplip)
+		# Should be a normal sourceforge download, but they never
+		# update the "current version" link - so we have to check
+		# their website
+		echo -n $(curl -s -L https://developers.hp.com/hp-linux-imaging-and-printing |grep "The current version" |sed -e 's,.*version ,,;s, .*,,' |rev |cut -b2- |rev)
+		;;
+	indilib)
+		# Special case because package name doesn't match
+		# upstream package name and it uses _ instead of -
+		# to separate file name from version number
+		echo -n $(curl -s -L -A 'Mozilla/5.0 (X11; Linux x86_64)' https://sourceforge.net/projects/indi/files/ |grep "Download libindi_" |sed -e "s,.*Download libindi_,,;s,\.tar.*,,")
+		;;
+	lame)
+		echo -n $(curl -s -L http://lame.sf.net |grep 'download.php">v' |sed -e 's,.*v,,;s,<.*,,')
+		;;
+	libraw)
+		latest $(curl -s -L 'https://www.libraw.org/download' |grep -E 'LibRaw-[0-9\.]*'\.tar |sed -e 's,.*data/,,;s,>.*,,;s,LibRaw-,,;s,\.tar.*,,')
+		;;
+	mariadb)
+		# Got to parse their website... No directory listing and too many branches
+		echo -n $(curl -s -L https://downloads.mariadb.org/mariadb/ |grep "Stable Now" |sed -e 's,.*Download ,,;s, .*,,')
+		;;
+	nss)
+		VERSIONS="$(curl -s -L http://ftp.mozilla.org/pub/security/nss/releases/ |grep NSS_ |cut -d'>' -f3- |cut -d_ -f2- |sed -e 's,_RTM.*,,' |grep -v WITH |sed -e 's,_,.,g')"
+		latest $VERSIONS
+		;;
+	cmake)
+		echo -n $(curl -s -L https://cmake.org/download/ |grep -E "files/v.*\.tar\.gz" |head -n1 |sed -e "s,.*$1-,,;s,\.tar.*,,")
+		;;
+	wine)
+		# Wine is a bit of a special case because we can update it only when
+		# the corresponding wine-staging patchset is released as well...
+		echo -n $(curl -s -L https://raw.githubusercontent.com/wine-compholio/wine-staging/master/patches/patchinstall.sh |grep 'echo "Wine Staging' |cut -d'"' -f2 |cut -d' ' -f3)
+		;;
+	*)
+		# default: Assume Source0: or Source: points at a file in a
+		# listable directory containing all available versions
+		# Unless it's sourceforge, in which case we have to look for
+		# the download link while faking a desktop browser
+		# (sourceforge sends links to Windows files unless it
+		# sees a Linux desktop browser)
+		EXCLUDE=nothing
+		case $1 in
+		atk1.0|glibmm2.4|glib2.0|libcroco0.6|gvfs)
+			PKGNAME=$(echo $1 |sed -e 's,[0-9].*,,')
+			IGNOREODD=true
+			;;
+		atkmm|at-spi2-*|dconf|librsvg|NetworkManager|ModemManager)
+			IGNOREODD=true
+			;;
+		bmake)
+			# Their script must have gone wrong -- one zero too
+			# much in the 2009/10/07 snapshot, causes version
+			# comparison to mess up
+			EXCLUDE=200910007
+			;;
+		imagemagick|imagemagick6)
+			PKGNAME=ImageMagick
+			EXTRA='s,([0-9]+)-([0-9]+),\1.\2,'
+			[ "$1" = "imagemagick6" ] && EXCLUDE='^[7-9].*'
+			;;
+		ladspa)
+			PKGNAME=ladspa_sdk
+			EXPR=${PKGNAME}_
+			;;
+		libsigc-2.0)
+			PKGNAME=libsigc\\+\\+
+			IGNOREODD=true
+			;;
+		libtiff)
+			PKGNAME=tiff
+			;;
+		nano)
+			SOURCE=https://nano-editor.org/download.php
+			;;
+		python-curl)
+			# Probably the same for a few other yet to be located
+			# packages -- so using sed instead of just hardcoding the results
+			PKGNAME=$(echo $1 |sed -e 's,python-,py,')
+			;;
+		python-reportlab)
+			# Probably the same for a few other yet to be located
+			# packages -- so using sed instead of just hardcoding the results
+			PKGNAME=$(echo $1 |sed -e 's,python-,,')
+			;;
+		python-twisted)
+			PKGNAME=Twisted
+			;;
+		sope)
+			SOURCE=https://sogo.nu/files/downloads/SOGo/Sources/
+			PKGNAME=SOPE
+			;;
+		sogo)
+			SOURCE=https://sogo.nu/files/downloads/SOGo/Sources/
+			PKGNAME=SOGo
+			# There are a few 2007.x.y versions named after release
+			# date -- but 2.x and 3.x > 2007.x
+			EXCLUDE=2007
+			;;
+		suitesparse)
+			PKGNAME=SuiteSparse
+			;;
+		x11-driver-*)
+			PKGNAME=xf86-$(echo $1 |cut -d- -f3-)
+			;;
+		x11-data-bitmaps)
+			PKGNAME=xbitmaps
+			;;
+		libfs|libice|libsm)
+			PKGNAME=lib$(echo $1 |cut -b4- |tr 'a-z' 'A-Z')
+			;;
+		libxvmc)
+			PKGNAME=libXvMC
+			;;
+		libxtrap)
+			PKGNAME=libXTrap
+			;;
+		libxscrnsaver)
+			PKGNAME=libXScrnSaver
+			;;
+		libxkb*|libxcb*|libxshmfence)
+			# just make sure it doesn't get into the libx* transformations
+			;;
+		libx*)
+			PKGNAME=libX$(echo $1 |cut -b5-)
+			;;
+		live)
+			EXPR="$1\."
+			;;
+		x11-util-macros)
+			PKGNAME=util-macros
+			;;
+		x11-xtrans-devel)
+			PKGNAME=xtrans
+			;;
+		x11-util-cf-files)
+			PKGNAME=xorg-cf-files
+			;;
+		x11-server)
+			PKGNAME=xorg-server
+			;;
+		esac
+		[ -z "$SPECNAME" ] && SPECNAME=$1
+		[ -z "$SOURCE" ] && SOURCE=$(curl -s -L https://github.com/OpenMandrivaAssociation/$1/raw/master/$(specname $1).spec |grep -iE '^Source0?:' |grep :// |head -n1 |cut -d: -f2- |rev |cut -d/ -f2- |rev |sed -e "s,%{name},$1,g;s,%name,$1,g")/
+		[ -z "$PKGNAME" ] && PKGNAME=$1
+		[ -z "$EXPR" ] && EXPR="$PKGNAME-"
+		if [ -z "$SOURCE" ]; then
+			echo -n ERROR
+			return
+		fi
+		debug "Versions of $PKGNAME at $SOURCE"
+		if echo "$SOURCE" |grep -qE '(videolan\.org/pub|openttd|nasm\.us)'; then
+			# May also be useful for other projects: Versions live in a
+			# subdirectory named after the version...
+			SOURCE="$(echo $SOURCE |rev |cut -d/ -f3- |rev)/"
+			debug "Checking latest versions at $SOURCE"
+			latest $(curl -s -L $SOURCE |sed -e 's,</a>,</a>\n,g;s,<a ,\n<a ,g' |grep "href=" |cut -d'"' -f2 |grep -v '//' |grep -v '\.\.' |grep -vE '^[a-zA-Z]' |grep -vE "(sha256|sha512|win32|\.asc|\.sign)" |sed -E 's,/(index.html)?$,,' |grep -v '[a-zA-Z]')
+			return
+		elif echo $SOURCE |grep -q '^ftp:'; then
+			VERSIONS=$(curl -s -L $SOURCE | \
+				awk '{ print $9; }' | \
+				grep -vE "(md5|sha256|sha512|win32|\.asc|\.sign)" | \
+				sed -E "$EXTRA" | \
+				grep -E "^${EXPR}.*\.(tar|tgz|tbz2|txz|zip)" | \
+				sed -e "s,^${EXPR},," | \
+				sed -E 's,\.(tar|tgz|tbz2|txz|zip).*,,' | \
+				grep -E '^[0-9.]+$' |
+				grep -v "$EXCLUDE")
+		elif [ "$PKGNAME" = "firefox" ]; then
+			# Need to strip off %{version}/source/
+			SOURCE="$(echo $SOURCE |rev |cut -d/ -f4- |rev)/"
+			EXPR=""
+			latest $(curl -s -L $SOURCE |sed -e 's,</a>,</a>\n,g' |grep "href=" |cut -d'"' -f2 |cut -d/ -f5 |grep -v '//' |grep -v '\.\.' |grep -vE '[^0-9.]')
+			return
+		elif echo $SOURCE |grep -qE '(gnome|gtk|gimp|twistedmatrix)\.(com|org)'; then
+			# Gjunk tends to follow a directory structure of
+			# major_version/file-minor_version.tar.*
+			# Also major_version sometimes, but not always, is
+			# unstable if it's odd-numbered...
+			SOURCE="$(echo $SOURCE |rev |cut -d/ -f3- |rev)/"
+			local NOODD="grep -v nothing"
+			if [ -n "$IGNOREODD" ]; then
+				NOODD="grep -v [13579]$"
+			fi
+			local MAJOR_VERSIONS=$(curl -s -L $SOURCE | \
+				grep -o -E "href=[\"'](.*)[\"']" | \
+				sed -e "s,^href=.,,;s,[\"'].*,," | \
+				grep -v "^?" | \
+				grep -E "^[0-9].*/$" |
+				sed -e 's,/$,,' |
+				$NOODD)
+			# ") <--- Just a workaround for a bug in the vim syntax highlighter
+			debug "Major versions available for $PKGNAME at $SOURCE: $MAJOR_VERSIONS"
+			local MAJOR=$(latest $MAJOR_VERSIONS)
+			debug "Latest major version: $MAJOR"
+			SOURCE="$SOURCE$MAJOR/"
+		elif echo $SOURCE |grep -qE '(sourceforge|sf)\.net'; then
+			VERSIONS=$(echo -n $(curl -s -L -A 'Mozilla/5.0 (X11; Linux x86_64)' https://sourceforge.net/projects/$1/files/ |grep "Download $PKGNAME-" |sed -e "s,.*Download $PKGNAME-,,;s,\.tar.*,,"))
+		elif echo $SOURCE |grep -qE 'git(hub|lab).com'; then
+			VERSIONS=$(git ls-remote --tags $(echo $SOURCE |cut -d/ -f1-5) 2>/dev/null|awk '{ print $2; }' |sed -e 's,refs/tags/,,;s,_,.,g;s,-,.,g;s,^v\.,,;s,^v,,' |grep -E '^[0-9.]+$')
+		fi
+		if [ -z "$VERSIONS" ]; then
+			# This is intentionally a separate if instead of another
+			# elif: Some special cases above, e.g. gnome.org, manipulate
+			# $SOURCE and then use the "default" way of determining the
+			# latest version.
+			debug looking for latest $PKGNAME in $SOURCE
+			[ -n "$DEBUG" ] && set -x
+			VERSIONS=$(curl -s -L $SOURCE | \
+				grep -oE "href=(.*)" | \
+				sed -E "s,^href=[\"']?,,;s,[\"'>].*,," | \
+				sed -E "$EXTRA" | \
+				grep -v "^?" | \
+				grep -vE "(md5|sha256|sha512|win32|\.asc|\.sign)" | \
+				grep -E "^${EXPR}[0-9].*\.(tar|tgz|tbz2|txz|zip)" | \
+				sed -E "s,^${EXPR},," | \
+				sed -E 's,\.(tar|tgz|tbz2|txz|zip).*,,' | \
+				grep -E '^[0-9.]+$' |
+				grep -v "$EXCLUDE")
+			[ -n "$DEBUG" ] && set +x
+		fi
+		debug "$VERSIONS"
+		if [ -z "$VERSIONS" ]; then
+			echo -n ERROR
+			return
+		fi
+		latest $VERSIONS
+		;;
+	esac
+}
+
+update() {
+	local D=$(mktemp -d /tmp/autoupdate-$1.XXXXXX)
+	if [ -z "$D" ]; then
+		echo "$1: Error creating temporary directory"
+		continue
+	fi
+	pushd "$D"
+	git clone git@github.com:OpenMandrivaAssociation/$1.git
+	cd $1
+	sed -i -E "/$(echo $2 |sed -e 's,\.,\\.,g')\.(tar|tgz|tbz2|txz|zip)/d" .abf.yml
+	sed -i -E "/$(echo $2 |sed -e 's,\.,\\.,g')\.source\.(tar|tgz|tbz2|txz|zip)/d" .abf.yml
+	# gitlab.com-ism -- Downloads from git tags are always called archive.tar.{gz,bz2}
+	sed -i -E "/archive.tar.(gz|bz2)/d" .abf.yml
+	case "$1" in
+	firefox)
+		# Get rid of translation files for older versions...
+		sed -i -e "/.*\.xpi/d" .abf.yml
+		;;
+	virtualbox)
+		# Make sure we update the user manual as well...
+		# (Name is unversioned, but content changes...)
+		sed -i -e "/UserManual\.pdf/d" .abf.yml
+		;;
+	esac
+	abf fetch
+	sed -i -e "s,^\(Version.*:.*\)$2,\1$3," *.spec
+	sed -i -e "s,^\(Release.*:\s*\)[0-9]*,\11," *.spec
+	sed -i -e "s,^\(Release.*:\s*\)[0-9]*\.%{beta}\.[0-9]*,\10.%{beta}.1," *.spec
+	sudo urpmi --buildrequires --no-verify-rpm --force --auto *.spec
+	if abb build 2>&1 |tee BUILD.LOG |grep -q 'RPM build errors:'; then
+		echo "$1: failed updating from $2 to $3"
+	else
+		sudo urpmi --auto $(ls RPMS/*/* |grep -v debuginfo)
+		abb store $(ls *$3*.{tar*,tgz,tbz2,txz,zip} archive.tar* 2>/dev/null)
+		case "$1" in
+		firefox)
+			# New translation files...
+			abb store *.xpi
+			;;
+		virtualbox)
+			abb store UserManual.pdf
+			;;
+		esac
+		git commit -am "Update to $3"
+		git push origin master
+		echo "$1: successfully updated from $2 to $3"
+		if ! abf build -p openmandriva/$1 -b master --auto-publish --update-type enhancement; then
+			echo "$1: succeeded locally but failed to build in abf"
+		else
+			echo "$1: OK"
+		fi
+	fi
+	popd
+	rm -rf "$D"
+}
+
+if [ "$#" -gt 0 ]; then
+	PACKAGES="$@"
+else
+	# Packages known to work under normal conditions...
+	# Listed in alphabetic order, except when one update typically
+	# depends on another (e.g. sogo needs to go after sope)
+	# Also, larger blocks of related packages (e.g. X11) may be grouped
+	# together
+	PACKAGES="a2ps acpica ags alsa-lib alsa-utils alsa-tools alsa-firmware bmake chromium-browser-dev chromium-browser-stable cmake cups-filters curl diffutils fann ffmpeg firefox flac freetds freetype git gnupg gnustep-make gnustep-base gnustep-gui grantlee gsl gstreamer gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly guile harfbuzz imagemagick imagemagick6 indilib kaffeine krb5 ladspa lame libaacs libbsd libbluray libcdio libcdr libcmis libdmtx libdrm libdvbpsi libdvdread libdvdnav libdvdcss libixion libogg liborcus libshout libqalculate libraw libssh2 libtiff libvisio libvorbis man-pages mercurial mpg123 nasm nettle nss mdds mpfr mpv onig openttd patch pciutils physfs pigz polkit poppler pth python-twisted qpdf redis rspamd scons smplayer sope sogo strace talloc tevent tdb usbutils ldb samba subversion vim vorbis-tools warzone2100 xfsprogs xmlrpc-epi xmlsec1 x11-driver-input-acecad x11-driver-input-aiptek x11-driver-input-citron x11-driver-input-evdev x11-driver-input-fpit x11-driver-input-hyperpen x11-driver-input-joystick x11-driver-input-keyboard x11-driver-input-libinput x11-driver-input-mouse x11-driver-input-mutouch x11-driver-input-penmount x11-driver-input-synaptics x11-driver-input-vmmouse x11-driver-input-void x11-driver-video-amdgpu x11-driver-video-apm x11-driver-video-ark x11-driver-video-ast x11-driver-video-ati x11-driver-video-chips x11-driver-video-dummy x11-driver-video-fbdev x11-driver-video-freedreno x11-driver-video-geode x11-driver-video-glint x11-driver-video-i128 x11-driver-video-i740 x11-driver-video-intel x11-driver-video-mach64 x11-driver-video-neomagic x11-driver-video-newport x11-driver-video-nouveau x11-driver-video-nv x11-driver-video-omap x11-driver-video-openchrome x11-driver-video-opentegra x11-driver-video-qxl x11-driver-video-r128 x11-driver-video-rendition x11-driver-video-s3 x11-driver-video-s3virge x11-driver-video-savage x11-driver-video-siliconmotion x11-driver-video-sis x11-driver-video-sisusb x11-driver-video-tdfx x11-driver-video-tga x11-driver-video-trident x11-driver-video-tseng x11-driver-video-v4l x11-driver-video-vesa x11-driver-video-vmware x11-driver-video-voodoo x11-driver-video-xgixp libdmx libfontenc libfs libice liblbxutil libpciaccess libpthread-stubs libsm libx11 libxau libxaw libxcomposite libxcursor libxdamage libxdmcp libxevie libxext libxfixes libxfont libxfont2 libxfontcache libxft libxi libxinerama libxkbfile libxkbui libxmu libxpm libxpresent libxrandr libxrender libxres libxscrnsaver libxshmfence libxt libxtrap libxtst libxv libxvmc libxxf86dga libxxf86misc pixman x11-xtrans-devel appres bdftopcf beforelight bitmap editres fonttosfnt fslsfonts fstobdf grandr iceauth ico intel-gpu-tools lbxproxy listres luit mkcomposecache mkfontdir mkfontscale oclock proxymngr rendercheck rgb rstart sessreg setxkbmap showfont smproxy twm viewres x11perf xauth xbacklight xbiff x11-data-bitmaps xcalc xclipboard xclock xcmsdb xcompmgr xconsole xcursorgen xdbedizzy xditview xdm xdpyinfo xdriinfo xedit xev xeyes xf86dga xfd xfindproxy xfontsel xfs xfsinfo xfwp xgamma xgc xhost xinit xinput xkbcomp xkbevd xkbprint xkbutils xkill xload xlogo xlsatoms xlsclients xlsfonts xmag xman xmessage xmh xmodmap xmore xpr xprop xrandr xrdb xrefresh xrx xscope xset xsetmode xsetpointer xsetroot xsm xstdcmap xtrap xvidtune xvinfo xwd xwininfo xwud xkeyboard-config x11-server gccmakedep imake lndir makedepend x11-util-macros x11-util-cf-files libxcb xcb-util xcb-util-image xcb-util-keysyms xcb-util-renderutil xcb-util-wm wine atk1.0 atkmm at-spi2-core at-spi2-atk dconf libcroco0.6 librsvg babl gegl libsigc-2.0 glib2.0 glibmm2.4 libmbim libqmi ModemManager NetworkManager whois"
+fi
+
+for i in $PACKAGES; do
+	OURVERSION=$(ourVersion $i)
+	NEWVERSION=$(upstreamVersion $i)
+	if [ "$OURVERSION" = "ERROR" -o "$NEWVERSION" = "ERROR" ]; then
+		echo "$i: ERROR trying to determine version"
+	elif [ "$OURVERSION" != "$NEWVERSION" -a "$(latest $OURVERSION $NEWVERSION)" = "$NEWVERSION" ]; then
+		echo "$i: trying to update from $OURVERSION to $NEWVERSION"
+		update $i $OURVERSION $NEWVERSION
+	elif [ "$OURVERSION" = "$NEWVERSION" ]; then
+		echo "$i: $OURVERSION is up to date"
+	else
+		echo "$i: error checking for updates"
+	fi
+done
