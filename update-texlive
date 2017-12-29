@@ -31,6 +31,8 @@ update() {
 	sed -i -e "s,^\(Release.*:\s*\)[0-9]*\.%{beta}\.[0-9]*,\10.%{beta}.1," *.spec
 	if abb build 2>&1 |tee BUILD.LOG |grep -q 'RPM build errors:'; then
 		echo "$1: failed updating to $2"
+		popd
+		rm -rf "$D"
 		return
 	fi
 	abb store *.tar.*
