@@ -349,6 +349,8 @@ update() {
 	sudo urpmi --buildrequires --no-verify-rpm --force --auto *.spec
 	if abb build 2>&1 |tee BUILD.LOG |grep -q 'RPM build errors:'; then
 		echo "$1: failed updating from $2 to $3"
+		mkdir -p ~/failed-builds
+		[ -d ~/failed-builds/"$1" ] || mv "$D"/"$1" ~/failed-builds/
 	else
 		sudo urpmi --auto $(ls RPMS/*/* |grep -v debuginfo)
 		abb store $(ls *$3*.{tar*,tgz,tbz2,txz,zip} archive.tar* 2>/dev/null)

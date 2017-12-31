@@ -32,6 +32,8 @@ update() {
 	if abb build 2>&1 |tee BUILD.LOG |grep -q 'RPM build errors:'; then
 		echo "$1: failed updating to $2"
 		popd
+		mkdir -p ~/failed-builds
+		[ -d "~/failed-builds/$1" ] || mv "$D"/"$1" ~/failed-builds
 		rm -rf "$D"
 		return
 	fi
@@ -108,7 +110,7 @@ urpmq --list |grep ^texlive |xargs urpmq --sourcerpm |cut -d' ' -f2- |rev |cut -
 			[ $MONTH$DAY -gt $(date +%m%d) ] && YEAR=$((YEAR-1))
 		fi
 
-		THEIRVERSION="$(curl -s -L https://ctan.org/pkg/$NAME |sed -e 's,&shy;,,g' |grep -A1 '<td>Version</td>' |tail -n1 |sed -e 's,[^>]*>,,;s,<.*,,;s,^ ,,g;s, $,,g;s,-,,g;s,\.$,,g' |cut -d' ' -f1)"
+		THEIRVERSION="$(curl -s -k -L https://ctan.org/pkg/$NAME |sed -e 's,&shy;,,g' |grep -A1 '<td>Version</td>' |tail -n1 |sed -e 's,[^>]*>,,;s,<.*,,;s,^ ,,g;s, $,,g;s,-,,g;s,\.$,,g' |cut -d' ' -f1)"
 		if echo $OURVERSION |grep -qE '^[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]$'; then
 			if [ -n "$THEIRVERSION" ] && echo $THEIRVERSION |grep -q '\.'; then
 				echo "Updating to $THEIRVERSION and switching version scheme"
