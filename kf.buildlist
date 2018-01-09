@@ -17,6 +17,7 @@ openmandriva/kxmlrpcclient openmandriva/kparts openmandriva/kpeople openmandriva
 openmandriva/kmediaplayer openmandriva/kdeclarative openmandriva/kded
 openmandriva/kcmutils openmandriva/knotifyconfig openmandriva/syntax-highlighting
 openmandriva/kactivities openmandriva/frameworkintegration openmandriva/khtml openmandriva/ktexteditor openmandriva/kdewebkit openmandriva/kross
+openmandriva/kirigami
 openmandriva/kdesignerplugin openmandriva/plasma-framework openmandriva/kactivities-stats
 openmandriva/krunner openmandriva/kdelibs4support openmandriva/kfilemetadata5
-openmandriva/baloo5 openmandriva/kirigami
+openmandriva/baloo5
