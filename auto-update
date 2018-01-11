@@ -98,7 +98,7 @@ upstreamVersion() {
 		# Special case because package name doesn't match
 		# upstream package name and it uses _ instead of -
 		# to separate file name from version number
-		echo -n $(curl -s -L -A 'Mozilla/5.0 (X11; Linux x86_64)' https://sourceforge.net/projects/indi/files/ | grep -b1 'Download Latest Version' |tail -n1 |sed -e 's,.*_,,;s,\.tar.*,,'
+		echo -n $(curl -s -L -A 'Mozilla/5.0 (X11; Linux x86_64)' https://sourceforge.net/projects/indi/files/ | grep -b1 'Download Latest Version' |tail -n1 |sed -e 's,.*_,,;s,\.tar.*,,')
 		;;
 	lame)
 		echo -n $(curl -s -L http://lame.sf.net |grep 'download.php">v' |sed -e 's,.*v,,;s,<.*,,')
