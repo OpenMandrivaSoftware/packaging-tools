@@ -110,7 +110,7 @@ urpmq --list |grep ^texlive |xargs urpmq --sourcerpm |cut -d' ' -f2- |rev |cut -
 			[ $MONTH$DAY -gt $(date +%m%d) ] && YEAR=$((YEAR-1))
 		fi
 
-		THEIRVERSION="$(curl -s -k -L https://ctan.org/pkg/$NAME |sed -e 's,&shy;,,g' |grep -A1 '<td>Version</td>' |tail -n1 |sed -e 's,[^>]*>,,;s,<.*,,;s,^ ,,g;s, $,,g;s,-,,g;s,\.$,,g;s,~,,g;s,(,,;s,),,' |cut -d' ' -f1)"
+		THEIRVERSION="$(curl -s -k -L https://ctan.org/pkg/$NAME |sed -e 's,&shy;,,g' |grep '<td>Version</td>' |tail -n1 |sed -e 's,.*/td><td>,,;s,<.*,,;s,^ ,,g;s, $,,g;s,-,,g;s,\.$,,g;s,~,,g;s,(,,;s,),,' |cut -d' ' -f1)"
 		if echo $OURVERSION |grep -qE '^[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]$'; then
 			if [ -n "$THEIRVERSION" ] && echo $THEIRVERSION |grep -q '\.'; then
 				echo "Updating to $THEIRVERSION and switching version scheme"
