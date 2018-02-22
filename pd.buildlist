@@ -2,11 +2,13 @@ openmandriva/kwallet-pam openmandriva/plasma-pa openmandriva/user-manager openma
 openmandriva/libkscreen5 openmandriva/libksysguard
 openmandriva/bluedevil5 openmandriva/kde-cli-tools
 openmandriva/kdecoration openmandriva/kde-gtk-config
-openmandriva/khotkeys openmandriva/kinfocenter
+openmandriva/kinfocenter
 openmandriva/kmenuedit openmandriva/kscreen5 openmandriva/ksshaskpass openmandriva/ksysguard
 openmandriva/breeze openmandriva/kwrited openmandriva/milou openmandriva/discover
+openmandriva/kscreenlocker
 openmandriva/oxygen openmandriva/kwayland-integration openmandriva/kwin openmandriva/breeze-gtk openmandriva/kactivitymanagerd
 openmandriva/plasma-workspace
+openmandriva/khotkeys
 openmandriva/plasma-desktop
 openmandriva/plasma-nm
-openmandriva/kdeplasma-addons openmandriva/polkit-kde-agent-1 openmandriva/powerdevil openmandriva/sddm-kcm openmandriva/systemsettings openmandriva/kscreenlocker openmandriva/plasma-sdk openmandriva/plasma-integration openmandriva/plasma-workspace-wallpapers
+openmandriva/kdeplasma-addons openmandriva/polkit-kde-agent-1 openmandriva/powerdevil openmandriva/sddm-kcm openmandriva/systemsettings openmandriva/plasma-sdk openmandriva/plasma-integration openmandriva/plasma-workspace-wallpapers
