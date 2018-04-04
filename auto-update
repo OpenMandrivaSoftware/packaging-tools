@@ -404,6 +404,11 @@ update() {
 	rm -rf "$D"
 }
 
+if [ "$1" = "-d" -o "$1" = "--dry-run" ]; then
+	export DRYRUN=1
+	shift
+fi
+
 if [ "$#" -gt 0 ]; then
 	PACKAGES="$@"
 else
@@ -423,8 +428,12 @@ for i in $PACKAGES; do
 	if [ "$OURVERSION" = "ERROR" -o "$NEWVERSION" = "ERROR" ]; then
 		echo "$i: ERROR trying to determine version"
 	elif [ "$OURVERSION" != "$NEWVERSION" -a "$(latest $OURVERSION $NEWVERSION)" = "$NEWVERSION" ]; then
-		echo "$i: trying to update from $OURVERSION to $NEWVERSION"
-		update $i $OURVERSION $NEWVERSION
+		if [ "$DRYRUN" = "1" ]; then
+			echo "*** Would update $i from $OURVERSION to $NEWVERSION ***"
+		else
+			echo "$i: trying to update from $OURVERSION to $NEWVERSION"
+			update $i $OURVERSION $NEWVERSION
+		fi
 		UPDATED=$((UPDATED+1))
 	elif [ "$OURVERSION" = "$NEWVERSION" ]; then
 		echo "$i: $OURVERSION is up to date"
