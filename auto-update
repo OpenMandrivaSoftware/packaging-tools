@@ -126,7 +126,7 @@ upstreamVersion() {
 		echo -n $(curl -L -s http://www.sqlite.org/ |grep "Version" |cut -d' ' -f3 |cut -d '<' -f1)
 		;;
 	cmake)
-		echo -n $(curl -s -L https://cmake.org/download/ |grep -E "files/v.*\.tar\.gz" |head -n1 |sed -e "s,.*$1-,,;s,\.tar.*,,")
+		echo -n $(curl -s -L https://cmake.org/download/ |grep -E "files/v.*\.tar\.gz" |grep -vE -- '-(alpha|beta|rc)' |head -n1 |sed -e "s,.*$1-,,;s,\.tar.*,,")
 		;;
 	wine)
 		# Wine is a bit of a special case because we can update it only when
@@ -374,13 +374,13 @@ update() {
 	sed -i -e "s,^\(Version.*:.*\)$2,\1$3," *.spec
 	sed -i -e "s,^\(Release.*:\s*\)[0-9]*,\11," *.spec
 	sed -i -e "s,^\(Release.*:\s*\)[0-9]*\.%{beta}\.[0-9]*,\10.%{beta}.1," *.spec
-	sudo urpmi --buildrequires --no-verify-rpm --force --auto *.spec
+	sudo dnf builddep -y --nogpgcheck *.spec
 	if abb build 2>&1 |tee BUILD.LOG |grep -q 'RPM build errors:'; then
 		echo "$1: failed updating from $2 to $3"
 		mkdir -p ~/failed-builds
 		[ -d ~/failed-builds/"$1" ] || mv "$D"/"$1" ~/failed-builds/
 	else
-		sudo urpmi --auto $(ls RPMS/*/* |grep -v debuginfo)
+		sudo dnf install -y $(ls RPMS/*/* |grep -v debuginfo)
 		abb store $(ls *$3*.{tar*,tgz,tbz2,txz,zip} archive.tar* 2>/dev/null)
 		case "$1" in
 		firefox)

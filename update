@@ -121,7 +121,7 @@ for i in $PACKAGES; do
 	# Let's update download URLs while at it...
 	sed -i -e "s,ftp://ftp.kde.org/pub/kde,http://download.kde.org," *.spec
 	#sed -i -e "s,stable/%{ver,stable/applications/%{ver," *.spec
-	sudo urpmi --auto --no-verify-rpm --buildrequires *.spec
+	sudo dnf builddep -y --nogpgcheck *.spec
 	if ${PRERELEASE}; then
 		STABLE=stable
 		[ $(echo $VERSION |cut -d. -f3) -ge 70 ] && STABLE=unstable
@@ -153,7 +153,7 @@ for i in $PACKAGES; do
 	abb store *-${PKGVERSION}.tar* || error $i
 	git commit -am "Update to ${PKGVERSION}" || error $i
 	git push origin master
-	sudo urpmi --auto --no-verify-rpm RPMS/*/*.rpm
+	sudo dnf install -y --nogpgcheck RPMS/*/*.rpm
 	cd ..
 	VERSION="${REALVERSION}"
 done
