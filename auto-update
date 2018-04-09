@@ -425,6 +425,7 @@ UPDATED=0
 for i in $PACKAGES; do
 	OURVERSION=$(ourVersion $i)
 	NEWVERSION=$(upstreamVersion $i)
+	echo $NEWVERSION |grep -q '[()<>]' && NEWVERSION=ERROR
 	if [ "$OURVERSION" = "ERROR" -o "$NEWVERSION" = "ERROR" ]; then
 		echo "$i: ERROR trying to determine version"
 	elif [ "$OURVERSION" != "$NEWVERSION" -a "$(latest $OURVERSION $NEWVERSION)" = "$NEWVERSION" ]; then
