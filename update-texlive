@@ -25,7 +25,7 @@ update() {
 	echo 'sources:' >.abf.yml
 	# Some old texlive packages are REALLY REALLY evil...
 	ls *.tar.* &>/dev/null && git rm *.tar.*
-	sudo urpmi --buildrequires --no-verify-rpm --force --auto *.spec
+	sudo dnf builddep --nogpgcheck *.spec
 	sed -i -e "s,^\(Version.*:\s*\).*,\1$2," *.spec
 	sed -i -e "s,^\(Release.*:\s*\)[0-9]*,\11," *.spec
 	sed -i -e "s,^\(Release.*:\s*\)[0-9]*\.%{beta}\.[0-9]*,\10.%{beta}.1," *.spec
@@ -54,7 +54,7 @@ update() {
 
 rm -f /tmp/tlnet.list
 curl -s -L ftp://ctan.org/pub/tex/systems/texlive/tlnet/archive/ >/tmp/tlnet.list
-urpmq --list |grep ^texlive |xargs urpmq --sourcerpm |cut -d' ' -f2- |rev |cut -d- -f2- |rev |sort |uniq |while read r; do
+dnf repoquery --source --latest-limit 1 |grep ^texlive |rev |cut -d- -f2- |rev |sort |uniq |while read r; do
 	PACKAGE=$(echo $r |rev |cut -d- -f2- |rev)
 	OURVERSION=$(echo $r |rev |cut -d- -f1 |rev)
 	NAME=$(echo $PACKAGE |sed -e 's,^texlive-,,')
