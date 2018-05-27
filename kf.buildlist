@@ -1,5 +1,5 @@
 openmandriva/extra-cmake-modules
-openmandriva/attica5 openmandriva/bluez-qt openmandriva/oxygen-icons openmandriva/kwayland
+openmandriva/attica openmandriva/bluez-qt openmandriva/oxygen-icons openmandriva/kwayland
 openmandriva/networkmanager-qt openmandriva/modemmanager-qt openmandriva/kitemmodels openmandriva/kitemviews openmandriva/karchive openmandriva/kcodecs openmandriva/kconfig openmandriva/kcoreaddons openmandriva/kdbusaddons openmandriva/kguiaddons openmandriva/kidletime openmandriva/kimageformats openmandriva/kplotting openmandriva/kwidgetsaddons openmandriva/kwindowsystem openmandriva/solid openmandriva/sonnet openmandriva/threadweaver openmandriva/ki18n openmandriva/prison
 openmandriva/kdoctools
 openmandriva/kcrash
@@ -9,7 +9,7 @@ openmandriva/kauth openmandriva/kcompletion openmandriva/kjobwidgets openmandriv
 openmandriva/kjsembed openmandriva/kconfigwidgets
 openmandriva/kdesu openmandriva/kemoticons openmandriva/kiconthemes openmandriva/kapidox
 openmandriva/knotifications openmandriva/ktextwidgets
-openmandriva/kxmlgui openmandriva/kwallet5 openmandriva/breeze-icons
+openmandriva/kxmlgui openmandriva/kwallet openmandriva/breeze-icons
 openmandriva/kbookmarks
 openmandriva/kio
 openmandriva/knewstuff
@@ -19,6 +19,6 @@ openmandriva/kcmutils openmandriva/knotifyconfig openmandriva/syntax-highlightin
 openmandriva/kactivities openmandriva/frameworkintegration openmandriva/khtml openmandriva/ktexteditor openmandriva/kdewebkit openmandriva/kross
 openmandriva/kirigami
 openmandriva/kdesignerplugin openmandriva/plasma-framework openmandriva/kactivities-stats
-openmandriva/krunner openmandriva/kdelibs4support openmandriva/kfilemetadata5
-openmandriva/baloo5
+openmandriva/krunner openmandriva/kdelibs4support openmandriva/kfilemetadata
+openmandriva/baloo
 openmandriva/kholidays openmandriva/purpose
