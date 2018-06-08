@@ -7,8 +7,9 @@ openmandriva/ktnef
 openmandriva/kalarmcal
 openmandriva/akonadi-mime
 openmandriva/ksmtp
+openmandriva/akonadi-contacts
 openmandriva/kmailtransport
-openmandriva/akonadi-contacts openmandriva/akonadi-notes
+openmandriva/akonadi-notes
 openmandriva/akonadi-calendar openmandriva/akonadi-search
 openmandriva/libkdepim
 openmandriva/pimcommon
