@@ -394,7 +394,7 @@ update() {
 		git commit -am "Update to $3"
 		git push origin master
 		echo "$1: successfully updated from $2 to $3"
-		if ! abf chain_build -b master --auto-publish --update-type enhancement openmandriva/"$1"; then
+		if ! abf chain_build -b master --no-cached-chroot --auto-publish --update-type enhancement openmandriva/"$1"; then
 			echo "$1: succeeded locally but failed to build in abf"
 		else
 			echo "$1: OK"

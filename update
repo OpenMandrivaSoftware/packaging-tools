@@ -153,4 +153,4 @@ for i in $PACKAGES; do
 	VERSION="${REALVERSION}"
 done
 
-abf chain_build -b master --update-type enhancement -i $PROJECT.buildlist
+abf chain_build -b master --no-cached-chroot --update-type enhancement -i $PROJECT.buildlist
