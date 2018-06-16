@@ -343,10 +343,23 @@ update() {
 	pushd "$D"
 	git clone git@github.com:OpenMandrivaAssociation/$1.git
 	cd $1
+	local ORIGFILES="`cat .abf.yml |grep '^[[:space:]]' |cut -d: -f1 |xargs echo`"
 	sed -i -E "/$(echo $2 |sed -e 's,\.,\\.,g')\.(tar|tgz|tbz2|txz|zip)/d" .abf.yml
 	sed -i -E "/$(echo $2 |sed -e 's,\.,\\.,g')\.source\.(tar|tgz|tbz2|txz|zip)/d" .abf.yml
 	# gitlab.com-ism -- Downloads from git tags are always called archive.tar.{gz,bz2}
 	sed -i -E "/archive.tar.(gz|bz2)/d" .abf.yml
+	local REMAININGFILES="`cat .abf.yml |grep '^[[:space:]]' |cut -d: -f1 |xargs echo`"
+	local REMOVEDFILES="`echo $ORIGFILES $REMAININGFILES |sed -e 's, ,\n,g' |sort |uniq -u`"
+	if echo $REMOVEDFILES |grep -q /; then
+		echo "WARNING: INVALID .abf.yml THAT MAY BE DESIGNED TO DO DAMAGE!"
+		exit 1
+	fi
+	if echo $REMOVEDFILES |grep -q '\;'; then
+		echo "WARNING: INVALID .abf.yml THAT MAY BE DESIGNED TO DO DAMAGE!"
+		exit 1
+	fi
+	[ -n "$REMOVEDFILES" ] && rm -f $REMOVEDFILES
+
 	case "$1" in
 	microcode-intel)
 		# Special fun because they change URLs with every new download...
@@ -374,14 +387,13 @@ update() {
 	sed -i -e "s,^\(Version.*:.*\)$2,\1$3," *.spec
 	sed -i -e "s,^\(Release.*:\s*\)[0-9]*,\11," *.spec
 	sed -i -e "s,^\(Release.*:\s*\)[0-9]*\.%{beta}\.[0-9]*,\10.%{beta}.1," *.spec
-	sudo dnf builddep -y --nogpgcheck *.spec
+	sudo dnf --refresh builddep -y --nogpgcheck --best --allowerasing *.spec
 	if abb build 2>&1 |tee BUILD.LOG |grep -q 'RPM build errors:'; then
 		echo "$1: failed updating from $2 to $3"
 		mkdir -p ~/failed-builds
 		[ -d ~/failed-builds/"$1" ] || mv "$D"/"$1" ~/failed-builds/
 	else
-		sudo dnf install -y $(ls RPMS/*/* |grep -v debuginfo)
-		abb store $(ls *$3*.{tar*,tgz,tbz2,txz,zip} archive.tar* 2>/dev/null)
+		abb store *.{tar*,tgz,tbz2,txz,zip} archive.tar* 2>/dev/null
 		case "$1" in
 		firefox)
 			# New translation files...
