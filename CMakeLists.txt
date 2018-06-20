@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.0)
+project(builddeps)
+find_package(KF5Archive)
+find_package(Evdev)
+add_executable(builddeps builddeps.cpp)
+target_link_libraries(builddeps KF5::Archive)
