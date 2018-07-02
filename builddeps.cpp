@@ -45,7 +45,9 @@ static QStringList findDeps(KArchiveDirectory const &dir) {
 			for(QStringList::ConstIterator it=c.begin(); it!=c.end(); ++it) {
 				QString line = *it;
 				while(line.count("(") != line.count(")")) {
-					line += *(++it);
+					if(++it == c.end())
+						break;
+					line += *it;
 				}
 				line = line.simplified();
 				if(line.toLower().startsWith("find_package(") || line.toLower().startsWith("find_package (")) {
@@ -53,20 +55,25 @@ static QStringList findDeps(KArchiveDirectory const &dir) {
 					QStringList args = dep.split(' ');
 					// We're nowhere near smart enough to handle a dependency on
 					// something defined in a cmake variable...
-					if(args[0].contains('$'))
+					if(args[0].contains('$')) {
 						continue;
+					}
 					bool components=false;
 					for(int i=1; i<args.size(); i++) {
-						if(args[i] == "COMPONENTS")
+						if(args[i] == "COMPONENTS" || args[i] == "REQUIRED")
 							components=true;
 						else if(args[i].startsWith('#'))
 							break;
+						else if(args[i] == "NO_MODULE")
+							continue;
 						else if(components)
 							deps << QString("cmake(" + args[0] + args[i] + ")");
 					}
 					if(!components)
 						deps << QString("cmake(" + args[0] + ")");
 				}
+				if(it == c.end())
+					break;
 			}
 		}
 	}
