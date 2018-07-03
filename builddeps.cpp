@@ -31,6 +31,12 @@ static QStringList findProvides(KArchiveDirectory const &dir) {
 static QStringList findDeps(KArchiveDirectory const &dir);
 static QStringList findDeps(KArchiveDirectory const &dir) {
 	QStringList deps;
+
+	#define addDep(x) \
+		if (debug) \
+			std::cerr << "\t\t===> " << qPrintable(QString(x)) << std::endl; \
+		deps << QString(x);
+
 	for(QString const &s: dir.entries()) {
 		KArchiveEntry const *e = dir.entry(s);
 		if(e->isDirectory()) {
@@ -75,16 +81,18 @@ static QStringList findDeps(KArchiveDirectory const &dir) {
 							// versioning well enough to care
 							continue;
 						else {
-							if(debug)
-								std::cerr << "\t\t===> " << qPrintable(QString("cmake(" + args[0] + args[i] + ")")) << std::endl;
-							deps << QString("cmake(" + args[0] + args[i] + ")");
+							// This is a Qt/KDE convention, but not necessarily
+							// true for everything else...
+							if(args[0] == "Qt5" || args[0] == "KF5") {
+								addDep("cmake(" + args[0] + args[i] + ")");
+							} else {
+								addDep("cmake(" + args[i] + ")");
+							}
 							submodules = true;
 						}
 					}
 					if(!submodules) {
-						if(debug)
-							std::cerr << "\t\t===> " << qPrintable(QString("cmake(" + args[0] + ")")) << std::endl;
-						deps << QString("cmake(" + args[0] + ")");
+						addDep("cmake(" + args[0] + ")");
 					}
 				}
 				if(it == c.end())
