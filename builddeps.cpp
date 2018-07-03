@@ -6,6 +6,8 @@
 
 #include <iostream>
 
+static bool debug = false;
+
 static QStringList findProvides(KArchiveDirectory const &dir);
 static QStringList findProvides(KArchiveDirectory const &dir) {
 	QStringList provs;
@@ -50,27 +52,40 @@ static QStringList findDeps(KArchiveDirectory const &dir) {
 					line += *it;
 				}
 				line = line.simplified();
+				if(debug)
+					std::cerr << qPrintable(line) << std::endl;
 				if(line.toLower().startsWith("find_package(") || line.toLower().startsWith("find_package (")) {
 					QString dep = line.section('(', 1).section(')', 0, 0);
+					if(debug)
+						std::cerr << "\t" << qPrintable(dep) << std::endl;
 					QStringList args = dep.split(' ');
 					// We're nowhere near smart enough to handle a dependency on
 					// something defined in a cmake variable...
 					if(args[0].contains('$')) {
 						continue;
 					}
-					bool components=false;
+					bool submodules = false;
 					for(int i=1; i<args.size(); i++) {
-						if(args[i] == "COMPONENTS" || args[i] == "REQUIRED")
-							components=true;
-						else if(args[i].startsWith('#'))
+						if(args[i].startsWith('#'))
 							break;
-						else if(args[i] == "NO_MODULE")
+						else if(args[i].startsWith('$') || args[i] == "NO_MODULE" || args[i] == "CONFIG" || args[i] == "REQUIRED" || args[i] == "COMPONENTS")
 							continue;
-						else if(components)
+						else if(args[i].front() >= '0' && args[i].front() <= '9')
+							// The rpm Provides: generator doesn't support
+							// versioning well enough to care
+							continue;
+						else {
+							if(debug)
+								std::cerr << "\t\t===> " << qPrintable(QString("cmake(" + args[0] + args[i] + ")")) << std::endl;
 							deps << QString("cmake(" + args[0] + args[i] + ")");
+							submodules = true;
+						}
 					}
-					if(!components)
+					if(!submodules) {
+						if(debug)
+							std::cerr << "\t\t===> " << qPrintable(QString("cmake(" + args[0] + ")")) << std::endl;
 						deps << QString("cmake(" + args[0] + ")");
+					}
 				}
 				if(it == c.end())
 					break;
@@ -83,12 +98,27 @@ static QStringList findDeps(KArchiveDirectory const &dir) {
 
 
 int main(int argc, char **argv) {
-	if(argc<2) {
+	QString file;
+	for(int i=1; i<argc; i++) {
+		QString arg=argv[i];
+		if(arg.startsWith('-')) {
+			if(arg == "-d" || arg == "--debug")
+				debug = true;
+			else {
+				std::cerr << "WARNING: Unknown option: " << qPrintable(arg) << std::endl;
+			}
+		} else if(!file.isEmpty()) {
+			std::cerr << "Usage:" << std::endl
+				<< argv[0] << " sourcetarball.tar.xz" << std::endl;
+			return 1;
+		} else
+			file=arg;
+	}
+	if(file.isEmpty()) {
 		std::cerr << "Usage:" << std::endl
 			<< argv[0] << " sourcetarball.tar.xz" << std::endl;
-		return 1;
+		return 2;
 	}
-	QString file = argv[1];
 	KArchive *ar;
 	if(file.toLower().endsWith(".zip"))
 		ar = new KZip(file);
@@ -99,18 +129,18 @@ int main(int argc, char **argv) {
 
 	if(!ar) {
 		std::cerr << "Error creating KArchive instance" << std::endl;
-		return 2;
+		return 3;
 	}
 
 	if(!ar->open(QIODevice::ReadOnly)) {
 		std::cerr << "Can't open " << qPrintable(file) << ": " << qPrintable(ar->errorString()) << std::endl;
-		return 3;
+		return 4;
 	}
 
 	KArchiveDirectory const *d = ar->directory();
 	if(!d) {
 		std::cerr << "Can't find directory in archive" << std::endl;
-		return 4;
+		return 5;
 	}
 
 	QStringList BRs = findDeps(*d);
