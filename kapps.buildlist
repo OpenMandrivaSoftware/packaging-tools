@@ -30,7 +30,8 @@ openmandriva/kdav
 openmandriva/kdepim-runtime
 openmandriva/eventviews
 openmandriva/incidenceeditor
-openmandriva/libksieve
+openmandriva/libksieve openmandriva/kpkpass
+openmandriva/kitinerary
 openmandriva/kdepim-addons
 openmandriva/kdeedu-data
 openmandriva/libkeduvocdocument
@@ -50,4 +51,4 @@ openmandriva/ksystemlog openmandriva/kteatime openmandriva/ktimer openmandriva/k
 openmandriva/lskat openmandriva/palapeli openmandriva/parley openmandriva/picmi openmandriva/poxml openmandriva/print-manager openmandriva/rocs openmandriva/step openmandriva/svgpart openmandriva/sweeper openmandriva/umbrello openmandriva/kio-extras openmandriva/zeroconf-ioslave openmandriva/kaccounts-integration openmandriva/kaccounts-providers openmandriva/kross-interpreters openmandriva/signon-kwallet-extension openmandriva/kdebugsettings openmandriva/minuet openmandriva/kompare openmandriva/k3b
 openmandriva/ktp-common-internals
 openmandriva/ktp-approver openmandriva/ktp-auth-handler openmandriva/ktp-contact-list openmandriva/ktp-filetransfer-handler openmandriva/ktp-kded-module openmandriva/ktp-send-file openmandriva/ktp-text-ui openmandriva/ktp-call-ui openmandriva/ktp-desktop-applets openmandriva/ktp-contact-runner openmandriva/ktp-accounts-kcm
-openmandriva/kamoso openmandriva/kopete openmandriva/kpkpass openmandriva/kbackup openmandriva/kimagemapeditor openmandriva/kitinerary
+openmandriva/kamoso openmandriva/kopete openmandriva/kbackup openmandriva/kimagemapeditor
