@@ -141,7 +141,7 @@ for i in $PACKAGES; do
 		scp ${SCPDIR}/${TARNAME}-${PKGVERSION}.tar.xz . || :
 	fi
 	abb build || error $i
-	[ -d RPMS/`uname -m` ] || [ -d RPMS/noarch ] || error $i
+	ls RPMS/*/* &>/dev/null || error $i
 	if [ -n "$BETA" ]; then
 		PKGVERSION="${PKGVERSION}-${BETA}"
 	fi
@@ -153,4 +153,4 @@ for i in $PACKAGES; do
 	VERSION="${REALVERSION}"
 done
 
-abf chain_build -b master --no-cached-chroot --update-type enhancement -i $PROJECT.buildlist
+abf chain_build -a znver1 -a aarch64 -a x86_64 -a armv7hnl -a i686 -b master --no-cached-chroot --update-type enhancement -i $PROJECT.buildlist
