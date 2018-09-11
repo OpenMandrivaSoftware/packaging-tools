@@ -409,21 +409,14 @@ update() {
 		echo '%_disable_source_fetch	0' >>~/.rpmmacros
 		REMOVE_DISABLE_SOURCE_FETCH=1
 	fi
+	ls -AF |grep -vE '/$' >files-before-rpm
 	abb build 2>&1 |tee BUILD.LOG
+	ls -AF |grep -vE '(BUILD.LOG|files-after-rpm|\.buildlog|/)$' >files-after-rpm
 	if [ "$REMOVE_DISABLE_SOURCE_FETCH" = 1 ]; then
 		sed -i -e "/^%_disable_source_fetch	0$/d" ~/.rpmmacros
 	fi
 	if ls RPMS/*/*.rpm &>/dev/null; then
-		abb store *.{tar*,tgz,tbz2,txz,zip} archive.tar* 2>/dev/null
-		case "$1" in
-		firefox)
-			# New translation files...
-			abb store *.xpi
-			;;
-		virtualbox)
-			abb store UserManual.pdf
-			;;
-		esac
+		abb store $(diff -c files-before-rpm files-after-rpm |grep -E '^\+' |cut -b3-)
 		git commit -am "Update to $3"
 		git push origin master
 		echo "$1: successfully updated from $2 to $3"
