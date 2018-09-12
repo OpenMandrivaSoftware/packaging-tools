@@ -97,6 +97,7 @@ upstreamVersion() {
         stunnel)
                 # print last line
                 echo -n $(curl -s -L -A 'Mozilla/5.0 (X11; Linux x86_64)' http://www.stunnel.org/downloads.html |grep -E "href=.*stunnel-" |sed -e "s,.*stunnel-,,;s,\.tar.*,," | tail -n1)
+		;;
 	indilib)
 		# Special case because package name doesn't match
 		# upstream package name and it uses _ instead of -
