@@ -1,0 +1,38 @@
+#!/bin/sh
+# Usage: rebuild project [reason]
+#	project: Project to rebuild (ls *.buildlist for available projects)
+#	reason: Reason to give in commit message
+#
+# (C) 2019 Bernhard Rosenkränzer <bero@lindev.ch>
+# Released under the terms of the GPLv3
+
+if [ "$#" -lt 1 ]; then
+	echo "Specify the project to rebuild"
+	exit 1
+fi
+
+PROJECT="$1"
+shift
+REASON="$@"
+[ -z "$REASON" ] && REASON="Rebuild"
+
+PACKAGES="$(cat $(dirname $0)/$PROJECT.buildlist |grep -vE '^#' |sed -e 's,openmandriva/,,g')"
+
+for i in $PACKAGES; do
+	rm -rf ${i}
+	git clone git@github.com:OpenMandrivaAssociation/${i}.git || error $i
+	cd ${i}
+	OLDRELEASE="$(grep -i '^Release[[:space:]]*:' *.spec |cut -d: -f2 |xargs echo)"
+	RELEASE=$((OLDRELEASE+1))
+	if [ "$RELEASE" = "1" ]; then
+		error "Could not determine new release number for $i"
+		exit 1
+	fi
+
+	sed -i -e "s,^\(Release.*:.*\)${OLDRELEASE},\1${RELEASE}," *.spec
+	git commit -am "$REASON"
+	git push origin master
+	cd ..
+done
+
+abf chain_build -a znver1 -a aarch64 -a x86_64 -a armv7hnl -a i686 -b master --update-type enhancement -i $PROJECT.buildlist
