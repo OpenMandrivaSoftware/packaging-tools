@@ -1,0 +1,142 @@
+#!/bin/sh
+# Build an OpenMandriva chroot (possibly including qemu setup)
+# Usage:
+# mkchroot [-v VERSION] [-a ARCH] Directory
+# 	Default:
+#		VERSION=cooker
+#		ARCH=host arch
+
+if [ "`id -u`" != "0" ]; then
+	exec sudo $0 "$@"
+	exit 1
+fi
+
+usage() {
+	cat <<EOF
+$0 - Build an OpenMandriva chroot (possibly including qemu setup)
+mkchroot [-v VERSION] [-a ARCH] Directory
+ 	Default:
+		VERSION=cooker
+		ARCH=host arch
+EOF
+	exit 1
+}
+
+OMV_VERSION=cooker
+ARCH=$(uname -m)
+[ "$ARCH" = "x86_64" ] && grep -q Ryzen /proc/cpuinfo && ARCH="znver1"
+ROOTDIR=""
+while [ "$#" -gt 0 ]; do
+	case "$1" in
+	-v|--version)
+		shift
+		OMV_VERSION="$1"
+		;;
+	-a|--arch)
+		shift
+		ARCH="$1"
+		;;
+	-h|--help)
+		usage
+		;;
+	-*)
+		usage
+		;;
+	*)
+		if [ -z "$ROOTDIR" ]; then
+			ROOTDIR="$1"
+		else
+			usage
+		fi
+		;;
+	esac
+	shift
+done
+[ -z "$ROOTDIR" ] && usage
+
+TEMPDIR="$(mktemp -d /tmp/mkchrootXXXXXX)"
+cd "$TEMPDIR"
+
+# Poor man's version of "dnf install --installroot=" --
+# need to get the repository configs from rpm packages
+# without having the repositories configured...
+PKGS=http://abf-downloads.openmandriva.org/$OMV_VERSION/repository/$ARCH/main/release/
+curl -s -L $PKGS |grep '^<a' |cut -d'"' -f2 >PACKAGES
+PRE_PACKAGES="openmandriva-repos openmandriva-repos-keys"
+[ "$OMV_VERSION" = "cooker" ] && PRE_PACKAGES="$PRE_PACKAGES openmandriva-repos-cooker"
+for i in $PRE_PACKAGES; do
+	P=`grep "^$i-[0-9].*" PACKAGES`
+	if [ "$?" != "0" ]; then
+		echo "Can't find $i package for target" >&2
+		exit 1
+	fi
+	curl -O $PKGS/$P
+	rpm -r "$ROOTDIR" -Uvh --ignorearch --nodeps $P
+done
+
+# Set up qemu if necessary
+case "$ARCH" in
+znver1)
+	QEMUARCH=x86_64
+	;;
+i?86)
+	QEMUARCH=i386
+	;;
+arm*)
+	QEMUARCH=arm
+	;;
+*)
+	QEMUARCH="$ARCH"
+	;;
+esac
+case "$(uname -m)" in
+znver1)
+	HOSTARCH=x86_64
+	;;
+i?86)
+	HOSTARCH=i386
+	;;
+arm*)
+	HOSTARCH=arm
+	;;
+*)
+	HOSTARCH="$(uname -m)"
+	;;
+esac
+
+CHROOT_COMMAND="chroot"
+if [ "$HOSTARCH" = "$QEMUARCH" ]; then
+	# No qemu needed...
+	unset QEMUARCH
+elif [ "$HOSTARCH" = "x86_64" -a "$QEMUARCH" = "i386" ]; then
+	# Also no need for qemu -- setarch and friends are enough
+	unset QEMUARCH
+	CHROOT_COMMAND="i386 chroot"
+elif [ "$HOSTARCH" = "aarch64" -a "$QEMUARCH" = "arm" ]; then
+	# FIXME is there any way to tell a 64-bit-only CPU apart from
+	# a regular aarch64 CPU that can handle 32bit code???
+	# For now, let's assume we're on a regular CPU...
+	unset QEMUARCH
+	CHROOT_COMMAND="linux32 chroot"
+fi
+
+if [ -n "$QEMUARCH" ]; then
+	dnf -y install qemu-static-$QEMUARCH || :
+	mkdir -p $ROOTDIR/usr/bin
+	cp /usr/bin/qemu-static-$QEMUARCH $ROOTDIR/usr/bin/
+fi
+
+# FIXME allow better package selection
+PACKAGES="basesystem task-devel rpm-build dnf bash"
+dnf -y install --installroot=$ROOTDIR --releasever=$OMV_VERSION --forcearch=$ARCH $PACKAGES
+# This should be there already, but better safe than sorry
+mkdir $ROOTDIR/home &>/dev/null || :
+cp -f /etc/passwd /etc/shadow /etc/group $ROOTDIR/etc
+
+for i in /dev /dev/shm /dev/pts /proc /sys /home; do
+	echo "$i	$ROOTDIR$i	none	bind	0	0" >>/etc/fstab
+	mount "$ROOTDIR$i"
+done
+
+echo "Done -- you can enter the chroot environment using"
+echo "	$CHROOT_COMMAND $ROOTDIR"
