@@ -153,4 +153,4 @@ for i in $PACKAGES; do
 	VERSION="${REALVERSION}"
 done
 
-abf chain_build -a znver1 -a aarch64 -a x86_64 -a armv7hnl -a i686 -b master --no-cached-chroot --update-type enhancement -i $PROJECT.buildlist
+abf chain_build -a znver1 -a aarch64 -a x86_64 -a armv7hnl -a i686 -b master --update-type enhancement -i $PROJECT.buildlist
