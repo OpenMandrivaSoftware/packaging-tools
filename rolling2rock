@@ -1,0 +1,32 @@
+#!/bin/sh
+D="$(mktemp -d /tmp/c2rXXXXXX)"
+
+error() {
+	echo "$@" >/dev/stderr
+	cd /
+	rm -rf "$D"
+	exit 1
+}
+
+if [ -z "$D" ]; then
+	echo "Couldn't create temporary directory"
+	exit 1
+fi
+if [ -z "$1" ]; then
+	echo "Usage: $0 package name"
+	exit 1
+fi
+cd "$D"
+if git clone -b 4.0 git@github.com:OpenMandrivaAssociation/$1; then
+	cd $1
+	if ! git merge origin/rolling; then
+		error "Couldn't automatically merge branches. Please try manually."
+	fi
+elif git clone git@github.com:OpenMandrivaAssociation/$1; then
+	cd $1
+	git checkout -b 4.0 origin/rolling
+else
+	error "Couldn't find repository for $1 - bad package name?"
+fi
+git push origin 4.0
+abf chain_build -b 4.0 -a aarch64 -a armv7hnl -a znver1 -a x86_64 -a i686 --auto-publish-status testing --no-cached-chroot --update-type enhancement openmandriva/$1
