@@ -63,7 +63,6 @@ cd "$TEMPDIR"
 PKGS=http://abf-downloads.openmandriva.org/$OMV_VERSION/repository/$ARCH/main/release/
 curl -s -L $PKGS |grep '^<a' |cut -d'"' -f2 >PACKAGES
 PRE_PACKAGES="openmandriva-repos openmandriva-repos-keys"
-[ "$OMV_VERSION" = "cooker" ] && PRE_PACKAGES="$PRE_PACKAGES openmandriva-repos-cooker"
 for i in $PRE_PACKAGES; do
 	P=`grep "^$i-[0-9].*" PACKAGES`
 	if [ "$?" != "0" ]; then
@@ -121,9 +120,9 @@ elif [ "$HOSTARCH" = "aarch64" -a "$QEMUARCH" = "arm" ]; then
 fi
 
 if [ -n "$QEMUARCH" ]; then
-	dnf -y install qemu-static-$QEMUARCH || :
+	dnf -y install qemu-$QEMUARCH-static || :
 	mkdir -p $ROOTDIR/usr/bin
-	cp /usr/bin/qemu-static-$QEMUARCH $ROOTDIR/usr/bin/
+	cp /usr/bin/qemu-$QEMUARCH-static $ROOTDIR/usr/bin/
 fi
 
 # FIXME allow better package selection
