@@ -127,7 +127,11 @@ fi
 
 # FIXME allow better package selection
 PACKAGES="basesystem task-devel rpm-build dnf bash"
-dnf -y install --installroot=$ROOTDIR --releasever=$OMV_VERSION --forcearch=$ARCH $PACKAGES
+if ! dnf -y install --installroot=$ROOTDIR --releasever=$OMV_VERSION --forcearch=$ARCH --refresh $PACKAGES; then
+	echo "Failed to install packages, probably there are dependency problems."
+	rm -rf $ROOTDIR
+	exit 1
+fi
 # This should be there already, but better safe than sorry
 mkdir $ROOTDIR/home &>/dev/null || :
 cp -f /etc/passwd /etc/shadow /etc/group $ROOTDIR/etc
