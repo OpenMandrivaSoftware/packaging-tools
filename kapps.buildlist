@@ -1,6 +1,6 @@
 openmandriva/akonadi openmandriva/khelpcenter
-openmandriva/kmime openmandriva/kontactinterface openmandriva/kcontacts
-openmandriva/kimap openmandriva/kmbox openmandriva/kcalcore openmandriva/kpimtextedit
+openmandriva/kmime openmandriva/kontactinterface
+openmandriva/kimap openmandriva/kmbox openmandriva/kpimtextedit
 openmandriva/kldap openmandriva/kidentitymanagement
 openmandriva/kcalutils
 openmandriva/ktnef
