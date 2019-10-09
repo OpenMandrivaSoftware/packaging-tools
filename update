@@ -77,17 +77,15 @@ for i in $PACKAGES; do
 	fi
 	sed -i -e "/${OLDEXP}\.tar/d" .abf.yml
 	if [ "$PROJECT" = "qt" ]; then
-		# Qt 5.10.0-rc1 is somewhat misnamed -- it's rc1 in the tarballs
-		# and filenames, but just "rc" in the directory name...
-		# Fortunately that's easy to adjust for (and equally easy to revert
-		# when 5.11.0-alpha1 or so is back to normal...)
-		sed -i -e 's#/%{version}-%{beta}/#/%{version}-%(echo %{beta} |sed -e "s,1$,,")/#' *.spec
+		# Qt often can't decide if it's "beta" or "beta1", and "rc" or "rc1"...
+		# Let's adjust the specs accordingly...
+		#sed -i -e 's#/%{version}-%{beta}/#/%{version}-%(echo %{beta} |sed -e "s,1$,,")/#' *.spec
+		sed -i -e 's#%{version}-%(echo %{beta} |sed -e "s,1$,,")/#%{version}-%{beta}/#' *.spec
 	fi
 	PKGVERSION=${VERSION}
 	# PKGVERSION is a separate variable just in case we need to do
 	# preprocessing here again (e.g. earlier versions of baloo didn't
 	# follow KF's versioning scheme)
-	[ "$i" = "kdelibs" ] && PKGVERSION=4.14.31
 	if [ "$OLDVERSION" = "${PKGVERSION}" ]; then
 		if grep -q '^%define beta' *.spec; then
 			if [ -n "$BETA" ] && grep -q "^%define beta $BETA\$" *.spec; then
