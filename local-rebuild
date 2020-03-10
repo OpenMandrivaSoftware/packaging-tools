@@ -1,0 +1,31 @@
+#!/bin/sh
+# Usage: rebuild project [reason]
+#	project: Project to rebuild (ls *.buildlist for available projects)
+#	reason: Reason to give in commit message
+#
+# (C) 2019 Bernhard Rosenkränzer <bero@lindev.ch>
+# Released under the terms of the GPLv3
+
+if [ "$#" -lt 1 ]; then
+	echo "Specify the project to rebuild"
+	exit 1
+fi
+
+PROJECT="$1"
+shift
+REASON="$@"
+[ -z "$REASON" ] && REASON="Rebuild"
+
+PACKAGES="$(cat $(dirname $0)/$PROJECT.buildlist |grep -vE '^#' |sed -e 's,openmandriva/,,g')"
+
+set -e
+
+for i in $PACKAGES; do
+	rm -rf ${i}
+	git clone git@github.com:OpenMandrivaAssociation/${i}.git || error $i
+	cd ${i}
+	abb restore
+	abb build
+	sudo rpm -Uvh --force RPMS/*/*
+	cd ..
+done
