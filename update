@@ -113,6 +113,7 @@ for i in $PACKAGES; do
 	fi
 	# Let's update download URLs while at it...
 	sed -i -e "s,ftp://ftp.kde.org/pub/kde,http://download.kde.org," *.spec
+	sed -i -e "s,^\(Source.*:.*\)/applications/\(.*$\),\1/release-service/\2,g" *.spec
 	#sed -i -e "s,stable/%{ver,stable/applications/%{ver," *.spec
 	sudo dnf builddep -y --nogpgcheck *.spec
 	if ${PRERELEASE}; then
