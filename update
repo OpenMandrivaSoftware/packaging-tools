@@ -134,7 +134,7 @@ for i in $PACKAGES; do
 		elif [ "${PROJECT}" = "pd" ]; then
 			SCPDIR=$SCPDIR/plasma/${VERSION}
 		elif [ "${PROJECT}" = "kapps" ]; then
-			SCPDIR=$SCPDIR/applications/${VERSION}/src
+			SCPDIR=$SCPDIR/release-service/${VERSION}/src
 		fi
 		scp ${SCPDIR}/${TARNAME}-${PKGVERSION}.tar.xz . || :
 	fi
