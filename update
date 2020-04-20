@@ -70,9 +70,7 @@ for i in $PACKAGES; do
 	if grep -q "^%define beta " *.spec; then
 		OLDBETA="$(cat *.spec |grep "^%define beta " |sed -e 's,^%define beta ,,')"
 		if [ "${OLDBETA}" != "%{nil}" ]; then
-			if [ "$PROJECT" != "qt" ]; then
-				OLDEXP="${OLDEXP}-${OLDBETA}"
-			fi
+			OLDEXP="${OLDEXP}-${OLDBETA}"
 		fi
 	fi
 	sed -i -e "/${OLDEXP}\.tar/d" .abf.yml
