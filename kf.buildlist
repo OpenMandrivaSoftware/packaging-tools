@@ -14,8 +14,9 @@ openmandriva/kxmlgui openmandriva/kwallet openmandriva/breeze-icons
 openmandriva/kbookmarks
 openmandriva/kio
 openmandriva/kirigami
+openmandriva/kpackage
 openmandriva/knewstuff
-openmandriva/kxmlrpcclient openmandriva/kparts openmandriva/kpeople openmandriva/kinit openmandriva/kpackage
+openmandriva/kxmlrpcclient openmandriva/kparts openmandriva/kpeople openmandriva/kinit
 openmandriva/kmediaplayer openmandriva/kdeclarative openmandriva/kded
 openmandriva/kcmutils openmandriva/knotifyconfig openmandriva/syntax-highlighting
 openmandriva/kactivities openmandriva/frameworkintegration openmandriva/khtml openmandriva/ktexteditor openmandriva/kdewebkit openmandriva/kross
@@ -24,3 +25,4 @@ openmandriva/krunner openmandriva/kdelibs4support openmandriva/kfilemetadata
 openmandriva/baloo
 openmandriva/kholidays openmandriva/purpose openmandriva/syndication openmandriva/qqc2-desktop-style
 openmandriva/kcalendarcore openmandriva/kcontacts
+openmandriva/kdav
