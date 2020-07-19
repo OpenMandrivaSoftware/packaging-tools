@@ -23,9 +23,7 @@ openmandriva/libgravatar
 openmandriva/messagelib
 openmandriva/mailcommon
 openmandriva/baloo-widgets openmandriva/dolphin openmandriva/akonadi-calendar-tools openmandriva/akonadi-import-wizard
-openmandriva/kblog
 openmandriva/kdegraphics-mobipocket
-openmandriva/kdav
 openmandriva/kdepim-runtime
 openmandriva/eventviews
 openmandriva/incidenceeditor
