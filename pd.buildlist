@@ -1,7 +1,8 @@
 openmandriva/drkonqi openmandriva/kwallet-pam openmandriva/plasma-pa openmandriva/user-manager openmandriva/kgamma5 openmandriva/kwayland-server
 openmandriva/libkscreen openmandriva/libksysguard
 openmandriva/bluedevil
-openmandriva/kdecoration openmandriva/kde-gtk-config
+openmandriva/kdecoration
+openmandriva/kde-gtk-config
 openmandriva/kinfocenter
 openmandriva/kmenuedit openmandriva/kscreen openmandriva/ksshaskpass openmandriva/ksysguard
 openmandriva/breeze openmandriva/kwrited openmandriva/milou openmandriva/discover
