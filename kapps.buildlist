@@ -6,6 +6,7 @@ openmandriva/kcalutils
 openmandriva/ktnef
 openmandriva/kalarmcal
 openmandriva/akonadi-mime
+openmandriva/grantleetheme openmandriva/libkleo
 openmandriva/akonadi-contacts
 openmandriva/ksmtp
 openmandriva/libkgapi
@@ -14,9 +15,6 @@ openmandriva/akonadi-notes
 openmandriva/akonadi-calendar openmandriva/akonadi-search
 openmandriva/libkdepim
 openmandriva/pimcommon
-openmandriva/grantleetheme
-openmandriva/libkleo
-openmandriva/kdepim-apps-libs
 openmandriva/calendarsupport
 openmandriva/mailimporter
 openmandriva/libgravatar
@@ -35,7 +33,7 @@ openmandriva/libkeduvocdocument
 openmandriva/libkexiv2
 openmandriva/libkipi
 openmandriva/kqtquickcharts openmandriva/artikulate openmandriva/marble openmandriva/konsole openmandriva/libkdcraw openmandriva/libksane openmandriva/analitza openmandriva/ark openmandriva/blinken openmandriva/cantor openmandriva/filelight openmandriva/gwenview openmandriva/spectacle openmandriva/kalgebra openmandriva/kalzium openmandriva/kamera openmandriva/kanagram openmandriva/kate openmandriva/kbruch openmandriva/kcalc openmandriva/kcharselect openmandriva/kcolorchooser openmandriva/okular openmandriva/kdegraphics-thumbnailers openmandriva/kdf openmandriva/kfloppy
-openmandriva/libkdegames openmandriva/libkgeomap
+openmandriva/libkdegames
 openmandriva/libkmahjongg
 openmandriva/kmahjongg
 openmandriva/libkcddb openmandriva/libkcompactdisc
@@ -49,3 +47,10 @@ openmandriva/lskat openmandriva/palapeli openmandriva/parley openmandriva/picmi 
 openmandriva/ktp-common-internals
 openmandriva/ktp-approver openmandriva/ktp-auth-handler openmandriva/ktp-contact-list openmandriva/ktp-filetransfer-handler openmandriva/ktp-kded-module openmandriva/ktp-send-file openmandriva/ktp-text-ui openmandriva/ktp-call-ui openmandriva/ktp-desktop-applets openmandriva/ktp-contact-runner openmandriva/ktp-accounts-kcm
 openmandriva/kamoso openmandriva/kopete openmandriva/kbackup openmandriva/kimagemapeditor
+openmandriva/kontrast openmandriva/konversation openmandriva/kpmcore
+openmandriva/partitionmanager
+openmandriva/libktorrent
+openmandriva/ktorrent
+openmandriva/markdownpart openmandriva/kosmindoormap
+openmandriva/kpublictransport
+openmandriva/itinerary 
