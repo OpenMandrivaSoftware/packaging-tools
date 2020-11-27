@@ -124,6 +124,8 @@ for i in $PACKAGES; do
 			TARNAME=${i}
 		elif [ "${i}" = "kirigami" ]; then
 			TARNAME=${i}2
+		elif [ "${i}" = "kdeconnect" ]; then
+			TARNAME="kdeconnect-kde"
 		else
 			TARNAME=$(echo ${i} |sed -e 's,5$,,')
 		fi
@@ -150,4 +152,4 @@ for i in $PACKAGES; do
 	VERSION="${REALVERSION}"
 done
 
-abf chain_build -a znver1 -a aarch64 -a x86_64 -a armv7hnl -a i686 -b master --update-type enhancement -i $PROJECT.buildlist
+abf chain_build -a znver1 -a aarch64 -a x86_64 -b master --no-extra-tests --update-type enhancement -i $PROJECT.buildlist
