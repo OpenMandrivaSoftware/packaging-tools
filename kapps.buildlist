@@ -50,7 +50,8 @@ openmandriva/kamoso openmandriva/kopete openmandriva/kbackup openmandriva/kimage
 openmandriva/kontrast openmandriva/konversation openmandriva/kpmcore
 openmandriva/partitionmanager
 openmandriva/libktorrent
-openmandriva/ktorrent
-openmandriva/markdownpart openmandriva/kosmindoormap
+openmandriva/ktorrent openmandriva/elisa openmandriva/kdeconnect
+openmandriva/markdownpart
 openmandriva/kpublictransport
-openmandriva/itinerary 
+openmandriva/kosmindoormap
+openmandriva/itinerary
