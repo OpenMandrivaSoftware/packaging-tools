@@ -6,7 +6,7 @@
 #		VERSION=cooker
 #		ARCH=host arch
 
-if [ "`id -u`" != "0" ]; then
+if [ "$(id -u)" != '0' ]; then
 	exec sudo $0 "$@"
 	exit 1
 fi
@@ -64,7 +64,7 @@ PKGS=http://abf-downloads.openmandriva.org/$OMV_VERSION/repository/$ARCH/main/re
 curl -s -L $PKGS |grep '^<a' |cut -d'"' -f2 >PACKAGES
 PRE_PACKAGES="distro-release-repos openmandriva-repos-keys"
 for i in $PRE_PACKAGES; do
-	P=`grep "^$i-[0-9].*" PACKAGES`
+	P=$(grep "^$i-[0-9].*" PACKAGES)
 	if [ "$?" != "0" ]; then
 		echo "Can't find $i package for target" >&2
 		exit 1
@@ -107,11 +107,11 @@ CHROOT_COMMAND="chroot"
 if [ "$HOSTARCH" = "$QEMUARCH" ]; then
 	# No qemu needed...
 	unset QEMUARCH
-elif [ "$HOSTARCH" = "x86_64" -a "$QEMUARCH" = "i386" ]; then
+elif [ "$HOSTARCH" = "x86_64" ] && [ "$QEMUARCH" = "i386" ]; then
 	# Also no need for qemu -- setarch and friends are enough
 	unset QEMUARCH
 	CHROOT_COMMAND="i386 chroot"
-elif [ "$HOSTARCH" = "aarch64" -a "$QEMUARCH" = "arm" ]; then
+elif [ "$HOSTARCH" = "aarch64" ] && [ "$QEMUARCH" = "arm" ]; then
 	# FIXME is there any way to tell a 64-bit-only CPU apart from
 	# a regular aarch64 CPU that can handle 32bit code???
 	# For now, let's assume we're on a regular CPU...

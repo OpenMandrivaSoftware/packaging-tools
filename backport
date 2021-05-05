@@ -13,7 +13,7 @@ fi
 if echo $1 |grep -q '\.buildlist'; then
 	cat $1 |while read r; do
 		for pkg in $r; do
-			p=`echo $pkg |sed -e 's,openmandriva/,,'`
+			p=$(echo $pkg |sed -e 's,openmandriva/,,')
 			$0 -n $p
 		done
 	done
@@ -22,7 +22,7 @@ if echo $1 |grep -q '\.buildlist'; then
 	fi
 	exit 0
 fi
-TMPDIR=`mktemp -d /tmp/backportXXXXXX`
+TMPDIR=$(mktemp -d /tmp/backportXXXXXX)
 cd $TMPDIR
 git clone git@github.com:OpenMandrivaAssociation/$1.git
 cd $1
