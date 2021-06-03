@@ -6,7 +6,7 @@
 digits() {
 	local i
 	echo -n $(
-	 ( for i in `seq 1 $1`; do
+	 ( for i in $(seq 1 $1); do
 		echo -n 0;
 	done ; echo -n $2 ) | rev | cut -b1-$1 | rev)
 }
