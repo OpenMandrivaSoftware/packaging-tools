@@ -5,6 +5,10 @@ if [ "$1" = "-n" ]; then
 	DO_ABF_BUILD=false
 	shift
 fi
+if [ "$1" = "-f" -o "$1" = "--force" ]; then
+	FORCE=true
+	shift
+fi
 
 if echo $1 |grep -q '\.buildlist'; then
 	cat $1 |while read r; do
@@ -36,16 +40,26 @@ if [ -z "$1" ]; then
 fi
 
 cd "$D"
-if git clone -b rolling git@github.com:OpenMandrivaAssociation/$1; then
-	cd $1
-	if ! git merge origin/master; then
-		error "Couldn't automatically merge branches. Please try manually."
+if [ "$FORCE" = "true" ]; then
+	if git clone git@github.com:OpenMandrivaAssociation/$1; then
+		cd $1
+		git checkout -b rolling origin/master
+		git push --force origin rolling
+	else
+		error "Couldn't find repository for $1 - bad package name?"
 	fi
-elif git clone git@github.com:OpenMandrivaAssociation/$1; then
-	cd $1
-	git checkout -b rolling origin/master
 else
-	error "Couldn't find repository for $1 - bad package name?"
+	if git clone -b rolling git@github.com:OpenMandrivaAssociation/$1; then
+		cd $1
+		if ! git merge origin/master; then
+			error "Couldn't automatically merge branches. Please try manually."
+		fi
+	elif git clone git@github.com:OpenMandrivaAssociation/$1; then
+		cd $1
+		git checkout -b rolling origin/master
+	else
+		error "Couldn't find repository for $1 - bad package name?"
+	fi
+	git push origin rolling
 fi
-git push origin rolling
 $DO_ABF_BUILD && abf chain_build -b rolling -a aarch64 -a armv7hnl -a znver1 -a x86_64 -a i686 --auto-publish-status testing --no-cached-chroot --update-type enhancement openmandriva/$1
