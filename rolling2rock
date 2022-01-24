@@ -1,6 +1,6 @@
 #!/bin/sh
 D="$(mktemp -d /tmp/c2rXXXXXX)"
-rock_b=4.2
+rock_b=4.3
 error() {
 	echo "$@" >/dev/stderr
 	cd /
@@ -45,4 +45,4 @@ else
 	fi
 	git push origin $rock_b
 fi
-abf chain_build -b $rock_b -a aarch64 -a armv7hnl -a znver1 -a x86_64 -a i686 --auto-publish-status testing --no-cached-chroot --update-type enhancement openmandriva/$1
+abf chain_build -b $rock_b -a aarch64 -a znver1 -a x86_64 --auto-publish-status testing --no-cached-chroot --update-type enhancement openmandriva/$1
