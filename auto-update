@@ -73,6 +73,7 @@ ourVersion() {
 upstreamVersion() {
 	local SOURCE
 	local PKGNAME
+	local NAME
 	local EXCLUDE
 	local VERSIONS
 	local IGNOREODD
@@ -305,6 +306,16 @@ upstreamVersion() {
 		elif echo $SOURCE |grep -qE '(sourceforge|sf)\.net'; then
 			[ -z "$SFPROJECT" ] && SFPROJECT=$1
 			VERSIONS=$(echo -n $(curl -s -L -A 'Mozilla/5.0 (X11; Linux x86_64)' https://sourceforge.net/projects/$SFPROJECT/files/ |grep -b1 'Download Latest Version' |tail -n1 |sed -e "s,.*>$PKGNAME-,,;s,\.tar.*,,"))
+		elif echo $SOURCE |grep -qE 'pythonhosted\.org'; then
+			NAME="`echo $SOURCE |cut -d/ -f7`"
+			if [ -z "$NAME" ] || (echo $NAME |grep -q %); then
+				NAME=`echo $PKGNAME |sed -e 's,^python-,,'`
+			fi
+			curl https://pypi.org/pypi/$NAME/json >/tmp/$NAME.$$
+			if [ -e /tmp/$NAME.$$ ]; then
+				VERSIONS=`cat /tmp/$NAME.$$ |python -c "import sys,json; print(json.load(sys.stdin)['info']['version']);"`
+				rm -f /tmp/$NAME.$$
+			fi
 		elif echo $SOURCE |grep -qE 'git(hub|lab).com'; then
 			VERSIONS=$(git ls-remote --tags $(echo $SOURCE |cut -d/ -f1-5) 2>/dev/null|awk '{ print $2; }' |sed -e 's,refs/tags/,,;s,_,.,g;s,-,.,g;s,^v\.,,;s,^v,,' |grep -E '^[0-9.]+$')
 		fi
