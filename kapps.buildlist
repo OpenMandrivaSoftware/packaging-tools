@@ -4,7 +4,6 @@ openmandriva/kimap openmandriva/kmbox openmandriva/kpimtextedit
 openmandriva/kldap openmandriva/kidentitymanagement
 openmandriva/kcalutils
 openmandriva/ktnef
-openmandriva/kalarmcal
 openmandriva/akonadi-mime
 openmandriva/grantleetheme openmandriva/libkleo
 openmandriva/akonadi-contacts
