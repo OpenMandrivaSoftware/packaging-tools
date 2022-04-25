@@ -1,6 +1,6 @@
 #!/bin/sh
 D="$(mktemp -d /tmp/c2rXXXXXX)"
-
+rock_b=4.3
 error() {
 	echo "$@" >/dev/stderr
 	cd /
@@ -12,21 +12,37 @@ if [ -z "$D" ]; then
 	echo "Couldn't create temporary directory"
 	exit 1
 fi
+if [ "$1" = "-f" -o "$1" = "--force" ]; then
+	FORCE=true
+	shift
+fi
 if [ -z "$1" ]; then
 	echo "Usage: $0 package name"
 	exit 1
 fi
 cd "$D"
-if git clone -b 4.1 git@github.com:OpenMandrivaAssociation/$1; then
-	cd $1
-	if ! git merge origin/rolling; then
-		error "Couldn't automatically merge branches. Please try manually."
+if [ "$FORCE" = "true" ]; then
+	if git clone git@github.com:OpenMandrivaAssociation/$1; then
+		cd $1
+		if ! git checkout -b $rock_b origin/rolling; then
+			error "No rolling branch - maybe you need to use cooker2rolling first"
+		fi
+		git push --force origin $rock_b
+	else
+		error "Couldn't find repository for $1 - bad package name?"
 	fi
-elif git clone git@github.com:OpenMandrivaAssociation/$1; then
-	cd $1
-	git checkout -b 4.1 origin/rolling
 else
-	error "Couldn't find repository for $1 - bad package name?"
+	if git clone -b $rock_b git@github.com:OpenMandrivaAssociation/$1; then
+		cd $1
+		if ! git merge origin/rolling; then
+			error "Couldn't automatically merge branches. Please try manually."
+		fi
+	elif git clone git@github.com:OpenMandrivaAssociation/$1; then
+		cd $1
+		git checkout -b $rock_b origin/rolling
+	else
+		error "Couldn't find repository for $1 - bad package name?"
+	fi
+	git push origin $rock_b
 fi
-git push origin 4.1
-abf chain_build -b 4.1 -a aarch64 -a armv7hnl -a znver1 -a x86_64 -a i686 --auto-publish-status testing --no-cached-chroot --update-type enhancement openmandriva/$1
+abf chain_build -b $rock_b -a aarch64 -a znver1 -a x86_64 --auto-publish-status testing --no-cached-chroot --update-type enhancement openmandriva/$1

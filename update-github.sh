@@ -3,10 +3,10 @@
 # This script updates all branches of a package in github
 
 # update repos in github
-for i in `ls -d */`; do
+for i in $(ls -d */); do
     pushd ${i%?}
-	if `ls *.spec >/dev/null`;  then
-	    for branch in `git branch -a | grep remotes | grep -v HEAD | grep -v master`; do
+	if $(ls *.spec >/dev/null);  then
+	    for branch in $(git branch -a | grep remotes | grep -v HEAD | grep -v master); do
 		git branch --track ${branch##*/} $branch
 	    done
 	    git fetch --all

@@ -1,10 +1,11 @@
-openmandriva/drkonqi openmandriva/kwallet-pam openmandriva/plasma-pa openmandriva/kgamma5 openmandriva/kwayland-server
+openmandriva/drkonqi openmandriva/kwallet-pam openmandriva/plasma-pa openmandriva/kgamma5 openmandriva/kwayland-server openmandriva/plasma-disks openmandriva/layer-shell-qt
 openmandriva/libkscreen openmandriva/libksysguard
+openmandriva/ksystemstats
 openmandriva/bluedevil
 openmandriva/kdecoration
 openmandriva/kde-gtk-config
 openmandriva/kinfocenter
-openmandriva/kmenuedit openmandriva/kscreen openmandriva/ksshaskpass openmandriva/ksysguard
+openmandriva/kmenuedit openmandriva/kscreen openmandriva/ksshaskpass
 openmandriva/breeze openmandriva/kwrited openmandriva/milou openmandriva/discover
 openmandriva/kscreenlocker
 openmandriva/oxygen openmandriva/kwayland-integration openmandriva/kwin openmandriva/breeze-gtk openmandriva/kactivitymanagerd
@@ -14,4 +15,4 @@ openmandriva/plasma-desktop
 openmandriva/plasma-nm
 openmandriva/kdeplasma-addons openmandriva/polkit-kde-agent-1 openmandriva/powerdevil openmandriva/sddm-kcm openmandriva/systemsettings openmandriva/plasma-sdk openmandriva/plasma-integration openmandriva/plasma-workspace-wallpapers openmandriva/breeze-grub openmandriva/breeze-plymouth openmandriva/plasma-browser-integration openmandriva/plasma-vault openmandriva/plymouth-kcm openmandriva/xdg-desktop-portal-kde
 openmandriva/plasma-nano
-openmandriva/plasma-firewall openmandriva/plasma-systemmonitor openmandriva/qqc2-breeze-style openmandriva/plasma-phone-components
+openmandriva/plasma-firewall openmandriva/plasma-systemmonitor openmandriva/qqc2-breeze-style openmandriva/plasma-mobile
