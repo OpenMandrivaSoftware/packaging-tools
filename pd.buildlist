@@ -1,4 +1,4 @@
-openmandriva/drkonqi openmandriva/kwallet-pam openmandriva/plasma-pa openmandriva/kgamma5 openmandriva/kwayland-server openmandriva/plasma-disks openmandriva/layer-shell-qt
+openmandriva/drkonqi openmandriva/kwallet-pam openmandriva/plasma-pa openmandriva/kgamma5 openmandriva/plasma-disks openmandriva/layer-shell-qt
 openmandriva/libkscreen openmandriva/libksysguard
 openmandriva/ksystemstats
 openmandriva/bluedevil
@@ -8,7 +8,7 @@ openmandriva/kinfocenter
 openmandriva/kmenuedit openmandriva/kscreen openmandriva/ksshaskpass
 openmandriva/breeze openmandriva/kwrited openmandriva/milou openmandriva/discover
 openmandriva/kscreenlocker
-openmandriva/oxygen openmandriva/kwayland-integration openmandriva/kwin openmandriva/breeze-gtk openmandriva/kactivitymanagerd
+openmandriva/oxygen openmandriva/oxygen-sounds openmandriva/kwayland-integration openmandriva/kwin openmandriva/breeze-gtk openmandriva/kactivitymanagerd
 openmandriva/plasma-workspace
 openmandriva/kde-cli-tools openmandriva/khotkeys
 openmandriva/plasma-desktop
