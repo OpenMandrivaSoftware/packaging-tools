@@ -62,7 +62,7 @@ cd "$TEMPDIR"
 # without having the repositories configured...
 PKGS=http://abf-downloads.openmandriva.org/$OMV_VERSION/repository/$ARCH/main/release/
 curl -s -L $PKGS |grep '^<a' |cut -d'"' -f2 >PACKAGES
-PRE_PACKAGES="distro-release-repos openmandriva-repos-keys"
+PRE_PACKAGES="distro-release-repos distro-release-repos-keys"
 for i in $PRE_PACKAGES; do
 	P=$(grep "^$i-[0-9].*" PACKAGES)
 	if [ "$?" != "0" ]; then
