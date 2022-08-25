@@ -1,0 +1,8 @@
+openmandriva/qt6-qtbase
+openmandriva/qt6-qtshadertools openmandriva/qt6-qtimageformats openmandriva/qt6-qtserialport openmandriva/qt6-qtnetworkauth openmandriva/qt6-qtsensors openmandriva/qt6-qthttpserver openmandriva/qt6-qtlanguageserver
+openmandriva/qt6-qtdeclarative openmandriva/qt6-qtserialbus
+openmandriva/qt6-qtsvg openmandriva/qt6-qtlottie openmandriva/qt6-qttools openmandriva/qt6-qtwayland openmandriva/qt6-qtquicktimeline openmandriva/qt6-qtdoc openmandriva/qt6-qtwebchannel openmandriva/qt6-qt5compat openmandriva/qt6-qtwebsockets openmandriva/qt6-qtquick3d openmandriva/qt6-qtpositioning openmandriva/qt6-qt3d openmandriva/qt6-qtscxml openmandriva/qt6-qtvirtualkeyboard openmandriva/qt6-qtremoteobjects openmandriva/qt6-qtcharts openmandriva/qt6-qtdatavis3d openmandriva/qt6-qtconnectivity
+openmandriva/qt6-qtmultimedia openmandriva/qt6-qttranslations openmandriva/qt6-qtquick3dphysics
+openmandriva/qt6-qtspeech
+openmandriva/qt6-qtwebengine
+openmandriva/qt6-qtwebview
