@@ -81,7 +81,7 @@ upstreamVersion() {
 	local EXPR=""
 	local EXTRA=""
 	rm -f check-update.sh
-	curl --fail -o /dev/null -O check-update.sh -s -L https://github.com/OpenMandrivaAssociation/$1/raw/master/check-update.sh
+	curl --fail -o check-update.sh -s -L https://github.com/OpenMandrivaAssociation/$1/raw/master/check-update.sh &>/dev/null
 	if [ -e check-update.sh ]; then
 		chmod +x check-update.sh
 		./check-update.sh
@@ -146,6 +146,19 @@ upstreamVersion() {
 		# the corresponding wine-staging patchset is released as well...
 		echo -n $(curl -s -L https://raw.githubusercontent.com/wine-compholio/wine-staging/master/patches/patchinstall.sh |grep 'echo "Wine Staging' |cut -d'"' -f2 |cut -d' ' -f3)
 		;;
+	python-*)
+		local pypiName="$(echo $1 |cut -d- -f2-)"
+		curl --fail -o /tmp/$pypiName.$$ https://pypi.org/pypi/$pypiName/json &>/dev/null
+		# e.g. python-curl -> pycurl
+		[ -e /tmp/$pypiName.$$ ] || curl --fail -o /tmp/$pypiName.$$ https://pypi.org/pypi/py$pypiName/json &>/dev/null
+		# e.g. python-twisted -> Twisted
+		[ -e /tmp/$pypiName.$$ ] || curl --fail -o /tmp/$pypiName.$$ https://pypi.org/pypi/$(echo $pypiName |cut -b1 |tr a-z A-Z)$(echo $pypiName |cut -b2-)/json &>/dev/null
+		if [ -e /tmp/$pypiName.$$ ]; then
+			cat /tmp/$pypiName.$$ |python -c "import sys,json; print(json.load(sys.stdin)['info']['version']);"
+        		rm -f /tmp/$pypiName.$$
+			return 0
+		fi
+		;;
 	*)
 		# default: Assume Source0: or Source: points at a file in a
 		# listable directory containing all available versions
@@ -189,19 +202,6 @@ upstreamVersion() {
 			;;
 		nano)
 			SOURCE=https://nano-editor.org/download.php
-			;;
-		python-curl)
-			# Probably the same for a few other yet to be located
-			# packages -- so using sed instead of just hardcoding the results
-			PKGNAME=$(echo $1 |sed -e 's,python-,py,')
-			;;
-		python-reportlab)
-			# Probably the same for a few other yet to be located
-			# packages -- so using sed instead of just hardcoding the results
-			PKGNAME=$(echo $1 |sed -e 's,python-,,')
-			;;
-		python-twisted)
-			PKGNAME=Twisted
 			;;
 		sope)
 			SOURCE=https://sogo.nu/files/downloads/SOGo/Sources/
