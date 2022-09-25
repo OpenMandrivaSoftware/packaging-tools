@@ -80,6 +80,14 @@ upstreamVersion() {
 	local SFPROJECT=""
 	local EXPR=""
 	local EXTRA=""
+	rm -f check-update.sh
+	curl --fail -o /dev/null -O check-update.sh -s -L https://github.com/OpenMandrivaAssociation/$1/raw/master/check-update.sh
+	if [ -e check-update.sh ]; then
+		chmod +x check-update.sh
+		./check-update.sh
+		rm -f check-update.sh
+		return 0
+	fi
 	case $1 in
 	acpica)
 		echo -n $(curl -s -L -A 'Mozilla/5.0 (X11; Linux x86_64)' https://acpica.org/downloads |grep -E "href=.*acpica-unix-" |sed -e "s,.*acpica-unix-,,;s,\.tar.*,,")
@@ -425,6 +433,7 @@ update() {
 		REMOVE_DISABLE_SOURCE_FETCH=1
 	fi
 	ls -AF |grep -vE '/$' >files-before-rpm
+	[ -e package-source.sh ] && sh package-source.sh
 	abb build 2>&1 |tee BUILD.LOG
 	ls -AF |grep -vE '(BUILD.LOG|files-after-rpm|\.buildlog|/)$' >files-after-rpm
 	if [ "$REMOVE_DISABLE_SOURCE_FETCH" = 1 ]; then
