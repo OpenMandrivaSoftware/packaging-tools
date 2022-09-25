@@ -15,6 +15,16 @@ debug() {
 	[ -n "$DEBUG" ] && echo "$@" >&2
 }
 
+json() {
+	python -c "
+import json,sys
+try:
+	print(json.load(sys.stdin)$@)
+except IndexError:
+	pass
+"
+}
+
 # Determine the latest of a list of versions
 # Current assumptions for simplicity that might cause problems
 # in the future: Version numbers are fully numeric (no 1.2.3a),
@@ -154,7 +164,7 @@ upstreamVersion() {
 		# e.g. python-twisted -> Twisted
 		[ -e /tmp/$pypiName.$$ ] || curl --fail -o /tmp/$pypiName.$$ https://pypi.org/pypi/$(echo $pypiName |cut -b1 |tr a-z A-Z)$(echo $pypiName |cut -b2-)/json &>/dev/null
 		if [ -e /tmp/$pypiName.$$ ]; then
-			cat /tmp/$pypiName.$$ |python -c "import sys,json; print(json.load(sys.stdin)['info']['version']);"
+			cat /tmp/$pypiName.$$ |json "['info']['version']"
         		rm -f /tmp/$pypiName.$$
 			return 0
 		fi
@@ -321,7 +331,7 @@ upstreamVersion() {
 			fi
 			curl https://pypi.org/pypi/$NAME/json >/tmp/$NAME.$$
 			if [ -e /tmp/$NAME.$$ ]; then
-				VERSIONS=`cat /tmp/$NAME.$$ |python -c "import sys,json; print(json.load(sys.stdin)['info']['version']);"`
+				VERSIONS=`cat /tmp/$NAME.$$ |json "['info']['version']"`
 				rm -f /tmp/$NAME.$$
 			fi
 		elif echo $SOURCE |grep -qE 'git(hub|lab).com'; then
@@ -458,20 +468,64 @@ update() {
 	rm -rf "$D"
 }
 
+if [ "$1" = "-a" -o "$1" = "--all" ]; then
+	if [ -z "$OAUTH_TOKEN" ]; then
+		echo "For --all to work, export OAUTH_TOKEN=\"token\""
+		echo "where \"token\" is a github authentication token"
+		echo "generated at https://github.com/settings/token"
+		exit 1
+	fi
+	PACKAGES=""
+	PERPAGE=100
+	COUNT=0
+	START=""
+	org=OpenMandrivaAssociation
+	echo -n "Getting list of packages "
+	while true; do
+		echo -n .
+		QUERY="{\"query\": \"query {organization(login:\\\"$org\\\") { id name repositories(first:$PERPAGE $START) { edges { node { id name } cursor } pageInfo { endCursor hasNextPage } } } }\""
+		REPOS="$(curl -H "Authorization: token $OAUTH_TOKEN" -X POST -d "$QUERY" https://api.github.com/graphql 2>/dev/null)"
+		if [ -z "$REPOS" ]; then
+			 echo "$QUERY failed" >&2
+			 break
+		fi
+		for i in $(seq 0 $((PERPAGE-1))); do
+			R="$(echo $REPOS |json "['data']['organization']['repositories']['edges'][$i]['node']['name']").git"
+			if [ "$R" = ".git" ]; then
+				echo "No more repositories at $QUERY $i" >&2
+				break
+			fi
+			if [ "$R" = "abf-yml.git" -o "$R" = "secret-keys.git" -o "$R" = "OpenMandrivaAssociation.github.io.git" ]; then
+				# These repositories contain passwords and aren't public
+				# Since we aren't authenticated, can't mirror them
+				continue
+			fi
+			COUNT=$((COUNT+1))
+			PACKAGES="$PACKAGES $(echo $R |sed -e 's,\.git$,,')"
+		done
+		[ "$(echo $REPOS |json "['data']['organization']['repositories']['pageInfo']['hasNextPage']")" != "True" ] && break
+		START="after:\\\"$(echo $REPOS |json "['data']['organization']['repositories']['pageInfo']['endCursor']")\\\""
+	done
+	echo
+	shift
+fi
+
 if [ "$1" = "-d" -o "$1" = "--dry-run" ]; then
 	export DRYRUN=1
 	shift
 fi
 
-if [ "$#" -gt 0 ]; then
-	PACKAGES="$@"
-else
-	# Packages known to work under normal conditions...
-	# Listed in alphabetic order, except when one update typically
-	# depends on another (e.g. sogo needs to go after sope)
-	# Also, larger blocks of related packages (e.g. X11) may be grouped
-	# together
-	PACKAGES="a2ps acmetool acpica adcli adwaita-icon-theme ags aisleriot alsa-lib alsa-utils alsa-tools appstream-glib arping asio babeltrace bino bison bmake chromium-browser-dev chromium-browser-stable cmake cups-filters curl dhcpcd diffutils digikam e2fsprogs fann ffmpeg firefox flac freetds freetype gdbm git gnupg gnustep-make gnustep-base gnustep-gui grantlee gsl gstreamer gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly guile gzip harfbuzz imagemagick imagemagick6 indilib iproute2 itstool iw joe kaffeine krb5 ladspa lame libaacs libbsd libbluray libcdio libcdr libcmis libdmtx libdrm libdvbpsi libdvdread libdvdnav libdvdcss libixion libogg liborcus libshout libqalculate libraw libssh2 libtiff libunistring libvisio libvorbis libzip man-pages mercurial mesa microcode-intel mpg123 nasm nettle nfs-utils nss mdds mpfr mpv onig openttd optipng patch pciutils physfs pigz polkit poppler pth python-twisted qpdf redis rspamd rsync scons smplayer sope sogo strace talloc tevent tdb usbutils ldb samba sqlite subversion tor vim vorbis-tools warzone2100 xfsprogs xmlrpc-epi xmlsec1 x11-driver-input-acecad x11-driver-input-aiptek x11-driver-input-citron x11-driver-input-evdev x11-driver-input-fpit x11-driver-input-hyperpen x11-driver-input-joystick x11-driver-input-keyboard x11-driver-input-libinput x11-driver-input-mouse x11-driver-input-mutouch x11-driver-input-penmount x11-driver-input-synaptics x11-driver-input-vmmouse x11-driver-input-void x11-driver-video-amdgpu x11-driver-video-apm x11-driver-video-ark x11-driver-video-ast x11-driver-video-ati x11-driver-video-chips x11-driver-video-dummy x11-driver-video-fbdev x11-driver-video-freedreno x11-driver-video-geode x11-driver-video-glint x11-driver-video-i128 x11-driver-video-i740 x11-driver-video-intel x11-driver-video-mach64 x11-driver-video-neomagic x11-driver-video-newport x11-driver-video-nouveau x11-driver-video-nv x11-driver-video-omap x11-driver-video-openchrome x11-driver-video-opentegra x11-driver-video-qxl x11-driver-video-r128 x11-driver-video-rendition x11-driver-video-s3 x11-driver-video-s3virge x11-driver-video-savage x11-driver-video-siliconmotion x11-driver-video-sis x11-driver-video-sisusb x11-driver-video-tdfx x11-driver-video-tga x11-driver-video-trident x11-driver-video-tseng x11-driver-video-v4l x11-driver-video-vesa x11-driver-video-vmware x11-driver-video-voodoo x11-driver-video-xgixp libdmx libfontenc libfs libice liblbxutil libpciaccess libpthread-stubs libsm libx11 libxau libxaw libxcomposite libxcursor libxdamage libxdmcp libxevie libxext libxfixes libxfont libxfont2 libxfontcache libxft libxi libxinerama libxkbfile libxkbui libxmu libxpm libxpresent libxrandr libxrender libxres libxscrnsaver libxshmfence libxt libxtrap libxtst libxv libxvmc libxxf86dga libxxf86misc pixman x11-xtrans-devel appres bdftopcf beforelight bitmap editres fonttosfnt fslsfonts fstobdf grandr iceauth ico intel-gpu-tools lbxproxy listres luit mkcomposecache mkfontdir mkfontscale oclock proxymngr rendercheck rgb rstart sessreg setxkbmap showfont smproxy twm viewres x11perf xauth xbacklight xbiff x11-data-bitmaps xcalc xclipboard xclock xcmsdb xcompmgr xconsole xcursorgen xdbedizzy xditview xdm xdpyinfo xdriinfo xedit xev xeyes xf86dga xfd xfindproxy xfontsel xfs xfsinfo xfwp xgamma xgc xhost xinit xinput xkbcomp xkbevd xkbprint xkbutils xkill xload xlogo xlsatoms xlsclients xlsfonts xmag xman xmessage xmh xmodmap xmore xpr xprop xrandr xrdb xrefresh xrx xscope xset xsetmode xsetpointer xsetroot xsm xstdcmap xtrap xvidtune xvinfo xwd xwininfo xwud xkeyboard-config x11-server gccmakedep imake lndir makedepend x11-util-macros x11-util-cf-files libxcb xcb-util xcb-util-image xcb-util-keysyms xcb-util-renderutil xcb-util-wm wine atk1.0 atkmm at-spi2-core at-spi2-atk dconf libcroco0.6 librsvg babl gegl cogl clutter libchamplain libopenraw libpeas libsigc-2.0 libsigc-3.0 glib2.0 glibmm gssdp gupnp gupnp-igd libnice farstream gsettings-desktop-schemas gtkmm3.0 gtksourceview gedit gvfs yelp libmbim libqmi ModemManager NetworkManager pangomm whois htop nginx networkmanager-pptp firewalld stunnel ssr proj"
+if [ -z "$PACKAGES" ]; then
+	if [ "$#" -gt 0 ]; then
+		PACKAGES="$@"
+	else
+		# Packages known to work under normal conditions...
+		# Listed in alphabetic order, except when one update typically
+		# depends on another (e.g. sogo needs to go after sope)
+		# Also, larger blocks of related packages (e.g. X11) may be grouped
+		# together
+		PACKAGES="a2ps acmetool acpica adcli adwaita-icon-theme ags aisleriot alsa-lib alsa-utils alsa-tools appstream-glib arping asio babeltrace bino bison bmake chromium-browser-dev chromium-browser-stable cmake cups-filters curl dhcpcd diffutils digikam e2fsprogs fann ffmpeg firefox flac freetds freetype gdbm git gnupg gnustep-make gnustep-base gnustep-gui grantlee gsl gstreamer gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly guile gzip harfbuzz imagemagick imagemagick6 indilib iproute2 itstool iw joe kaffeine krb5 ladspa lame libaacs libbsd libbluray libcdio libcdr libcmis libdmtx libdrm libdvbpsi libdvdread libdvdnav libdvdcss libixion libogg liborcus libshout libqalculate libraw libssh2 libtiff libunistring libvisio libvorbis libzip man-pages mercurial mesa microcode-intel mpg123 nasm nettle nfs-utils nss mdds mpfr mpv onig openttd optipng patch pciutils physfs pigz polkit poppler pth python-twisted qpdf redis rspamd rsync scons smplayer sope sogo strace talloc tevent tdb usbutils ldb samba sqlite subversion tor vim vorbis-tools warzone2100 xfsprogs xmlrpc-epi xmlsec1 x11-driver-input-acecad x11-driver-input-aiptek x11-driver-input-citron x11-driver-input-evdev x11-driver-input-fpit x11-driver-input-hyperpen x11-driver-input-joystick x11-driver-input-keyboard x11-driver-input-libinput x11-driver-input-mouse x11-driver-input-mutouch x11-driver-input-penmount x11-driver-input-synaptics x11-driver-input-vmmouse x11-driver-input-void x11-driver-video-amdgpu x11-driver-video-apm x11-driver-video-ark x11-driver-video-ast x11-driver-video-ati x11-driver-video-chips x11-driver-video-dummy x11-driver-video-fbdev x11-driver-video-freedreno x11-driver-video-geode x11-driver-video-glint x11-driver-video-i128 x11-driver-video-i740 x11-driver-video-intel x11-driver-video-mach64 x11-driver-video-neomagic x11-driver-video-newport x11-driver-video-nouveau x11-driver-video-nv x11-driver-video-omap x11-driver-video-openchrome x11-driver-video-opentegra x11-driver-video-qxl x11-driver-video-r128 x11-driver-video-rendition x11-driver-video-s3 x11-driver-video-s3virge x11-driver-video-savage x11-driver-video-siliconmotion x11-driver-video-sis x11-driver-video-sisusb x11-driver-video-tdfx x11-driver-video-tga x11-driver-video-trident x11-driver-video-tseng x11-driver-video-v4l x11-driver-video-vesa x11-driver-video-vmware x11-driver-video-voodoo x11-driver-video-xgixp libdmx libfontenc libfs libice liblbxutil libpciaccess libpthread-stubs libsm libx11 libxau libxaw libxcomposite libxcursor libxdamage libxdmcp libxevie libxext libxfixes libxfont libxfont2 libxfontcache libxft libxi libxinerama libxkbfile libxkbui libxmu libxpm libxpresent libxrandr libxrender libxres libxscrnsaver libxshmfence libxt libxtrap libxtst libxv libxvmc libxxf86dga libxxf86misc pixman x11-xtrans-devel appres bdftopcf beforelight bitmap editres fonttosfnt fslsfonts fstobdf grandr iceauth ico intel-gpu-tools lbxproxy listres luit mkcomposecache mkfontdir mkfontscale oclock proxymngr rendercheck rgb rstart sessreg setxkbmap showfont smproxy twm viewres x11perf xauth xbacklight xbiff x11-data-bitmaps xcalc xclipboard xclock xcmsdb xcompmgr xconsole xcursorgen xdbedizzy xditview xdm xdpyinfo xdriinfo xedit xev xeyes xf86dga xfd xfindproxy xfontsel xfs xfsinfo xfwp xgamma xgc xhost xinit xinput xkbcomp xkbevd xkbprint xkbutils xkill xload xlogo xlsatoms xlsclients xlsfonts xmag xman xmessage xmh xmodmap xmore xpr xprop xrandr xrdb xrefresh xrx xscope xset xsetmode xsetpointer xsetroot xsm xstdcmap xtrap xvidtune xvinfo xwd xwininfo xwud xkeyboard-config x11-server gccmakedep imake lndir makedepend x11-util-macros x11-util-cf-files libxcb xcb-util xcb-util-image xcb-util-keysyms xcb-util-renderutil xcb-util-wm wine atk1.0 atkmm at-spi2-core at-spi2-atk dconf libcroco0.6 librsvg babl gegl cogl clutter libchamplain libopenraw libpeas libsigc-2.0 libsigc-3.0 glib2.0 glibmm gssdp gupnp gupnp-igd libnice farstream gsettings-desktop-schemas gtkmm3.0 gtksourceview gedit gvfs yelp libmbim libqmi ModemManager NetworkManager pangomm whois htop nginx networkmanager-pptp firewalld stunnel ssr proj"
+	fi
 fi
 
 PKGS=0
