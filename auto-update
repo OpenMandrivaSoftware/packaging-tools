@@ -400,7 +400,7 @@ update() {
 		echo "WARNING: INVALID .abf.yml THAT MAY BE DESIGNED TO DO DAMAGE!"
 		exit 1
 	fi
-	if echo $REMOVEDFILES |grep -q '\;'; then
+	if echo $REMOVEDFILES |grep -q -- ';'; then
 		echo "WARNING: INVALID .abf.yml THAT MAY BE DESIGNED TO DO DAMAGE!"
 		exit 1
 	fi
@@ -535,6 +535,8 @@ for i in $PACKAGES; do
 	NEWVERSION=$(upstreamVersion $i)
 	echo $NEWVERSION |grep -q '[()<>]' && NEWVERSION=ERROR
 	if [ "$OURVERSION" = "ERROR" -o "$NEWVERSION" = "ERROR" ]; then
+		mkdir -p ~/failed-builds
+		echo $i >>~/failed-builds/version-determination.err
 		echo "$i: ERROR trying to determine version"
 	elif [ "$OURVERSION" != "$NEWVERSION" -a "$(latest $OURVERSION $NEWVERSION)" = "$NEWVERSION" ]; then
 		if [ "$DRYRUN" = "1" ]; then
