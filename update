@@ -72,6 +72,8 @@ for i in $PACKAGES; do
 		if [ "${OLDBETA}" != "%{nil}" ]; then
 			OLDEXP="${OLDEXP}-${OLDBETA}"
 		fi
+	else
+		OLDBETA=""
 	fi
 	sed -i -e "/${OLDEXP}\.tar/d" .abf.yml
 	if [ "$PROJECT" = "qt" ]; then
@@ -105,9 +107,9 @@ for i in $PACKAGES; do
 	sed -i -e "s,^\(Release.*:\s*\)[0-9]*,\11," *.spec
 	sed -i -e "s,^\(Release.*:\s*\)[0-9]*\.%{beta}\.[0-9]*,\10.%{beta}.1," *.spec
 	if [ -n "$BETA" ]; then
-		sed -i -e "s,^%define beta .*,%define beta $BETA," *.spec
+		sed -i -e "s,^#define beta .*,%define beta $BETA," -e "s,^%define beta .*,%define beta $BETA," *.spec
 	else
-		sed -i -e "s,^%define beta .*,%define beta %{nil}," *.spec
+		sed -i -e "s,^%define beta ,#define beta ," *.spec
 	fi
 	# Let's update download URLs while at it...
 	sed -i -e "s,ftp://ftp.kde.org/pub/kde,http://download.kde.org," *.spec
