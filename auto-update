@@ -480,6 +480,8 @@ if [ "$1" = "-a" -o "$1" = "--all" ]; then
 	# but don't contain anything expected to be buildable
 	# ever again
 	BLACKLIST="consonance wxPythonGTK"
+	# Repositories that need to be maintained manually
+	BLACKLIST="$BLACKLIST distro-release lsb-release"
 	# Repositories that should not be updated individually, but as
 	# part of a larger package set at the same time (e.g. KDE)
 	for i in qt qt6 kf pd kapps plasma-mobile-gear; do
