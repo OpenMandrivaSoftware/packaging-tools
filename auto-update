@@ -475,6 +475,19 @@ if [ "$1" = "-a" -o "$1" = "--all" ]; then
 		echo "generated at https://github.com/settings/token"
 		exit 1
 	fi
+	OURDIR="$(dirname $0)"
+	# Repositories that are archived for historic reasons
+	# but don't contain anything expected to be buildable
+	# ever again
+	BLACKLIST="consonance wxPythonGTK"
+	# Repositories that should not be updated individually, but as
+	# part of a larger package set at the same time (e.g. KDE)
+	for i in qt qt6 kf pd kapps plasma-mobile-gear; do
+		for j in $(cat "$OURDIR/$i.buildlist"); do
+			BLACKLIST="$BLACKLIST $(echo $j |sed -e 's,openmandriva/,,g')"
+		done
+	done
+
 	PACKAGES=""
 	PERPAGE=100
 	COUNT=0
@@ -501,7 +514,10 @@ if [ "$1" = "-a" -o "$1" = "--all" ]; then
 				continue
 			fi
 			COUNT=$((COUNT+1))
-			PACKAGES="$PACKAGES $(echo $R |sed -e 's,\.git$,,')"
+			local PKG="$(echo $R |sed -e 's,\.git$,,')"
+			if ! echo " $BLACKLIST " |grep -q " $PKG "; then
+				PACKAGES="$PACKAGES $PKG"
+			fi
 		done
 		[ "$(echo $REPOS |json "['data']['organization']['repositories']['pageInfo']['hasNextPage']")" != "True" ] && break
 		START="after:\\\"$(echo $REPOS |json "['data']['organization']['repositories']['pageInfo']['endCursor']")\\\""
