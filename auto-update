@@ -516,7 +516,7 @@ if [ "$1" = "-a" -o "$1" = "--all" ]; then
 				continue
 			fi
 			COUNT=$((COUNT+1))
-			local PKG="$(echo $R |sed -e 's,\.git$,,')"
+			PKG="$(echo $R |sed -e 's,\.git$,,')"
 			if ! echo " $BLACKLIST " |grep -q " $PKG "; then
 				PACKAGES="$PACKAGES $PKG"
 			fi
