@@ -482,6 +482,9 @@ if [ "$1" = "-a" -o "$1" = "--all" ]; then
 	BLACKLIST="consonance wxPythonGTK"
 	# Repositories that need to be maintained manually
 	BLACKLIST="$BLACKLIST distro-release lsb-release"
+	# Repositories where the current upstream version is known to be bad
+	# and we need to stay with an older one
+	BLACKLIST="$BLACKLIST gawk"
 	# Repositories that should not be updated individually, but as
 	# part of a larger package set at the same time (e.g. KDE)
 	for i in qt qt6 kf pd kapps plasma-mobile-gear; do
