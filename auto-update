@@ -41,7 +41,7 @@ latest() {
 		if echo $VERSION |grep -q '\.'; then
 			VERSIONID=$(digits 4 $(echo $VERSION |cut -d. -f1))$(digits 4 $(echo $VERSION |cut -d. -f2))$(digits 4 $(echo $VERSION |cut -d. -f3))$(digits 4 $(echo $VERSION |cut -d. -f4))
 		else
-			VERSIONID=$VERSION
+			VERSIONID=$(digits 4 ${VERSION})000000000000
 		fi
 		[ $VERSIONID -lt $LATESTID ] && continue
 		LATEST=$VERSION
