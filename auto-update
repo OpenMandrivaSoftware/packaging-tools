@@ -33,21 +33,9 @@ except IndexError:
 # Example: latest 1.2.3 1.2.3.1 1.1.4.99 0.99 1
 # Result: 1.2.3.1
 latest() {
-	local LATEST=0
-	local LATESTID=0
-	local VERSION
-	local VERSIONID
-	for VERSION in "$@"; do
-		if echo $VERSION |grep -q '\.'; then
-			VERSIONID=$(digits 4 $(echo $VERSION |cut -d. -f1))$(digits 4 $(echo $VERSION |cut -d. -f2))$(digits 4 $(echo $VERSION |cut -d. -f3))$(digits 4 $(echo $VERSION |cut -d. -f4))
-		else
-			VERSIONID=$(digits 4 ${VERSION})000000000000
-		fi
-		[ $VERSIONID -lt $LATESTID ] && continue
-		LATEST=$VERSION
-		LATESTID=$VERSIONID
-	done
-	echo -n $LATEST
+	(for i in "$@"; do
+		echo $i
+	done) |sort -V |tail -n1
 }
 
 specname() {
