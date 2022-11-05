@@ -1,6 +1,7 @@
 openmandriva/liblxqt
-openmandriva/libsysstat openmandriva/lxqt-l10n openmandriva/libfm-qt
-openmandriva/lxqt-about openmandriva/lxqt-admin openmandriva/lxqt-config openmandriva/lxqt-globalkeys openmandriva/lxqt-notificationd openmandriva/lxqt-openssh-askpass openmandriva/lxqt-policykit openmandriva/lxqt-powermanagement openmandriva/lxqt-qtplugin openmandriva/lxqt-runner openmandriva/lxqt-session openmandriva/lxqt-sudo
+openmandriva/libsysstat openmandriva/libfm-qt
+openmandriva/lxqt-about openmandriva/lxqt-admin openmandriva/lxqt-config openmandriva/lxqt-globalkeys openmandriva/lxqt-notificationd openmandriva/lxqt-openssh-askpass openmandriva/lxqt-policykit openmandriva/lxqt-powermanagement openmandriva/lxqt-qtplugin openmandriva/lxqt-session openmandriva/lxqt-sudo
+openmandriva/lxqt-runner
 openmandriva/lxqt-panel
 openmandriva/pcmanfm-qt
 openmandriva/pavucontrol-qt openmandriva/qtermwidget openmandriva/lximage-qt
