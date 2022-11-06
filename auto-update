@@ -87,62 +87,10 @@ upstreamVersion() {
 		return 0
 	fi
 	case $1 in
-	acpica)
-		echo -n $(curl -s -L -A 'Mozilla/5.0 (X11; Linux x86_64)' https://acpica.org/downloads |grep -E "href=.*acpica-unix-" |sed -e "s,.*acpica-unix-,,;s,\.tar.*,,")
-		;;
 	chromium-browser-*)
 		local CHANNEL=$(echo $1 |cut -d- -f3)
 		VERSIONS=$(curl -s -L "https://omahaproxy.appspot.com/all?os=linux&channel=$CHANNEL" |tail -n1 |cut -d, -f3)
 		echo -n $VERSIONS
-		;;
-	hplip)
-		# Should be a normal sourceforge download, but they never
-		# update the "current version" link - so we have to check
-		# their website
-		echo -n $(curl -s -L https://developers.hp.com/hp-linux-imaging-and-printing |grep "The current version" |sed -e 's,.*version ,,;s, .*,,' |rev |cut -b2- |rev)
-		;;
-        stunnel)
-                # print last line
-                echo -n $(curl -s -L -A 'Mozilla/5.0 (X11; Linux x86_64)' http://www.stunnel.org/downloads.html |grep -E "href=.*stunnel-" |sed -e "s,.*stunnel-,,;s,\.tar.*,," | tail -n1)
-		;;
-	indilib)
-		# Special case because package name doesn't match
-		# upstream package name and it uses _ instead of -
-		# to separate file name from version number
-		echo -n $(curl -s -L -A 'Mozilla/5.0 (X11; Linux x86_64)' https://sourceforge.net/projects/indi/files/ | grep -b1 'Download Latest Version' |tail -n1 |sed -e 's,.*_,,;s,\.tar.*,,')
-		;;
-	lame)
-		echo -n $(curl -s -L http://lame.sf.net |grep 'download.php">v' |sed -e 's,.*v,,;s,<.*,,')
-		;;
-	libraw)
-		latest $(curl -s -L 'https://www.libraw.org/download' |grep -E 'LibRaw-[0-9\.]*'\.tar |sed -e 's,.*data/,,;s,>.*,,;s,LibRaw-,,;s,\.tar.*,,')
-		;;
-	mariadb)
-		# Got to parse their website... No directory listing and too many branches
-		echo -n $(curl -s -L https://downloads.mariadb.org/mariadb/ |grep "Stable Now" |sed -e 's,.*Download ,,;s, .*,,')
-		;;
-	microcode-intel)
-		# Special fun because they change URLs with every new download...
-		URL=$(curl -s -L https://github.com/OpenMandrivaAssociation/microcode-intel/raw/master/microcode-intel.spec |grep -iE '^Url[[:space:]]*:' |head -n1 |cut -d: -f2- |xargs echo -n)
-		while curl -s -L $URL |grep -q alert-link; do
-			URL=https://downloadcenter.intel.com$(curl -s -L $URL |grep alert-link |sed -e 's,.*href=\",,;s,".*,,')
-		done
-		echo -n $(curl -s -L $URL |grep DownloadVersion |sed -e 's,.*content=",,;s,".*,,')
-		;;
-	nss)
-		VERSIONS="$(curl -s -L http://ftp.mozilla.org/pub/security/nss/releases/ |grep NSS_ |cut -d'>' -f3- |cut -d_ -f2- |sed -e 's,_RTM.*,,' |grep -v WITH |sed -e 's,_,.,g')"
-		latest $VERSIONS
-		;;
-	sqlite)
-		echo -n $(curl -L -s http://www.sqlite.org/ |grep "Version" |cut -d' ' -f3 |cut -d '<' -f1)
-		;;
-	cmake)
-		echo -n $(curl -s -L https://cmake.org/download/ |grep -E "files/v.*\.tar\.gz" |grep -vE -- '-(alpha|beta|rc)' |head -n1 |sed -e "s,.*$1-,,;s,\.tar.*,,")
-		;;
-	wine)
-		# Wine is a bit of a special case because we can update it only when
-		# the corresponding wine-staging patchset is released as well...
-		echo -n $(curl -s -L https://raw.githubusercontent.com/wine-compholio/wine-staging/master/patches/patchinstall.sh |grep 'echo "Wine Staging' |cut -d'"' -f2 |cut -d' ' -f3)
 		;;
 	python-*)
 		local pypiName="$(echo $1 |cut -d- -f2-)"
@@ -200,17 +148,6 @@ upstreamVersion() {
 			;;
 		nano)
 			SOURCE=https://nano-editor.org/download.php
-			;;
-		sope)
-			SOURCE=https://sogo.nu/files/downloads/SOGo/Sources/
-			PKGNAME=SOPE
-			;;
-		sogo)
-			SOURCE=https://sogo.nu/files/downloads/SOGo/Sources/
-			PKGNAME=SOGo
-			# There are a few 2007.x.y versions named after release
-			# date -- but 2.x and 3.x > 2007.x
-			EXCLUDE=2007
 			;;
 		suitesparse)
 			PKGNAME=SuiteSparse
