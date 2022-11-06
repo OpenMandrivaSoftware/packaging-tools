@@ -369,12 +369,25 @@ update() {
 	fi
 	ls -AF |grep -vE '/$' >files-before-rpm
 	[ -e package-source.sh ] && sh package-source.sh
+	case "$1" in
+	wine)
+		# Remove winetricks and wisotool from the directory so rpm
+		# downloads the current version
+		rm -f winetricks wisotool
+		;;
+	esac
 	abb build 2>&1 |tee BUILD.LOG
 	ls -AF |grep -vE '(BUILD.LOG|files-after-rpm|\.buildlog|/)$' >files-after-rpm
 	if [ "$REMOVE_DISABLE_SOURCE_FETCH" = 1 ]; then
 		sed -i -e "/^%_disable_source_fetch	0$/d" ~/.rpmmacros
 	fi
 	if ls RPMS/*/*.rpm &>/dev/null; then
+		case "$1" in
+		wine)
+			# Restore permissions on updated winetricks and wisotool
+			chmod +x winetricks wisotool
+			;;
+		esac
 		abb store $(diff -c files-before-rpm files-after-rpm |grep -E '^\+' |cut -b3-)
 		git commit -am "Update to $3"
 		git push origin master
