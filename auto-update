@@ -122,7 +122,7 @@ upstreamVersion() {
 			PKGNAME=$(echo $1 |sed -e 's,[0-9].*,,')
 			IGNOREODD=true
 			;;
-		atkmm|at-spi2-*|dconf|gedit|librsvg|NetworkManager|ModemManager|gvfs|gtksourceview|libpeas|yelp|pangomm)
+		atkmm|at-spi2-*|dconf|gedit|librsvg|NetworkManager|ModemManager|gjs|gvfs|gtksourceview|libpeas|yelp|pangomm)
 			IGNOREODD=true
 			;;
 		bmake)
