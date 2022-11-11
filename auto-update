@@ -105,6 +105,10 @@ upstreamVersion() {
 			return 0
 		fi
 		;;
+	texlive-*)
+		local tlName="$(echo $1 |cut -d- -f2-)"
+		curl -L http://mirrors.ctan.org/systems/texlive/tlnet/archive/ 2>/dev/null |grep -E "${tlName}.r[0-9]*\.tar" |sed -e "s,.*${tlName}\.r,,;s,\.tar.*,," |sort -V |tail -n1
+		;;
 	*)
 		# default: Assume Source0: or Source: points at a file in a
 		# listable directory containing all available versions
