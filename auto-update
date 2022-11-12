@@ -80,6 +80,7 @@ upstreamVersion() {
 	local EXTRA=""
 	rm -f check-update.sh
 	curl --fail -o check-update.sh -s -L https://github.com/OpenMandrivaAssociation/$1/raw/master/check-update.sh &>/dev/null
+	[ -e check-update.sh ] || curl --fail -o check-update.sh -s -L https://github.com/OpenMandrivaAssociation/$1/raw/master/check_update.sh &>/dev/null
 	if [ -e check-update.sh ]; then
 		chmod +x check-update.sh
 		./check-update.sh
