@@ -1,0 +1,146 @@
+#!/bin/sh
+P="$1"
+[ -z "$P" ] && exit 1
+rm -rf /tmp/texlive-$P
+mkdir -p /tmp/texlive-$P
+cd /tmp/texlive-$P
+curl -L http://mirrors.ctan.org/systems/texlive/tlnet/archive/ 2>/dev/null |sed -e 's,.*<a href=[^>]*>,,;s,<.*,,' |grep -vE '(aarch64-|amd64-|armhf-|i386-|x86_64-|universal-darwin|win32)' >tlpackages
+PACKAGES=$(cat tlpackages |grep -vE '\.(r[0-9]*|doc|source)\.' |sed -e 's,\.tar\.xz,,')
+VERSION=$(cat tlpackages |grep -E "^$P\.r[0-9]*\." | sed -e "s,^$P\.r,,;s,\..*,," |sort -V |tail -n1)
+if [ -z "$VERSION" ]; then
+	echo "$P doesn't seem to exist upstream"
+	rm -rf /tmp/texlive-$P
+	exit 1
+fi
+HAS_DOCS=false
+HAS_SOURCE=false
+wget http://mirrors.ctan.org/systems/texlive/tlnet/archive/$P.r$VERSION.tar.xz
+if grep -qE "^$P\.doc\.r$VERSION\.tar" tlpackages; then
+	HAS_DOCS=true
+	wget http://mirrors.ctan.org/systems/texlive/tlnet/archive/$P.doc.r$VERSION.tar.xz
+fi
+if grep -qE "^$P\.source\.r$VERSION\.tar" tlpackages; then
+	HAS_SOURCE=true
+	wget http://mirrors.ctan.org/systems/texlive/tlnet/archive/$P.source.r$VERSION.tar.xz
+fi
+mkdir BUILD
+cd BUILD
+for i in ../*.tar.xz; do
+	tar xf $i
+done
+SUMMARY="$(grep ^shortdesc tlpkg/tlpobj/$P.tlpobj |cut -d' ' -f2-)"
+LICENSE="$(grep ^catalogue-license tlpkg/tlpobj/$P.tlpobj |cut -d' ' -f2-)"
+cd ..
+cat >texlive-$P.spec <<EOF
+Name:		texlive-$P
+Version:	$VERSION
+Release:	1
+Summary:	$SUMMARY
+Group:		Publishing
+URL:		http://www.ctan.org/tex-archive/macros/latex/contrib/$P
+License:	$LICENSE
+Source0:	http://mirrors.ctan.org/systems/texlive/tlnet/archive/$P.r%{version}.tar.xz
+EOF
+[ "$HAS_DOCS" ] && cat >>texlive-$P.spec <<EOF
+Source1:	http://mirrors.ctan.org/systems/texlive/tlnet/archive/$P.doc.r%{version}.tar.xz
+EOF
+[ "$HAS_SOURCE" ] && cat >>texlive-$P.spec <<EOF
+Source2:	http://mirrors.ctan.org/systems/texlive/tlnet/archive/$P.source.r%{version}.tar.xz
+EOF
+cat >>texlive-$P.spec <<EOF
+BuildArch:	noarch
+BuildRequires:	texlive-tlpkg
+Requires(pre):	texlive-tlpkg
+Requires(post):	texlive-kpathsea
+
+%description
+EOF
+
+grep ^longdesc BUILD/tlpkg/tlpobj/$P.tlpobj |cut -d' ' -f2- >>texlive-$P.spec
+
+cat >>texlive-$P.spec <<EOF
+
+%prep
+EOF
+if $HAS_DOCS && $HAS_SOURCE; then
+	cat >>texlive-$P.spec <<EOF
+%setup -c -a1 -a2
+%autopatch -p1
+EOF
+elif $HAS_DOCS; then
+	echo '%autosetup -p1 -c -a1' >>texlive-$P.spec
+elif $HAS_SOURCE; then
+	echo '%autosetup -p1 -c -a2' >>texlive-$P.spec
+else
+	echo '%autosetup -p1 -c' >>texlive-$P.spec
+fi
+cat >>texlive-$P.spec <<EOF
+
+%build
+
+%install
+rm -rf tlpkg
+EOF
+
+BASE="%{_texmfdistdir}"
+if [ -d BUILD/texmf-dist ]; then
+	cat >>texlive-$P.spec <<EOF
+mkdir -p %{buildroot}%{_datadir}
+cp -a texmf-dist %{buildroot}%{_datadir}
+EOF
+elif [ -d BUILD/texmf ]; then
+	BASE="%{_texmfdir}"
+	cat  >>texlive-$P.spec <<EOF
+mkdir -p %{buildroot}%{_datadir}
+cp -a texmf %{buildroot}%{_datadir}
+EOF
+else
+	cat  >>texlive-$P.spec <<EOF
+mkdir -p %{buildroot}%{_texmfdistdir}
+cp -a * %{buildroot}%{_texmfdistdir}
+EOF
+fi
+
+cat >>texlive-$P.spec <<EOF
+
+%files
+EOF
+
+rm -rf BUILD/tlpkg
+cd BUILD
+find . -type d -name $P |while read d; do
+	d=$(echo $d |sed -e 's,^\./,,')
+	[ -z "$d" ] && continue
+	[ "$d" = "." ] && continue
+	if echo $d |grep -qE '(doc|source)/'; then
+		echo "%doc $BASE/$d" >>../texlive-$P.spec
+	else
+		echo "$BASE/$d" >>../texlive-$P.spec
+	fi
+	rm -rf $d
+done
+# Clean out now empty directory structures so we
+# don't end up owning /usr/share/texmf-dist/latex or the likes
+# (even if we live in a sub-sub-sub directory of that)
+for i in $(seq 0 10); do
+	(find . -type d |xargs rmdir) &>/dev/null
+done
+find . |while read f; do
+	f=$(echo $f |sed -e 's,^\./,,')
+	[ -z "$f" ] && continue
+	[ "$f" = "." ] && continue
+	if echo $f |grep -qE '(doc|source)/'; then
+		echo "%doc $BASE/$f" >>../texlive-$P.spec
+	else
+		echo "$BASE/$f" >>../texlive-$P.spec
+	fi
+done
+cd ..
+
+cat >>texlive-$P.spec <<EOF
+
+%post -p %{_sbindir}/texlive.post
+
+%postun
+[ "\$1" -eq 0 ] && %{_sbindir}/texlive.post
+EOF
