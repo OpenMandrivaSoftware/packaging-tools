@@ -41,10 +41,10 @@ URL:		http://www.ctan.org/tex-archive/macros/latex/contrib/$P
 License:	$LICENSE
 Source0:	http://mirrors.ctan.org/systems/texlive/tlnet/archive/$P.r%{version}.tar.xz
 EOF
-[ "$HAS_DOCS" ] && cat >>texlive-$P.spec <<EOF
+$HAS_DOCS && cat >>texlive-$P.spec <<EOF
 Source1:	http://mirrors.ctan.org/systems/texlive/tlnet/archive/$P.doc.r%{version}.tar.xz
 EOF
-[ "$HAS_SOURCE" ] && cat >>texlive-$P.spec <<EOF
+$HAS_SOURCE && cat >>texlive-$P.spec <<EOF
 Source2:	http://mirrors.ctan.org/systems/texlive/tlnet/archive/$P.source.r%{version}.tar.xz
 EOF
 cat >>texlive-$P.spec <<EOF
