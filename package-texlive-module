@@ -144,3 +144,15 @@ cat >>texlive-$P.spec <<EOF
 %postun
 [ "\$1" -eq 0 ] && %{_sbindir}/texlive.post
 EOF
+
+git init
+abb store *.tar*
+git add .abf.yml texlive-$P.spec
+git commit -am "Initial package"
+
+gh repo create --description "$SUMMARY" --public --push --source . OpenMandrivaAssociation/texlive-$P
+abf create_empty --description "$SUMMARY" --visibility public -v texlive-$P openmandriva
+# FIXME set Github organization properly in abf create_empty
+abf add -p openmandriva/texlive-$P cooker/main
+abf add -p openmandriva/texlive-$P rolling/main
+abf build -a aarch64 -a znver1 -a x86_64 -b master --auto-publish-status default --skip-personal --no-extra-tests --update-type enhancement -p openmandriva/texlive-$P
