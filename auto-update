@@ -437,6 +437,14 @@ if [ "$1" = "-a" -o "$1" = "--all" ]; then
 	# Repositories where the current upstream version is known to be bad
 	# and we need to stay with an older one
 	BLACKLIST="$BLACKLIST gawk"
+	# Repositories containing abandoned projects that we still distribute
+	# because they may be useful to some, but that don't have a working
+	# upstream website or repository to check for updates
+	BLACKLIST="$BLACKLIST clamz libifp"
+	# Repositories that contain active projects that should be updated at
+	# some point, but only after sorting out dependencies (e.g. Java/mvn
+	# packaging)
+	BLACKLIST="$BLACKLIST zookeeper"
 	# Repositories that should not be updated individually, but as
 	# part of a larger package set at the same time (e.g. KDE)
 	for i in qt qt6 kf pd kapps plasma-mobile-gear; do
