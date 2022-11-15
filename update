@@ -104,8 +104,8 @@ for i in $PACKAGES; do
 		fi
 	fi
 	sed -i -e "s,^\(Version.*:.*\)${OLDEXP},\1${PKGVERSION}," *.spec
-	sed -i -e "s,^\(Release.*:\s*\)[0-9]*,\11," *.spec
-	sed -i -e "s,^\(Release.*:\s*\)[0-9]*\.%{beta}\.[0-9]*,\10.%{beta}.1," *.spec
+	sed -i -e "s,^\(Release.*:\s*\)[0-9]*$,\11," *.spec
+	sed -i -E 's,^(Release.*:\s.*}).*,\11,' *.spec
 	if [ -n "$BETA" ]; then
 		sed -i -e "s,^#define beta .*,%define beta $BETA," -e "s,^%define beta .*,%define beta $BETA," *.spec
 	else
