@@ -106,6 +106,14 @@ upstreamVersion() {
 			return 0
 		fi
 		;;
+	perl-*)
+		local cpanName="$(echo $1 |cut -d- -f2- |sed -e 's,-,::,g')"
+		V="$(curl --fail -L https://metacpan.org/pod/$cpanName 2>/dev/null |grep "Module version" |cut -d: -f2 |xargs echo)"
+		if [ -n "$V" ]; then
+			echo -n $V
+			return 0
+		fi
+		;;
 	texlive-*)
 		local tlName="$(echo $1 |cut -d- -f2-)"
 		curl -L http://mirrors.ctan.org/systems/texlive/tlnet/archive/ 2>/dev/null |grep -E "\"${tlName}.r[0-9]*\.tar" |sed -e "s,.*${tlName}\.r,,;s,\.tar.*,," |sort -V |tail -n1
