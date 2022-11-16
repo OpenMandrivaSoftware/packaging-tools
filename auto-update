@@ -59,7 +59,16 @@ ourVersion() {
 		# default: Assume Version: is set to a real number and not some
 		# macro magic in the spec file...
 		VERSION=$(curl -s -L https://github.com/OpenMandrivaAssociation/$1/raw/master/$(specname $1).spec |grep -iE '^Version[[:space:]]*:' |head -n1 |cut -d: -f2- |xargs echo -n)
-		if [ -z "$VERSION" ]; then
+		if [ -z "$VERSION" ] || echo $VERSION |grep -q '%'; then
+			# If there's some macro mess, let's check the file name...
+			local i
+			for i in main unsupported restricted non-free; do
+				VERSION="$(curl -s -L http://abf-downloads.openmandriva.org/cooker/repository/SRPMS/$i/release |grep -E ">$1-[0-9]" |sed -e 's,[^/]*>,,;s,<.*,,' |rev |cut -d- -f2 |rev |sort -V |head -n1)"
+				if [ -n "$VERSION" ]; then
+					echo -n "$VERSION"
+					return 0
+				fi
+			done
 			echo -n ERROR
 		else
 			echo -n $VERSION
@@ -499,7 +508,16 @@ if [ "$1" = "-a" -o "$1" = "--all" ]; then
 	shift
 fi
 
-if [ "$1" = "-d" -o "$1" = "--dry-run" ]; then
+DOWNGRADE=false
+if [ "$1" = "-d" -o "$1" = "--downgrade" ]; then
+	# If upstream version < our package version, downgrade
+	# sometimes useful if a project switched versioning
+	# schemes, e.g. 2022.11.16 < 1.0
+	DOWNGRADE=true
+	shift
+fi
+
+if [ "$1" = "-D" -o "$1" = "--dry-run" ]; then
 	export DRYRUN=1
 	shift
 fi
@@ -522,7 +540,7 @@ UPDATED=0
 for i in $PACKAGES; do
 	OURVERSION=$(ourVersion $i)
 	NEWVERSION=$(upstreamVersion $i)
-	echo $NEWVERSION |grep -q '[()<>]' && NEWVERSION=ERROR
+	echo $NEWVERSION |grep -q '[()<>%]' && NEWVERSION=ERROR
 	if [ "$OURVERSION" = "ERROR" -o "$NEWVERSION" = "ERROR" ]; then
 		mkdir -p ~/failed-builds
 		echo $i >>~/failed-builds/version-determination.err
@@ -537,8 +555,16 @@ for i in $PACKAGES; do
 		UPDATED=$((UPDATED+1))
 	elif [ "$OURVERSION" = "$NEWVERSION" ]; then
 		echo "$i: $OURVERSION is up to date"
+	elif $DOWNGRADE; then
+		if [ "$DRYRUN" = "1" ]; then
+			echo "*** Would downgrade $i from $OURVERSION to $NEWVERSION ***"
+		else
+			echo "$i: trying to downgrade from $OURVERSION to $NEWVERSION"
+			update $i $OURVERSION $NEWVERSION
+		fi
+		UPDATED=$((UPDATED+1))
 	else
-		echo "$i: error checking for updates"
+		echo "$i: our version $OURVERSION outnumbers upstream $NEWVERSION"
 	fi
 	PKGS=$((PKGS+1))
 done
