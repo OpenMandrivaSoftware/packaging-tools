@@ -1,0 +1,29 @@
+#!/bin/sh
+FROM=unsupported
+TO=main
+
+while getopts "f:t:" arg; do
+	case $arg in
+	f)
+		FROM=${OPTARG}
+		;;
+	t)
+		TO=${OPTARG}
+		;;
+	esac
+done
+shift $((OPTIND-1))
+
+if [ -z "$1" ] || [ -n "$2" ]; then
+	echo "Usage: $0 [-f FROM] [-t TO] PACKAGENAME"
+	echo "(Default: from unsupported to main)"
+	exit 1
+fi
+
+abf remove -p openmandriva/$1 cooker/$FROM
+abf remove -p openmandriva/$1 rolling/$FROM
+
+abf add -p openmandriva/$1 cooker/$TO
+abf add -p openmandriva/$1 rolling/$TO
+
+abf build -a aarch64 -a znver1 -a x86_64 -b master --auto-publish-status default --skip-personal --update-type enhancement -p openmandriva/$1
