@@ -119,7 +119,7 @@ for i in $PACKAGES; do
 	if ${PRERELEASE}; then
 		STABLE=stable
 		[ $(echo $VERSION |cut -d. -f3) -ge 70 ] && STABLE=unstable
-		SCPDIR=ftpopenmandriva@deino.kde.org:/srv/archives/ftp/${STABLE}
+		SCPDIR=ftpopenmandriva@tinami.kde.org:/srv/archives/ftp/${STABLE}
 		if [ "${i}" = "oxygen-icons" ]; then
 			TARNAME=${i}5
 		elif [ "${i}" = "kgamma5" ]; then
