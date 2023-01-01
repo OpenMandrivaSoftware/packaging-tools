@@ -286,11 +286,11 @@ upstreamVersion() {
 				# This is an URL in the form of e.g.
 				# https://gitlab.linphone.org/BC/public/liblinphone/-/archive/%{version}/lib%{name}-%{version}.tar.bz2
 				# So it's clear how many levels of subdirectories we have to strip...
-				VERSIONS=$(git ls-remote --tags $(echo $SOURCE |sed -e 's,/-/.*,,') 2>/dev/null|awk '{ print $2; }' |sed -e 's,refs/tags/,,;s,_,.,g;s,-,.,g;s,^v\.,,;s,^v,,' |grep -E '^[0-9.]+$')
+				VERSIONS=$(git ls-remote --tags $(echo $SOURCE |sed -e 's,/-/.*,,') 2>/dev/null|awk '{ print $2; }' |sed -e "s,refs/tags/,,;s,_,.,g;s,-,.,g;s,^v\.,,;s,^v,,;s,^$PKGNAME\.,," |grep -E '^[0-9.]+$')
 			else
 				# No clear indicator of repository nesting, so let's assume it's
 				# organization/repository like for most gitlab.com/github.com projects
-				VERSIONS=$(git ls-remote --tags $(echo $SOURCE |cut -d/ -f1-5) 2>/dev/null|awk '{ print $2; }' |sed -e 's,refs/tags/,,;s,_,.,g;s,-,.,g;s,^v\.,,;s,^v,,' |grep -E '^[0-9.]+$')
+				VERSIONS=$(git ls-remote --tags $(echo $SOURCE |cut -d/ -f1-5) 2>/dev/null|awk '{ print $2; }' |sed -e "s,refs/tags/,,;s,_,.,g;s,-,.,g;s,^v\.,,;s,^v,,;s,^$PKGNAME\.,," |grep -E '^[0-9.]+$')
 			fi
 		fi
 		if [ -z "$VERSIONS" ]; then
