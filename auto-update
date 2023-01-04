@@ -448,7 +448,7 @@ if [ "$1" = "-a" -o "$1" = "--all" ]; then
 	# Repositories that are archived for historic reasons
 	# but don't contain anything expected to be buildable
 	# ever again
-	BLACKLIST="consonance wxPythonGTK"
+	BLACKLIST="consonance wxPythonGTK python2.4"
 	# Repositories that need to be maintained manually
 	BLACKLIST="$BLACKLIST distro-release lsb-release"
 	# Repositories where the current upstream version is known to be bad
