@@ -127,6 +127,14 @@ upstreamVersion() {
 		local tlName="$(echo $1 |cut -d- -f2-)"
 		curl -L http://mirrors.ctan.org/systems/texlive/tlnet/archive/ 2>/dev/null |grep -E "\"${tlName}.r[0-9]*\.tar" |sed -e "s,.*${tlName}\.r,,;s,\.tar.*,," |sort -V |tail -n1
 		;;
+	octave-*)
+		local octName="$(echo $1 |cut -d- -f2-)"
+		V=$(curl --fail -s -L https://raw.githubusercontent.com/gnu-octave/packages/main/packages/$octName.yaml |grep -A 100 'versions:' |grep -m1 "id:" |sed -ne 's|.*\"\(.*\)\"|\1|p')
+		if [ -n "$V" ]; then
+			echo -n $V
+			return 0
+		fi
+		;;
 	*)
 		# default: Assume Source0: or Source: points at a file in a
 		# listable directory containing all available versions
