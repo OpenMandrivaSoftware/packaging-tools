@@ -4,14 +4,14 @@ openmandriva/kimap openmandriva/kmbox openmandriva/kpimtextedit
 openmandriva/kldap openmandriva/kidentitymanagement
 openmandriva/kcalutils
 openmandriva/ktnef
-openmandriva/akonadi-mime
+openmandriva/akonadi-mime openmandriva/akonadi-search
 openmandriva/grantleetheme openmandriva/libkleo
 openmandriva/akonadi-contacts
 openmandriva/ksmtp
 openmandriva/libkgapi
 openmandriva/kmailtransport
 openmandriva/akonadi-notes
-openmandriva/akonadi-calendar openmandriva/akonadi-search
+openmandriva/akonadi-calendar
 openmandriva/libkdepim
 openmandriva/pimcommon
 openmandriva/calendarsupport
