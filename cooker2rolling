@@ -17,7 +17,7 @@ if echo $1 |grep -q '\.buildlist'; then
 			$0 -n $p
 		done
 	done
-	$DO_ABF_BUILD && abf chain_build --testing -b rolling -a aarch64 -a armv7hnl -a znver1 -a x86_64 -a i686 --auto-publish-status testing --no-cached-chroot --update-type enhancement -i $1
+	$DO_ABF_BUILD && abf chain_build --testing -b rolling -a aarch64 -a znver1 -a x86_64 --auto-publish-status testing --no-cached-chroot --update-type enhancement -i $1
 	exit 0
 fi
 
@@ -62,4 +62,4 @@ else
 	fi
 	git push origin rolling
 fi
-$DO_ABF_BUILD && abf chain_build -b rolling -a aarch64 -a armv7hnl -a znver1 -a x86_64 -a i686 --auto-publish-status testing --no-cached-chroot --update-type enhancement openmandriva/$1
+$DO_ABF_BUILD && abf chain_build -b rolling -a aarch64 -a znver1 -a x86_64 --auto-publish-status testing --no-cached-chroot --update-type enhancement openmandriva/$1
