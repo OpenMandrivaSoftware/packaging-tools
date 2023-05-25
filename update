@@ -14,6 +14,11 @@ error() {
 	exit 1
 }
 
+keepsudoauthcache() {
+	sudo -v
+	(sleep 4m ; keepsudoauthcache) &
+}
+
 if [ "$#" -lt 1 ]; then
 	echo "Specify the version to update to"
 	exit 1
@@ -61,19 +66,35 @@ if [ "$#" -ge 3 ]; then
 	PACKAGES="$P"
 fi
 
+echo "Sudo privileges required for 'dnf builddep'"
+keepsudoauthcache
+
 for i in $PACKAGES; do
 	rm -rf ${i}
 	git clone git@github.com:OpenMandrivaAssociation/${i}.git || error $i
 	cd ${i}
-	OLDVERSION="$(grep -i '^Version[[:space:]]*:' *.spec |head -n1 |cut -d: -f2 |xargs echo)"
-	OLDEXP="$(echo ${OLDVERSION} |sed -e 's,\.,\\.,g')"
-	if grep -q "^%define beta " *.spec; then
-		OLDBETA="$(cat *.spec |grep "^%define beta " |sed -e 's,^%define beta ,,')"
-		if [ "${OLDBETA}" != "%{nil}" ]; then
-			OLDEXP="${OLDEXP}-${OLDBETA}"
-		fi
+
+	if grep -q '^%define git ' *.spec; then
+		WAS_GIT=true
 	else
-		OLDBETA=""
+		WAS_GIT=false
+	fi
+
+	if [ "$VERSION" = "git" ]; then
+		DATE="$(date +%Y%m%d)"
+		OLDDATE="$(grep -i '^%define[[:space:]]*git[[:space:]]*' *.spec |head -n1 |awk '{ print $3; }')"
+		OLDEXP=${OLDDATE}
+	else
+		OLDVERSION="$(grep -i '^Version[[:space:]]*:' *.spec |head -n1 |cut -d: -f2 |xargs echo)"
+		OLDEXP="$(echo ${OLDVERSION} |sed -e 's,\.,\\.,g')"
+		if grep -q "^%define beta " *.spec; then
+			OLDBETA="$(cat *.spec |grep "^%define beta " |sed -e 's,^%define beta ,,')"
+			if [ "${OLDBETA}" != "%{nil}" ]; then
+				OLDEXP="${OLDEXP}-${OLDBETA}"
+			fi
+		else
+			OLDBETA=""
+		fi
 	fi
 	sed -i -e "/${OLDEXP}\.tar/d" .abf.yml
 	if [ "$PROJECT" = "qt" ]; then
@@ -86,8 +107,20 @@ for i in $PACKAGES; do
 	# PKGVERSION is a separate variable just in case we need to do
 	# preprocessing here again (e.g. earlier versions of baloo didn't
 	# follow KF's versioning scheme)
-	if [ "$OLDVERSION" = "${PKGVERSION}" ]; then
-		if grep -q '^%define beta' *.spec; then
+	if [ "$VERSION" = "git" ]; then
+		if $WAS_GIT; then
+			if [ "${OLDDATE}" = "${DATE}" ]; then
+				echo "$i seems to be up to date already, skipping"
+				cd ..
+				continue
+			fi
+		else
+			sed -i -e 's,#define git ,%define git ,' *.spec
+		fi
+	elif [ "$OLDVERSION" = "${PKGVERSION}" ]; then
+		if $WAS_GIT; then
+			sed -i -e 's,^%define git ,#define git ,' *.spec
+		elif grep -q '^%define beta' *.spec; then
 			if [ -n "$BETA" ] && grep -q "^%define beta $BETA\$" *.spec; then
 				echo "$i seems to be up to date already, skipping"
 				cd ..
@@ -103,7 +136,11 @@ for i in $PACKAGES; do
 			continue
 		fi
 	fi
-	sed -i -e "s,^\(Version.*:.*\)${OLDEXP},\1${PKGVERSION}," *.spec
+	if [ "${VERSION}" = "git" ]; then
+		sed -i -e "s,^%define git .*,%define git ${DATE}," *.spec
+	else
+		sed -i -e "s,^\(Version.*:.*\)${OLDEXP},\1${PKGVERSION}," *.spec
+	fi
 	sed -i -e "s,^\(Release.*:\s*\)[0-9]*$,\11," *.spec
 	sed -i -E 's,^(Release.*:\s.*}).*,\11,' *.spec
 	if [ -n "$BETA" ]; then
@@ -111,12 +148,8 @@ for i in $PACKAGES; do
 	else
 		sed -i -e "s,^%define beta ,#define beta ," *.spec
 	fi
-	# Let's update download URLs while at it...
-	sed -i -e "s,ftp://ftp.kde.org/pub/kde,http://download.kde.org," *.spec
-	sed -i -e "s,^\(Source.*:.*\)/applications/\(.*$\),\1/release-service/\2,g" *.spec
-	#sed -i -e "s,stable/%{ver,stable/applications/%{ver," *.spec
 	sudo dnf builddep -y --nogpgcheck *.spec
-	if ${PRERELEASE}; then
+	if ${PRERELEASE} && [ "${VERSION}" != "git" ]; then
 		STABLE=stable
 		[ $(echo $VERSION |cut -d. -f3) -ge 70 ] && STABLE=unstable
 		SCPDIR=ftpopenmandriva@tinami.kde.org:/srv/archives/ftp/${STABLE}
@@ -146,7 +179,11 @@ for i in $PACKAGES; do
 	if [ -n "$BETA" ]; then
 		PKGVERSION="${PKGVERSION}-${BETA}"
 	fi
-	abb store *${PKGVERSION}.tar* || error $i
+	if [ "$VERSION" = "git" ]; then
+		abb store *${DATE}.tar* || error $i
+	else
+		abb store *${PKGVERSION}.tar* || error $i
+	fi
 	git commit -am "Update to ${PKGVERSION}" || error $i
 	git push origin master
 	sudo dnf install -y --nogpgcheck RPMS/*/*.rpm
