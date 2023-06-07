@@ -281,7 +281,7 @@ upstreamVersion() {
 				VERSIONS=`cat /tmp/$NAME.$$ |json "['info']['version']"`
 				rm -f /tmp/$NAME.$$
 			fi
-		elif echo $SOURCE |grep -qE 'git(hub|lab)'; then
+		elif echo $SOURCE |grep -qE 'git'; then
 			if echo "$SOURCE" |grep -q '/-/'; then
 				# This is an URL in the form of e.g.
 				# https://gitlab.linphone.org/BC/public/liblinphone/-/archive/%{version}/lib%{name}-%{version}.tar.bz2
