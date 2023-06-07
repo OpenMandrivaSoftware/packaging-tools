@@ -427,7 +427,7 @@ update() {
 			chmod +x winetricks wisotool
 			;;
 		esac
-		abb store $(diff -c files-before-rpm files-after-rpm |grep -E '^\+' |cut -b3-)
+		abb store $(diff -c files-before-rpm files-after-rpm |grep -E '^\+' |cut -b3- |grep -vE 'files-(before|after)-rpm')
 		git commit -am "Update to $3"
 		git push origin master
 		echo "$1: successfully updated from $2 to $3"
