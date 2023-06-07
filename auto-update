@@ -331,7 +331,6 @@ upstreamVersion() {
 		fi
 		if [ -z "$VERSIONS" ]; then
 			# As a last resort, see if repology knows something we don't...
-			echo "THIS IS FROM REPOLOGY" >/dev/stderr
 			latest $(curl -s https://repology.org/project/$PKGNAME/versions |grep "version-newest" |sed -e 's,</a>.*,,;s,.*<a[^>]*>,,;s,<.*,,' |sed '/^[[:space:]]*$/d')
 		fi
 		debug "$VERSIONS"
