@@ -136,6 +136,9 @@ upstreamVersion() {
 		# sees a Linux desktop browser)
 		EXCLUDE=nothing
 		case $1 in
+		abuse_sdl)
+			PKGNAME=abuse
+			;;
 		atk1.0|glibmm|gtkmm3.0|glib2.0|libcroco0.6)
 			PKGNAME=$(echo $1 |sed -e 's,[0-9].*,,')
 			IGNOREODD=true
