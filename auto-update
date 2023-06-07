@@ -25,6 +25,13 @@ except IndexError:
 "
 }
 
+keepsudoalive() {
+	# Keep sudo timestamp alive so we don't get timeouts
+	# just because someone doesn't want to sit through a
+	# package build that takes > $SUDO_TIMESTAMP_TIMEOUT
+	(sudo -v; sleep 4m; keepsudoalive) &>/dev/null &
+}
+
 # Determine the latest of a list of versions
 # Current assumptions for simplicity that might cause problems
 # in the future: Version numbers are fully numeric (no 1.2.3a),
@@ -444,6 +451,8 @@ update() {
 	rm -rf "$D"
 }
 
+keepsudoalive
+
 if [ "$1" = "-a" -o "$1" = "--all" ]; then
 	if [ -z "$OAUTH_TOKEN" ]; then
 		echo "For --all to work, export OAUTH_TOKEN=\"token\""
@@ -458,9 +467,6 @@ if [ "$1" = "-a" -o "$1" = "--all" ]; then
 	BLACKLIST="consonance wxPythonGTK python2.4 python2.4-ldap python2.4-yaml python2.4-mysql python2.4-openid python2.4-wicked python2.4-imaging python2.4-libxml2 python2.4-feedparser python2.4-setuptools python2.4-virtualenv python2.4-elementtree"
 	# Repositories that need to be maintained manually
 	BLACKLIST="$BLACKLIST distro-release lsb-release"
-	# Repositories where the current upstream version is known to be bad
-	# and we need to stay with an older one
-	BLACKLIST="$BLACKLIST gawk"
 	# Repositories containing abandoned projects that we still distribute
 	# because they may be useful to some, but that don't have a working
 	# upstream website or repository to check for updates
