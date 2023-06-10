@@ -461,10 +461,14 @@ if [ "$1" = "-a" -o "$1" = "--all" ]; then
 		exit 1
 	fi
 	OURDIR="$(dirname $0)"
+	# Packages that have known breakages in the current version and need
+	# to be updated if and only if there's a newer release fixing the
+	# issue blocking the update
+	BLACKLIST="sqlite"
 	# Repositories that are archived for historic reasons
 	# but don't contain anything expected to be buildable
 	# ever again
-	BLACKLIST="consonance wxPythonGTK python2.4 python2.4-ldap python2.4-yaml python2.4-mysql python2.4-openid python2.4-wicked python2.4-imaging python2.4-libxml2 python2.4-feedparser python2.4-setuptools python2.4-virtualenv python2.4-elementtree"
+	BLACKLIST="$BLACKLIST consonance wxPythonGTK python2.4 python2.4-ldap python2.4-yaml python2.4-mysql python2.4-openid python2.4-wicked python2.4-imaging python2.4-libxml2 python2.4-feedparser python2.4-setuptools python2.4-virtualenv python2.4-elementtree"
 	# Repositories that need to be maintained manually
 	BLACKLIST="$BLACKLIST distro-release lsb-release"
 	# Repositories containing abandoned projects that we still distribute
@@ -477,7 +481,7 @@ if [ "$1" = "-a" -o "$1" = "--all" ]; then
 	BLACKLIST="$BLACKLIST zookeeper"
 	# Repositories that should not be updated individually, but as
 	# part of a larger package set at the same time (e.g. KDE)
-	for i in qt qt6 kf pd kapps plasma-mobile-gear; do
+	for i in qt qt6 kf kf6 plasma6 pd kapps plasma-mobile-gear; do
 		for j in $(cat "$OURDIR/$i.buildlist"); do
 			BLACKLIST="$BLACKLIST $(echo $j |sed -e 's,openmandriva/,,g')"
 		done
