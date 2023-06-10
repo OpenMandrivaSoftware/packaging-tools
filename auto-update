@@ -465,6 +465,9 @@ if [ "$1" = "-a" -o "$1" = "--all" ]; then
 	# to be updated if and only if there's a newer release fixing the
 	# issue blocking the update
 	BLACKLIST="sqlite"
+	# Packages that are known to break when auto-updated
+	# (e.g. perl doesn't like having Release: reset)
+	BLACKLIST="$BLACKLIST perl"
 	# Repositories that are archived for historic reasons
 	# but don't contain anything expected to be buildable
 	# ever again
