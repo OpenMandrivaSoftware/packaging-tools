@@ -25,6 +25,7 @@ openmandriva/kf6-kparts openmandriva/kf6-kpeople
 openmandriva/kf6-kdeclarative
 openmandriva/kf6-knotifyconfig openmandriva/kf6-syntax-highlighting
 openmandriva/kf6-frameworkintegration openmandriva/kf6-ktexteditor
+openmandriva/kf6-ksvg
 openmandriva/kf6-plasma-framework openmandriva/kf6-kactivities-stats
 openmandriva/kf6-krunner openmandriva/kf6-kfilemetadata
 openmandriva/kf6-baloo
