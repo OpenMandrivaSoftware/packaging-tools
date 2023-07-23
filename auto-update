@@ -150,7 +150,7 @@ upstreamVersion() {
 			PKGNAME=$(echo $1 |sed -e 's,[0-9].*,,')
 			IGNOREODD=true
 			;;
-		atkmm|at-spi2-*|dconf|gedit|librsvg|NetworkManager|ModemManager|gjs|gvfs|gtksourceview|libpeas|yelp|pangomm)
+		atkmm|at-spi2-*|dconf|gedit|librsvg|NetworkManager|ModemManager|gjs|gvfs|gtksourceview|libpeas|yelp|pangomm|evolution-data-server)
 			IGNOREODD=true
 			;;
 		bmake)
@@ -484,7 +484,7 @@ if [ "$1" = "-a" -o "$1" = "--all" ]; then
 	BLACKLIST="$BLACKLIST zookeeper"
 	# Repositories that should not be updated individually, but as
 	# part of a larger package set at the same time (e.g. KDE)
-	for i in qt qt6 kf kf6 plasma6 pd kapps plasma-mobile-gear; do
+	for i in qt qt6 kf kf6 plasma6 pd kapps kapps6 plasma-mobile-gear; do
 		for j in $(cat "$OURDIR/$i.buildlist"); do
 			BLACKLIST="$BLACKLIST $(echo $j |sed -e 's,openmandriva/,,g')"
 		done
