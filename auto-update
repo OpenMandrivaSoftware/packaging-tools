@@ -354,11 +354,15 @@ update() {
 	local D=$(mktemp -d /tmp/autoupdate-$1.XXXXXX)
 	if [ -z "$D" ]; then
 		echo "$1: Error creating temporary directory"
-		continue
+		return 1
 	fi
 	pushd "$D"
 	git clone git@github.com:OpenMandrivaAssociation/$1.git
 	cd $1
+	if grep -qiE '^version[[:space:]]*:.*%' *.spec; then
+		echo "$1: Version contains macro"
+		return 1
+	fi
 	local ORIGFILES="`cat .abf.yml |grep '^[[:space:]]' |cut -d: -f1 |xargs echo`"
 	sed -i -E "/$(echo $2 |sed -e 's,\.,\\.,g')\.(tar|tgz|tbz2|txz|zip)/d" .abf.yml
 	sed -i -E "/$(echo $2 |sed -e 's,\.,\\.,g')\.source\.(tar|tgz|tbz2|txz|zip)/d" .abf.yml
@@ -368,11 +372,11 @@ update() {
 	local REMOVEDFILES="`echo $ORIGFILES $REMAININGFILES |sed -e 's, ,\n,g' |sort |uniq -u`"
 	if echo $REMOVEDFILES |grep -q /; then
 		echo "WARNING: INVALID .abf.yml THAT MAY BE DESIGNED TO DO DAMAGE!"
-		exit 1
+		return 1
 	fi
 	if echo $REMOVEDFILES |grep -q -- ';'; then
 		echo "WARNING: INVALID .abf.yml THAT MAY BE DESIGNED TO DO DAMAGE!"
-		exit 1
+		return 1
 	fi
 	[ -n "$REMOVEDFILES" ] && rm -f $REMOVEDFILES
 
