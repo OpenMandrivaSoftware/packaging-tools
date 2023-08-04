@@ -22,7 +22,7 @@ fi
 
 SPEC=$(ls *.spec)
 NAME=$(basename $SPEC .spec)
-SUMMARY=$(cat *.spec |grep -i ^Summary: |cut -d: -f2- |xargs echo)
+SUMMARY=$(cat *.spec |grep -i ^Summary: |head -n1 |cut -d: -f2- |xargs echo)
 
 echo "Creating $NAME package: $SUMMARY"
 
