@@ -1,24 +1,3 @@
-openmandriva/akonadi openmandriva/khelpcenter openmandriva/kopeninghours
-openmandriva/kmime openmandriva/kontactinterface
-openmandriva/kimap openmandriva/kmbox openmandriva/kpimtextedit
-openmandriva/kldap openmandriva/kidentitymanagement
-openmandriva/kcalutils
-openmandriva/ktnef
-openmandriva/akonadi-mime
-openmandriva/akonadi-search
-openmandriva/grantleetheme openmandriva/libkleo
-openmandriva/akonadi-contacts
-openmandriva/ksmtp
-openmandriva/libkgapi
-openmandriva/kmailtransport
-openmandriva/akonadi-notes
-openmandriva/libkdepim
-openmandriva/pimcommon
-openmandriva/libgravatar
-openmandriva/mailimporter
-openmandriva/messagelib
-openmandriva/akonadi-calendar
-openmandriva/mailcommon
 openmandriva/calendarsupport
 openmandriva/baloo-widgets
 openmandriva/dolphin openmandriva/akonadi-calendar-tools openmandriva/akonadi-import-wizard
