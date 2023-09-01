@@ -11,6 +11,7 @@ openmandriva/plasma6-kscreenlocker
 openmandriva/plasma6-oxygen openmandriva/plasma6-oxygen-sounds
 openmandriva/plasma6-kwayland-integration openmandriva/plasma6-kwin openmandriva/plasma6-breeze-gtk
 openmandriva/plasma6-kactivitymanagerd
+openmandriva/plasma6-plasma5support
 openmandriva/plasma6-workspace
 openmandriva/plasma6-kde-cli-tools
 openmandriva/plasma6-desktop
