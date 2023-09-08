@@ -27,8 +27,10 @@ SUMMARY=$(cat *.spec |grep -i ^Summary: |head -n1 |cut -d: -f2- |xargs echo)
 echo "Creating $NAME package: $SUMMARY"
 
 git init
-abb store *.tar*
+ls *.tar* &>/dev/null && abb store *.tar*
+ls *.zip &>/dev/null && abb store *.zip
 git add .abf.yml *.spec
+git add *.txt &>/dev/null || :
 git add *.patch &>/dev/null || :
 git add *.diff &>/dev/null || :
 git commit -am "Initial package"
