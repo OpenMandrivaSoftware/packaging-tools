@@ -12,9 +12,13 @@ openmandriva/ksmtp
 openmandriva/libkgapi
 openmandriva/kmailtransport
 openmandriva/akonadi-notes
-openmandriva/akonadi-calendar
 openmandriva/libkdepim
 openmandriva/pimcommon
+openmandriva/libgravatar
+openmandriva/mailimporter
+openmandriva/messagelib
+openmandriva/akonadi-calendar
+openmandriva/mailcommon
 openmandriva/calendarsupport
 openmandriva/baloo-widgets
 openmandriva/dolphin openmandriva/akonadi-calendar-tools openmandriva/akonadi-import-wizard
