@@ -17,4 +17,5 @@ openmandriva/plasma-nm
 openmandriva/kdeplasma-addons openmandriva/polkit-kde-agent-1 openmandriva/powerdevil openmandriva/sddm-kcm openmandriva/systemsettings openmandriva/plasma-sdk openmandriva/plasma-integration openmandriva/plasma-workspace-wallpapers openmandriva/breeze-grub openmandriva/breeze-plymouth openmandriva/plasma-browser-integration openmandriva/plasma-vault openmandriva/plymouth-kcm openmandriva/xdg-desktop-portal-kde openmandriva/flatpak-kcm openmandriva/plasma-welcome
 openmandriva/plasma-nano
 openmandriva/plasma-firewall openmandriva/plasma-systemmonitor openmandriva/qqc2-breeze-style openmandriva/plasma-mobile
-openmandriva/plasma-bigscreen openmandriva/plasma-remotecontrollers openmandriva/aura-browser openmandriva/plank-player openmandriva/plasma-thunderbolt
+openmandriva/plasma-bigscreen openmandriva/plasma-remotecontrollers openmandriva/aura-browser openmandriva/plank-player
+openmandriva/plasma-thunderbolt
