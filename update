@@ -71,7 +71,14 @@ keepsudoauthcache
 
 for i in $PACKAGES; do
 	rm -rf ${i}
-	git clone git@github.com:OpenMandrivaAssociation/${i}.git || error $i
+	RETRIES=0
+	while ! git clone git@github.com:OpenMandrivaAssociation/${i}.git; do
+		sleep 5s
+		RETRIES=$((RETRIES+1))
+		if [ "$RETRIES" -gt 10 ]; then
+			error $i
+		fi
+	done
 	cd ${i}
 
 	if grep -q '^%define git ' *.spec; then
