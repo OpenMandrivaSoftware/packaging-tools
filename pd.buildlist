@@ -9,7 +9,8 @@ openmandriva/kinfocenter
 openmandriva/kmenuedit openmandriva/kscreen openmandriva/ksshaskpass
 openmandriva/breeze openmandriva/kwrited openmandriva/milou openmandriva/discover
 openmandriva/kscreenlocker
-openmandriva/oxygen openmandriva/oxygen-sounds openmandriva/kwayland-integration openmandriva/kwin openmandriva/breeze-gtk openmandriva/kactivitymanagerd
+openmandriva/oxygen openmandriva/oxygen-sounds openmandriva/kwayland-integration openmandriva/breeze-gtk openmandriva/kactivitymanagerd
+openmandriva/kwin
 openmandriva/plasma-workspace
 openmandriva/kde-cli-tools openmandriva/khotkeys
 openmandriva/plasma-desktop
