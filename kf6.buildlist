@@ -6,11 +6,11 @@ openmandriva/kf6-kdoctools
 openmandriva/kf6-kcrash
 openmandriva/kf6-kservice
 openmandriva/kf6-kglobalaccel openmandriva/kf6-kdnssd
+openmandriva/kf6-knotifications openmandriva/kf6-ktextwidgets
 openmandriva/kf6-kauth openmandriva/kf6-kcompletion openmandriva/kf6-kjobwidgets openmandriva/kf6-kunitconversion openmandriva/kf6-kpty
 openmandriva/kf6-kcolorscheme
 openmandriva/kf6-kconfigwidgets
 openmandriva/kf6-kdesu openmandriva/kf6-kiconthemes
-openmandriva/kf6-knotifications openmandriva/kf6-ktextwidgets
 openmandriva/kf6-kxmlgui openmandriva/kf6-kwallet openmandriva/kf6-breeze-icons
 openmandriva/kf6-kbookmarks
 openmandriva/kf6-kactivities

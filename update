@@ -124,7 +124,7 @@ for i in $PACKAGES; do
 		else
 			sed -i -e 's,#define git ,%define git ,' *.spec
 		fi
-	elif [ "$OLDVERSION" = "${PKGVERSION}" ]; then
+	else
 		if $WAS_GIT; then
 			sed -i -e 's,^%define git ,#define git ,' *.spec
 		elif grep -q '^%define beta' *.spec; then
@@ -137,7 +137,7 @@ for i in $PACKAGES; do
 				cd ..
 				continue
 			fi
-		else
+		elif [ "${OLDVERSION}" = "${PKGVERSION}" ]; then
 			echo "$i seems to be up to date already, skipping"
 			cd ..
 			continue
