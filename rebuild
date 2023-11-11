@@ -22,9 +22,17 @@ for i in $PACKAGES; do
 	rm -rf ${i}
 	git clone git@github.com:OpenMandrivaAssociation/${i}.git || error $i
 	cd ${i}
-	OLDRELEASE="$(grep -i '^Release[[:space:]]*:' *.spec |cut -d: -f2 |xargs echo)"
-	RELEASE=$((OLDRELEASE+1))
-	if [ "$RELEASE" = "1" ]; then
+	OLDRELEASE="$(grep -i '^Release[[:space:]]*:' *.spec |cut -d: -f2- |xargs echo)"
+	if echo ${OLDRELEASE} |grep -q '}'; then
+		NUMREL=`echo $OLDRELEASE |rev |cut -d'}' -f1 |rev`
+		RELEASE=`echo $OLDRELEASE |sed -e "s,}[^}]*\$,}$((NUMREL+1)),"`
+	elif echo ${OLDRELEASE} |grep -q '\.'; then
+		NUMREL=`echo $OLDRELEASE |rev |cut -d'.' -f1 |rev`
+		RELEASE=`echo $OLDRELEASE |sed -e "s,\.[^.]*\$,.$((NUMREL+1)),"`
+	else
+		RELEASE=$((OLDRELEASE+1))
+	fi
+	if [ "$RELEASE" = "$OLDRELEASE" ]; then
 		error "Could not determine new release number for $i"
 		exit 1
 	fi
@@ -35,4 +43,4 @@ for i in $PACKAGES; do
 	cd ..
 done
 
-abf chain_build -a znver1 -a aarch64 -a x86_64 -a armv7hnl -a i686 -b master --update-type enhancement -i $PROJECT.buildlist
+abf chain_build -a znver1 -a aarch64 -a x86_64 -b master --update-type enhancement -i $PROJECT.buildlist
