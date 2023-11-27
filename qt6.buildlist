@@ -8,4 +8,5 @@ openmandriva/qt6-qtmultimedia openmandriva/qt6-qttranslations openmandriva/qt6-q
 openmandriva/qt6-qtspeech
 openmandriva/qt6-qtwebengine
 openmandriva/qt6-qtwebview
-openmandriva/qt6-qtquickeffectmaker openmandriva/qt6-qtgraphs
+openmandriva/qt6-qtquickeffectmaker openmandriva/qt6-qtgraphs openmandriva/qt6-qtlocation
+openmandriva/qt6-qtgrpc
