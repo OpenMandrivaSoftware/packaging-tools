@@ -1,22 +1,24 @@
 openmandriva/extra-cmake-modules
-openmandriva/kf6-attica openmandriva/kf6-bluez-qt openmandriva/kf6-oxygen-icons openmandriva/kf6-kquickcharts
+openmandriva/kf6-attica openmandriva/kf6-bluez-qt openmandriva/kf6-kquickcharts
 openmandriva/kf6-networkmanager-qt openmandriva/kf6-modemmanager-qt openmandriva/kf6-kitemmodels openmandriva/kf6-kitemviews openmandriva/kf6-karchive openmandriva/kf6-kcodecs openmandriva/kf6-kconfig openmandriva/kf6-kcoreaddons openmandriva/kf6-kdbusaddons openmandriva/kf6-kguiaddons openmandriva/kf6-kidletime openmandriva/kf6-kplotting openmandriva/kf6-kwidgetsaddons openmandriva/kf6-kwindowsystem openmandriva/kf6-solid openmandriva/kf6-sonnet openmandriva/kf6-threadweaver openmandriva/kf6-ki18n openmandriva/kf6-prison
 openmandriva/kf6-kimageformats
 openmandriva/kf6-kdoctools
 openmandriva/kf6-kcrash
 openmandriva/kf6-kservice
 openmandriva/kf6-kglobalaccel openmandriva/kf6-kdnssd
-openmandriva/kf6-knotifications openmandriva/kf6-ktextwidgets
-openmandriva/kf6-kauth openmandriva/kf6-kcompletion openmandriva/kf6-kjobwidgets openmandriva/kf6-kunitconversion openmandriva/kf6-kpty
+openmandriva/kf6-knotifications
+openmandriva/kf6-kcompletion
 openmandriva/kf6-kcolorscheme
 openmandriva/kf6-kconfigwidgets
+openmandriva/kf6-ktextwidgets
+openmandriva/kf6-kauth openmandriva/kf6-kjobwidgets openmandriva/kf6-kunitconversion openmandriva/kf6-kpty
 openmandriva/kf6-kdesu openmandriva/kf6-kiconthemes
 openmandriva/kf6-kxmlgui openmandriva/kf6-kwallet openmandriva/kf6-breeze-icons
 openmandriva/kf6-kbookmarks
 openmandriva/kf6-kpackage
+openmandriva/kf6-kio
 openmandriva/kf6-kcmutils
 openmandriva/kf6-kded
-openmandriva/kf6-kio
 openmandriva/kf6-kirigami
 openmandriva/kf6-syndication
 openmandriva/kf6-knewstuff
@@ -30,5 +32,5 @@ openmandriva/kf6-baloo
 openmandriva/kf6-kholidays openmandriva/kf6-purpose openmandriva/kf6-qqc2-desktop-style
 openmandriva/kf6-kcalendarcore openmandriva/kf6-kcontacts
 openmandriva/kf6-kdav
-openmandriva/kf6-kstatusnotifieritem openmandriva/kmoretools
+openmandriva/kf6-kstatusnotifieritem openmandriva/kf6-ktexttemplate openmandriva/kf6-kuserfeedback openmandriva/kmoretools
 openmandriva/plasma-wayland-protocols
