@@ -1,7 +1,7 @@
-openmandriva/plasma6-kactivities openmandriva/plasma6-kwayland
-openmandriva/plasma6-plasma-framework openmandriva/plasma6-kactivities-stats
-openmandriva/plasma6-kpipewire openmandriva/plasma6-kglobalacceld
-openmandriva/plasma6-drkonqi openmandriva/plasma6-kwallet-pam openmandriva/plasma6-pa openmandriva/plasma6-kgamma5 openmandriva/plasma6-disks openmandriva/plasma6-layer-shell-qt
+openmandriva/plasma6-plasma-activities openmandriva/plasma6-kwayland
+openmandriva/plasma6-kpipewire openmandriva/plasma6-kglobalacceld openmandriva/plasma6-plasma-activities-stats openmandriva/plasma6-kwayland-integration
+openmandriva/plasma6-libplasma
+openmandriva/plasma6-drkonqi openmandriva/plasma6-kwallet-pam openmandriva/plasma6-pa openmandriva/plasma6-kgamma openmandriva/plasma6-disks openmandriva/plasma6-layer-shell-qt
 openmandriva/plasma6-libkscreen openmandriva/plasma6-libksysguard
 openmandriva/plasma6-ksystemstats
 openmandriva/plasma6-bluedevil
@@ -10,7 +10,7 @@ openmandriva/plasma6-kde-gtk-config openmandriva/plasma6-kinfocenter openmandriv
 openmandriva/plasma6-ksshaskpass
 openmandriva/plasma6-breeze openmandriva/plasma6-kwrited openmandriva/plasma6-milou openmandriva/plasma6-discover
 openmandriva/plasma6-kscreenlocker
-openmandriva/plasma6-oxygen openmandriva/plasma6-oxygen-sounds
+openmandriva/plasma6-oxygen openmandriva/plasma6-oxygen-sounds openmandriva/sound-theme-ocean
 openmandriva/plasma6-breeze-gtk openmandriva/plasma6-kwin
 openmandriva/plasma6-kactivitymanagerd
 openmandriva/plasma6-plasma5support
@@ -19,5 +19,5 @@ openmandriva/plasma6-kde-cli-tools
 openmandriva/plasma6-desktop
 openmandriva/plasma6-nm
 openmandriva/plasma6-kdeplasma-addons openmandriva/plasma6-polkit-kde-agent-1 openmandriva/plasma6-powerdevil openmandriva/plasma6-sddm-kcm openmandriva/plasma6-systemsettings openmandriva/plasma6-sdk openmandriva/plasma6-integration openmandriva/plasma6-workspace-wallpapers openmandriva/plasma6-breeze-grub openmandriva/plasma6-breeze-plymouth openmandriva/plasma6-browser-integration openmandriva/plasma6-vault openmandriva/plasma6-plymouth-kcm openmandriva/plasma6-xdg-desktop-portal-kde openmandriva/plasma6-flatpak-kcm
-openmandriva/plasma6-nano openmandriva/plasma6-firewall openmandriva/plasma6-systemmonitor openmandriva/plasma6-qqc2-breeze-style
+openmandriva/plasma6-nano openmandriva/plasma6-firewall openmandriva/plasma6-systemmonitor openmandriva/plasma6-qqc2-breeze-style openmandriva/plasma6-thunderbolt openmandriva/plasma6-welcome openmandriva/plasma6-print-manager openmandriva/plasma-wacomtablet
 openmandriva/plasma6-mobile
