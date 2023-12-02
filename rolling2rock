@@ -1,6 +1,6 @@
 #!/bin/sh
 D="$(mktemp -d /tmp/c2rXXXXXX)"
-rock_b=4.3
+rock_b=5.0
 error() {
 	echo "$@" >/dev/stderr
 	cd /
