@@ -39,4 +39,5 @@ gh repo create --description "$SUMMARY" --public --push --source . OpenMandrivaA
 abf create_empty --description "$SUMMARY" --visibility public -v $NAME openmandriva
 abf add -p openmandriva/$NAME cooker/$TREE
 abf add -p openmandriva/$NAME rolling/$TREE
-abf build -a aarch64 -a znver1 -a x86_64 -b master --auto-publish-status default --skip-personal --update-type enhancement -p openmandriva/$NAME
+#abf build -a aarch64 -a znver1 -a x86_64 -b master --auto-publish-status default --skip-personal --update-type enhancement -p openmandriva/$NAME
+abf chain_build -a aarch64 -a znver1 -a x86_64 -b master --update-type enhancement --auto-publish-status=default openmandriva/$NAME
