@@ -1,3 +1,8 @@
+openmandriva/mauiman
 openmandriva/mauikit
-openmandriva/mauikit-accounts openmandriva/mauikit-filebrowsing openmandriva/mauikit-imagetools openmandriva/mauikit-texteditor
-openmandriva/bonsai openmandriva/buho openmandriva/clip openmandriva/communicator openmandriva/index-fm openmandriva/maui-pix openmandriva/nota openmandriva/station openmandriva/vvave
+openmandriva/mauikit-accounts openmandriva/mauikit-calendar openmandriva/mauikit-documents openmandriva/mauikit-filebrowsing openmandriva/mauikit-imagetools openmandriva/mauikit-terminal openmandriva/mauikit-texteditor
+openmandriva/agenda openmandriva/arca openmandriva/bonsai openmandriva/booth openmandriva/brun openmandriva/buho openmandriva/clip openmandriva/communicator openmandriva/era openmandriva/fiery openmandriva/index-fm openmandriva/maui-pix openmandriva/nota openmandriva/paleta openmandriva/shelf openmandriva/station openmandriva/strike openmandriva/vvave
+openmandriva/cask-server
+openmandriva/maui-core
+openmandriva/maui-shell
+openmandriva/maui-settings
