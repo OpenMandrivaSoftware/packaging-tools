@@ -2,11 +2,12 @@ openmandriva/plasma6-akonadi
 openmandriva/plasma6-khelpcenter
 openmandriva/plasma6-kopeninghours
 openmandriva/plasma6-kmime
-openmandriva/plasma6-mimetreeparser
 openmandriva/plasma6-kontactinterface
 openmandriva/plasma6-kimap
 openmandriva/plasma6-kmbox
 openmandriva/plasma6-kpimtextedit
+openmandriva/plasma6-libkleo
+openmandriva/plasma6-mimetreeparser
 openmandriva/plasma6-kldap
 openmandriva/plasma6-kidentitymanagement
 openmandriva/plasma6-kcalutils
@@ -14,7 +15,6 @@ openmandriva/plasma6-ktnef
 openmandriva/plasma6-akonadi-mime
 openmandriva/plasma6-akonadi-search
 openmandriva/plasma6-grantleetheme
-openmandriva/plasma6-libkleo
 openmandriva/plasma6-akonadi-contacts
 openmandriva/plasma6-ksmtp
 openmandriva/plasma6-libkgapi
