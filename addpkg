@@ -35,6 +35,10 @@ git add .abf.yml *.spec
 git add *.txt &>/dev/null || :
 git add *.patch &>/dev/null || :
 git add *.diff &>/dev/null || :
+git add *.sh &>/dev/null || :
+git add *.md &>/dev/null || :
+git add *.json &>/dev/null || :
+git add *.rpmlintrc &>/dev/null || :
 git commit -am "Initial package"
 
 gh repo create --description "$SUMMARY" --public --push --source . OpenMandrivaAssociation/$NAME
