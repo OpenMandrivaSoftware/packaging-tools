@@ -87,11 +87,12 @@ for i in $PACKAGES; do
 		WAS_GIT=false
 	fi
 
-	if [ "$VERSION" = "git" ]; then
+	if [ "${VERSION:0:3}" = "git" ]; then
 		DATE="$(date +%Y%m%d)"
 		OLDDATE="$(grep -i '^%define[[:space:]]*git[[:space:]]*' *.spec |head -n1 |awk '{ print $3; }')"
 		OLDEXP=${OLDDATE}
-	else
+	fi
+	if [ "${VERSION}" != "git" ]; then
 		OLDVERSION="$(grep -i '^Version[[:space:]]*:' *.spec |head -n1 |cut -d: -f2 |xargs echo)"
 		OLDEXP="$(echo ${OLDVERSION} |sed -e 's,\.,\\.,g')"
 		if grep -q "^%define beta " *.spec; then
@@ -114,7 +115,7 @@ for i in $PACKAGES; do
 	# PKGVERSION is a separate variable just in case we need to do
 	# preprocessing here again (e.g. earlier versions of baloo didn't
 	# follow KF's versioning scheme)
-	if [ "$VERSION" = "git" ]; then
+	if [ "${VERSION:0:3}" = "git" ]; then
 		if $WAS_GIT; then
 			if [ "${OLDDATE}" = "${DATE}" ]; then
 				echo "$i seems to be up to date already, skipping"
@@ -124,8 +125,12 @@ for i in $PACKAGES; do
 		else
 			sed -i -e 's,#define git ,%define git ,' *.spec
 		fi
-	else
-		if $WAS_GIT; then
+		if [ "${VERSION}" != "git" ]; then
+			PKGVERSION="${VERSION:4}"
+		fi
+	fi
+	if [ "${VERSION}" != "git" ]; then
+		if $WAS_GIT && [ "${VERSION:0:3}" != "git" ]; then
 			sed -i -e 's,^%define git ,#define git ,' *.spec
 		elif grep -q '^%define beta' *.spec; then
 			if [ -n "$BETA" ] && grep -q "^%define beta $BETA\$" *.spec; then
@@ -143,9 +148,11 @@ for i in $PACKAGES; do
 			continue
 		fi
 	fi
-	if [ "${VERSION}" = "git" ]; then
+	if [ "${VERSION:0:3}" = "git" ]; then
 		sed -i -e "s,^%define git .*,%define git ${DATE}," *.spec
-	else
+	fi
+	if [ "${VERSION}" != "git" ]; then
+		echo ${OLDEXP} -- ${PKGVERSION}
 		sed -i -e "s,^\(Version.*:.*\)${OLDEXP},\1${PKGVERSION}," *.spec
 	fi
 	sed -i -e "s,^\(Release.*:\s*\)[0-9]*$,\11," *.spec
@@ -186,7 +193,7 @@ for i in $PACKAGES; do
 	if [ -n "$BETA" ]; then
 		PKGVERSION="${PKGVERSION}-${BETA}"
 	fi
-	if [ "$VERSION" = "git" ]; then
+	if [ "${VERSION:0:3}" = "git" ]; then
 		abb store *${DATE}.tar* || error $i
 	else
 		abb store *${PKGVERSION}.tar* || error $i
