@@ -2,9 +2,9 @@
 # Rebuild everything that has a given dependency (e.g. after an update
 # with an ABI breakage and/or soname bump)
 # Usage:
-# 	./rebuilddeps 'dependency'
+# 	./rebuilddeps 'dependency' ['commit message']
 # e.g.
-# 	./rebuilddeps 'libQt6Core.so.6()(64bit)'
+# 	./rebuilddeps 'libQt6Core.so.6()(64bit)' 'Rebuild for updated Qt'
 # Automatically excludes KDE when rebuilding for a Qt dependency, because
 # KDE bits need to be built in the right order (use the buildlists for that).
 error() {
