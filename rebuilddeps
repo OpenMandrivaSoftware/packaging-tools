@@ -1,0 +1,26 @@
+#!/bin/sh
+# Rebuild everything that has a given dependency (e.g. after an update
+# with an ABI breakage and/or soname bump)
+# Usage:
+# 	./rebuilddeps 'dependency'
+# e.g.
+# 	./rebuilddeps 'libQt6Core.so.6()(64bit)'
+# Automatically excludes KDE when rebuilding for a Qt dependency, because
+# KDE bits need to be built in the right order (use the buildlists for that).
+D=$(realpath $(dirname "$0"))
+
+is_qt=false
+if echo "$1" |grep -qE '^libQt6(Core|Gui|Network|Svg)'; then
+	is_qt=true
+fi
+
+while read r; do
+	if $is_qt; then
+		if grep -qE "openmandriva/$r($| )" $D/qt6.buildlist $D/kf6.buildlist $D/plasma6.buildlist $D/kapps6.buildlist; then
+			echo "NOT $r"
+			continue
+		fi
+		BUILDLIST="$BUILDLIST openmandriva/$r"
+	fi
+done < <(dnf repoquery --whatrequires "$1" --qf '%{sourcerpm}' |rev |cut -d- -f3- |rev |sort |uniq)
+abf chain_build -a znver1 -a aarch64 -a x86_64 -b master --no-extra-tests --update-type enhancement $BUILDLIST
