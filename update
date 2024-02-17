@@ -152,7 +152,6 @@ for i in $PACKAGES; do
 		sed -i -e "s,^%define git .*,%define git ${DATE}," *.spec
 	fi
 	if [ "${VERSION}" != "git" ]; then
-		echo ${OLDEXP} -- ${PKGVERSION}
 		sed -i -e "s,^\(Version.*:.*\)${OLDEXP},\1${PKGVERSION}," *.spec
 	fi
 	sed -i -e "s,^\(Release.*:\s*\)[0-9]*$,\11," *.spec
