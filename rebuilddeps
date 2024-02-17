@@ -7,20 +7,56 @@
 # 	./rebuilddeps 'libQt6Core.so.6()(64bit)'
 # Automatically excludes KDE when rebuilding for a Qt dependency, because
 # KDE bits need to be built in the right order (use the buildlists for that).
+error() {
+	echo "$@"
+	exit 1
+}
+
 D=$(realpath $(dirname "$0"))
 
-is_qt=false
-if echo "$1" |grep -qE '^libQt6(Core|Gui|Network|Svg)'; then
-	is_qt=true
+is_qt6=false
+
+DEP="$1"
+shift
+if [ -n "$@" ]; then
+	REASON="$@"
+else
+	REASON="Rebuild for updated $DEP"
+fi
+
+if echo "$DEP" |grep -qE '^libQt6(Core|Gui|Network|Svg)'; then
+	is_qt6=true
 fi
 
 while read r; do
-	if $is_qt; then
+	if $is_qt6; then
 		if grep -qE "openmandriva/$r($| )" $D/qt6.buildlist $D/kf6.buildlist $D/plasma6.buildlist $D/kapps6.buildlist; then
 			echo "NOT $r"
 			continue
 		fi
+		rm -rf ${r}
+		git clone git@github.com:OpenMandrivaAssociation/${r}.git || error clone $r
+		cd ${r}
+		OLDRELEASE="$(grep -i '^Release[[:space:]]*:' *.spec |cut -d: -f2- |xargs echo)"
+		if echo ${OLDRELEASE} |grep -q '}'; then
+			NUMREL=`echo $OLDRELEASE |rev |cut -d'}' -f1 |rev`
+			RELEASE=`echo $OLDRELEASE |sed -e "s,}[^}]*\$,}$((NUMREL+1)),"`
+		elif echo ${OLDRELEASE} |grep -q '\.'; then
+			NUMREL=`echo $OLDRELEASE |rev |cut -d'.' -f1 |rev`
+			RELEASE=`echo $OLDRELEASE |sed -e "s,\.[^.]*\$,.$((NUMREL+1)),"`
+		else
+			RELEASE=$((OLDRELEASE+1))
+		fi
+		if [ "$RELEASE" = "$OLDRELEASE" ]; then
+			error "Could not determine new release number for $r"
+			exit 1
+		fi
+
+		sed -i -e "s,^\(Release.*:.*\)${OLDRELEASE},\1${RELEASE}," *.spec
+		git commit -am "$REASON"
+		git push origin master
+		cd ..
 		BUILDLIST="$BUILDLIST openmandriva/$r"
 	fi
-done < <(dnf repoquery --whatrequires "$1" --qf '%{sourcerpm}' |rev |cut -d- -f3- |rev |sort |uniq)
+done < <(dnf repoquery --whatrequires "$DEP" --qf '%{sourcerpm}' |rev |cut -d- -f3- |rev |sort |uniq)
 abf chain_build -a znver1 -a aarch64 -a x86_64 -b master --no-extra-tests --update-type enhancement $BUILDLIST
