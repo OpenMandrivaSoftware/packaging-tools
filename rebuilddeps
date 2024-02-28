@@ -18,7 +18,7 @@ is_qt6=false
 
 DEP="$1"
 shift
-if [ -n "$@" ]; then
+if [ "$#" -gt 0 ]; then
 	REASON="$@"
 else
 	REASON="Rebuild for updated $DEP"
@@ -29,6 +29,7 @@ if echo "$DEP" |grep -qE '^libQt6(Core|Gui|Network|Svg)'; then
 fi
 
 while read r; do
+	echo "========== $r =========="
 	if $is_qt6; then
 		if grep -qE "openmandriva/$r($| )" $D/qt6.buildlist $D/kf6.buildlist $D/plasma6.buildlist $D/kapps6.buildlist; then
 			echo "NOT $r"
@@ -59,5 +60,7 @@ while read r; do
 	cd ..
 
 	BUILDLIST="$BUILDLIST openmandriva/$r"
-done < <(dnf repoquery --whatrequires "$DEP" --qf '%{sourcerpm}' |rev |cut -d- -f3- |rev |sort |uniq)
-echo $BUILDLIST | abf chain_build -a znver1 -a aarch64 -a x86_64 -b master --no-extra-tests --update-type enhancement -i /dev/stdin
+done < <(dnf --refresh repoquery --whatrequires "$DEP" --qf '%{sourcerpm}' |rev |cut -d- -f3- |rev |sort |uniq)
+if [ -n "$BUILDLIST" ]; then
+	echo $BUILDLIST | abf chain_build -a znver1 -a aarch64 -a x86_64 -b master --no-extra-tests --update-type enhancement -i /dev/stdin
+fi
