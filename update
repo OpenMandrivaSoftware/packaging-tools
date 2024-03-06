@@ -166,7 +166,11 @@ for i in $PACKAGES; do
 		STABLE=stable
 		[ $(echo $VERSION |cut -d. -f3) -ge 70 ] && STABLE=unstable
 		SCPDIR=ftpopenmandriva@tinami.kde.org:/srv/archives/ftp/${STABLE}
-		if [ "${i}" = "oxygen-icons" ]; then
+		if [ "$(echo $i |cut -b1-4)" = "kf6-" ]; then
+			TARNAME="$(echo $i |cut -b5-)"
+		elif [ "$(echo $i |cut -b1-8)" = "plasma6-" ]; then
+			TARNAME="$(echo $i |cut -b9-)"
+		elif [ "${i}" = "oxygen-icons" ]; then
 			TARNAME=${i}5
 		elif [ "${i}" = "kgamma5" ]; then
 			TARNAME=${i}
@@ -177,12 +181,12 @@ for i in $PACKAGES; do
 		else
 			TARNAME=$(echo ${i} |sed -e 's,5$,,')
 		fi
-		if [ "${PROJECT}" = "kf" ]; then
+		if [ "${PROJECT}" = "kf" -o "${PROJECT}" = "kf6" ]; then
 			SCPDIR=$SCPDIR/frameworks/$(echo ${VERSION} |sed -e 's,\.0$,,')
 			grep -q portingAids *.spec && SCPDIR="${SCPDIR}/portingAids"
-		elif [ "${PROJECT}" = "pd" ]; then
+		elif [ "${PROJECT}" = "pd" -o "${PROJECT}" = "plasma6" ]; then
 			SCPDIR=$SCPDIR/plasma/${VERSION}
-		elif [ "${PROJECT}" = "kapps" ]; then
+		elif [ "${PROJECT}" = "kapps" -o "${PROJECT}" = "kapps6" ]; then
 			SCPDIR=$SCPDIR/release-service/${VERSION}/src
 		fi
 		scp ${SCPDIR}/${TARNAME}-${PKGVERSION}.tar.xz . || :
