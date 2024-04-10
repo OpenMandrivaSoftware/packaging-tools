@@ -43,6 +43,7 @@ while read r; do
 			continue
 		fi
 	fi
+	[ "$r" = "lucene++" ] && r=luceneplusplus
 
 	if ! $DONT_BUMP; then
 		rm -rf ${r}
