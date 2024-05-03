@@ -22,6 +22,13 @@ if [ "$1" = "-r" ]; then
 else
 	DONT_BUMP=false
 fi
+if [ "$1" = "-l" ]; then
+	DONT_BUMP=true
+	LIST_ONLY=true
+	shift
+else
+	LIST_ONLY=false
+fi
 
 DEP="$1"
 shift
@@ -72,5 +79,9 @@ while read r; do
 	BUILDLIST="$BUILDLIST openmandriva/$r"
 done < <(dnf --refresh repoquery --whatrequires "$DEP" --qf '%{sourcerpm}' |rev |cut -d- -f3- |rev |sort |uniq)
 if [ -n "$BUILDLIST" ]; then
-	echo $BUILDLIST | abf chain_build -a znver1 -a aarch64 -a x86_64 -b master --no-extra-tests --update-type enhancement -i /dev/stdin
+	if $LIST_ONLY; then
+		echo $BUILDLIST
+	else
+		echo $BUILDLIST | abf chain_build -a znver1 -a aarch64 -a x86_64 -b master --no-extra-tests --update-type enhancement -i /dev/stdin
+	fi
 fi
