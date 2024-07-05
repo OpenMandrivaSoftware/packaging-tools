@@ -35,7 +35,7 @@ shift
 if [ "$#" -gt 0 ]; then
 	REASON="$@"
 else
-	REASON="Rebuild for updated $DEP"
+	REASON="Rebuild for updated $(echo $DEP |sed -e 's,\.so\.[0-9].*,,;s,\(\)\(64bit\),,')"
 fi
 
 if echo "$DEP" |grep -qE '^libQt6(Core|Gui|Network|Svg)'; then
