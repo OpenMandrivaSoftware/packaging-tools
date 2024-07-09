@@ -572,7 +572,7 @@ UPDATED=0
 for i in $PACKAGES; do
 	OURVERSION=$(ourVersion $i)
 	NEWVERSION=$(upstreamVersion $i)
-	echo $NEWVERSION |grep -q '[()<>%]' && NEWVERSION=ERROR
+	echo $NEWVERSION |grep -q '[()<>%-]' && NEWVERSION=ERROR
 	if [ "$OURVERSION" = "ERROR" -o "$NEWVERSION" = "ERROR" ]; then
 		mkdir -p ~/failed-builds
 		echo $i >>~/failed-builds/version-determination.err
