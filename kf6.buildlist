@@ -1,7 +1,7 @@
 openmandriva/extra-cmake-modules
 openmandriva/kf6-attica openmandriva/kf6-bluez-qt openmandriva/kf6-kquickcharts
 openmandriva/kf6-networkmanager-qt openmandriva/kf6-modemmanager-qt openmandriva/kf6-kitemmodels openmandriva/kf6-kitemviews openmandriva/kf6-karchive openmandriva/kf6-kcodecs openmandriva/kf6-kconfig openmandriva/kf6-kcoreaddons openmandriva/kf6-kdbusaddons openmandriva/kf6-kguiaddons openmandriva/kf6-kidletime openmandriva/kf6-kplotting openmandriva/kf6-kwidgetsaddons openmandriva/kf6-kwindowsystem openmandriva/kf6-solid openmandriva/kf6-sonnet openmandriva/kf6-threadweaver openmandriva/kf6-ki18n openmandriva/kf6-prison
-openmandriva/kf6-kimageformats
+openmandriva/kf6-kimageformats openmandriva/kf6-kimageformats-restricted
 openmandriva/kf6-kdoctools
 openmandriva/kf6-kcrash
 openmandriva/kf6-kservice
