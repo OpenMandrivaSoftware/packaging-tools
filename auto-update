@@ -264,7 +264,7 @@ upstreamVersion() {
 			EXPR=""
 			latest $(curl -s -L $SOURCE |sed -e 's,</a>,</a>\n,g' |grep "href=" |cut -d'"' -f2 |cut -d/ -f5 |grep -v '//' |grep -v '\.\.' |grep -vE '[^0-9.]')
 			return
-		elif echo $SOURCE |grep -qE '(gnome|gtk|gimp|twistedmatrix|acc\.umu)\.(com|org|se)'; then
+		elif echo $SOURCE |grep -qE '(gnome|mate-desktop|gtk|gimp|twistedmatrix|acc\.umu)\.(com|org|se)'; then
 			# Gjunk tends to follow a directory structure of
 			# major_version/file-minor_version.tar.*
 			# Also major_version sometimes, but not always, is
