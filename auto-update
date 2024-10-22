@@ -346,7 +346,7 @@ upstreamVersion() {
 		fi
 		if [ -z "$VERSIONS" ]; then
 			# As a last resort, see if repology knows something we don't...
-			VERSIONS="$(curl -s https://repology.org/project/$PKGNAME/versions |grep "version-newest" |sed -e 's,</a>.*,,;s,.*<a[^>]*>,,;s,<.*,,' |sed '/^[[:space:]]*$/d')"
+			VERSIONS="$(curl -A 'OpenMandriva auto-update https://github.com/OpenMandrivaSoftware/packaging-tools/issues/new' -s https://repology.org/project/$PKGNAME/versions |grep "version-newest" |sed -e 's,</a>.*,,;s,.*<a[^>]*>,,;s,<.*,,' |sed '/^[[:space:]]*$/d')"
 		fi
 		debug "$VERSIONS"
 		if [ -z "$VERSIONS" ]; then
