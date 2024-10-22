@@ -520,7 +520,7 @@ if [ -z "$PACKAGES" ]; then
 		BLACKLIST="$BLACKLIST zookeeper"
 		# Repositories that should not be updated individually, but as
 		# part of a larger package set at the same time (e.g. KDE)
-		for i in qt qt6 kf kf6 plasma6 pd kapps kapps6 plasma-mobile-gear; do
+		for i in qt qt6 kf kf6 plasma6 pd kapps kapps6; do
 			for j in $(cat "$OURDIR/$i.buildlist"); do
 				BLACKLIST="$BLACKLIST $(echo $j |sed -e 's,openmandriva/,,g')"
 			done
