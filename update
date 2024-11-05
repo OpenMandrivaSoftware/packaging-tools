@@ -111,10 +111,17 @@ for i in $PACKAGES; do
 		#sed -i -e 's#/%{version}-%{beta}/#/%{version}-%(echo %{beta} |sed -e "s,1$,,")/#' *.spec
 		sed -i -e 's#%{version}-%(echo %{beta} |sed -e "s,1$,,")/#%{version}-%{beta}/#' *.spec
 	fi
-	PKGVERSION=${VERSION}
-	# PKGVERSION is a separate variable just in case we need to do
-	# preprocessing here again (e.g. earlier versions of baloo didn't
-	# follow KF's versioning scheme)
+	# Ideally PKGVERSION would always be the same as VERSION, but in the real
+	# world, some packages don't follow the same versioning scheme - e.g. in
+	# LXQt, libsysstat is 1 major version behind the rest etc.
+	if [ "$i" = "libsysstat" ]; then
+		PKGVERSION="$(($(echo ${VERSION}|cut -d. -f1)-1)).$(echo ${VERSION}|cut -d. -f2-)"; echo $PKGVERSION
+	elif [ "$i" = "libqtxdg" ]; then
+		PKGVERSION="$(($(echo ${VERSION}|cut -d. -f1)+2)).$(echo ${VERSION}|cut -d. -f2-)"; echo $PKGVERSION
+	else
+		PKGVERSION=${VERSION}
+	fi
+
 	if [ "${VERSION:0:3}" = "git" ]; then
 		if $WAS_GIT; then
 			if [ "${OLDDATE}" = "${DATE}" ]; then

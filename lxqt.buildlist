@@ -1,4 +1,5 @@
-openmandriva/liblxqt
+openmandriva/lxqt-build-tools
+openmandriva/liblxqt openmandriva/lxqt-menu-data
 openmandriva/libsysstat openmandriva/libfm-qt
 openmandriva/lxqt-about openmandriva/lxqt-admin openmandriva/lxqt-config openmandriva/lxqt-globalkeys openmandriva/lxqt-notificationd openmandriva/lxqt-openssh-askpass openmandriva/lxqt-policykit openmandriva/lxqt-powermanagement openmandriva/lxqt-qtplugin openmandriva/lxqt-session openmandriva/lxqt-sudo openmandriva/lxqt-archiver
 openmandriva/lxqt-runner
