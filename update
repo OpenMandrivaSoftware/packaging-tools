@@ -114,10 +114,16 @@ for i in $PACKAGES; do
 	# Ideally PKGVERSION would always be the same as VERSION, but in the real
 	# world, some packages don't follow the same versioning scheme - e.g. in
 	# LXQt, libsysstat is 1 major version behind the rest etc.
-	if [ "$i" = "libsysstat" ]; then
+	if [ "$i" = "libsysstat" -o "$i" = "lxqt-archiver" ]; then
 		PKGVERSION="$(($(echo ${VERSION}|cut -d. -f1)-1)).$(echo ${VERSION}|cut -d. -f2-)"; echo $PKGVERSION
-	elif [ "$i" = "libqtxdg" ]; then
+	elif [ "$i" = "lxqt-wayland-session" ]; then
+		PKGVERSION="$(($(echo ${VERSION}|cut -d. -f1)-2)).$(echo ${VERSION}|cut -d. -f2-)"; echo $PKGVERSION
+	elif [ "$i" = "libqtxdg" -o "$i" = "qtxdg-tools" ]; then
 		PKGVERSION="$(($(echo ${VERSION}|cut -d. -f1)+2)).$(echo ${VERSION}|cut -d. -f2-)"; echo $PKGVERSION
+	elif [ "$i" = "libdbusmenu-lxqt" ]; then
+		# libdbusmenu-lxqt is released with lxqt, but its versioning scheme is
+		# very much unpredictable
+		PKGVERSION="$(git ls-remote https://github.com/lxqt/libdbusmenu-lxqt |awk '{print $2}' |grep 'refs/tags/' |sed -e 's,.*refs/tags/,,;s,\^{},,' |sort -V |tail -n1)"
 	else
 		PKGVERSION=${VERSION}
 	fi
