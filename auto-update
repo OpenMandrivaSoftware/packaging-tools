@@ -500,7 +500,8 @@ if [ -z "$PACKAGES" ]; then
 		# Packages that have known breakages in the current version and need
 		# to be updated if and only if there's a newer release fixing the
 		# issue blocking the update
-		BLACKLIST="sqlite"
+		# (fortunately currently no such packages)
+		BLACKLIST=""
 		# Packages that are known to break when auto-updated
 		# (e.g. perl doesn't like having Release: reset)
 		BLACKLIST="$BLACKLIST perl"
