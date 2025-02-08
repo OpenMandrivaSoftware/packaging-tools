@@ -42,6 +42,8 @@ if ! [ -e .git ]; then
 	git add *.patch &>/dev/null || :
 	git add *.diff &>/dev/null || :
 	git add *.sh &>/dev/null || :
+	git add *.csh &>/dev/null || :
+	git add *-completion &>/dev/null || :
 	git add *.md &>/dev/null || :
 	git add *.json &>/dev/null || :
 	git add *.rpmlintrc &>/dev/null || :
