@@ -155,7 +155,7 @@ for i in $PACKAGES; do
 				cd ..
 				continue
 			fi
-		elif [ "${OLDVERSION}" = "${PKGVERSION}" ]; then
+		elif [ "${OLDVERSION}" = "${PKGVERSION}" -a -z "${BETA}" ]; then
 			echo "$i seems to be up to date already, skipping"
 			cd ..
 			continue
@@ -171,9 +171,14 @@ for i in $PACKAGES; do
 	sed -i -E 's,^(Release.*:\s.*}).*,\11,' *.spec
 	if [ -n "$BETA" ]; then
 		sed -i -e "s,^#define beta .*,%define beta $BETA," -e "s,^%define beta .*,%define beta $BETA," *.spec
+		if ! grep -q "define beta" *.spec; then
+			sed -i -e "/^Version:/a%define beta $BETA" *.spec
+			sed -i -E 's,^(Release.*:\s*).*,\1%{?beta:0.%{beta}.}1,' *.spec
+		fi
 	else
 		sed -i -e "s,^%define beta ,#define beta ," *.spec
 	fi
+
 	sudo dnf builddep -y --nogpgcheck *.spec
 	if ${PRERELEASE} && [ "${VERSION}" != "git" ]; then
 		STABLE=stable
@@ -204,6 +209,36 @@ for i in $PACKAGES; do
 		fi
 		scp ${SCPDIR}/${TARNAME}-${PKGVERSION}.tar.xz . || :
 	fi
+
+	if grep -q vendor.tar.xz .abf.yml; then
+		# ****ing annoying rust crap!!!
+		# We thought we had solved the dynamic linking problem
+		# 5 decades ago, but of course rust morons know "better"
+		case $i in
+		cosmic-app-library)
+			TARNAME=cosmic-applibrary
+			;;
+		*)
+			TARNAME=$i
+			;;
+		esac
+
+		sed -i -e "/vendor.tar.xz/d" .abf.yml
+		rm -f vendor.tar.xz
+		mkdir vendor
+		tar cJf vendor.tar.xz vendor
+		rmdir vendor
+		set -x
+		abb build -bp
+		cd BUILD/*/$TARNAME*
+		cargo vendor &>cargo.log
+		sed -n '/^\[/,$p' cargo.log >../../../cargo_config
+		tar cJf ../../../vendor.tar.xz vendor
+		cd ../../..
+		rm -rf BUILD
+		abb store vendor.tar.xz
+	fi
+
 	abb build || error $i
 	ls RPMS/*/* &>/dev/null || error $i
 	if [ -n "$BETA" ]; then
