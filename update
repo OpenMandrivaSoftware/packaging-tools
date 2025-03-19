@@ -26,6 +26,7 @@ fi
 
 AFTER=false
 PRERELEASE=false
+LOCALONLY=false
 BETA=""
 while [ "$(echo $1 |cut -b1)" = "-" ]; do
 	case $1 in
@@ -35,6 +36,9 @@ while [ "$(echo $1 |cut -b1)" = "-" ]; do
 	-b|--beta)
 		shift
 		BETA="$1"
+		;;
+	-l|--local|--localonly)
+		LOCALONLY=true
 		;;
 	-p|--prerelease)
 		PRERELEASE=true
@@ -256,4 +260,4 @@ for i in $PACKAGES; do
 	VERSION="${REALVERSION}"
 done
 
-abf chain_build -a znver1 -a aarch64 -a x86_64 -b master --no-extra-tests --update-type enhancement -i $PROJECT.buildlist
+$LOCALONLY || abf chain_build -a znver1 -a aarch64 -a x86_64 -b master --no-extra-tests --update-type enhancement -i $PROJECT.buildlist
