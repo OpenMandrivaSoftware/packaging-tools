@@ -6,7 +6,7 @@ openmandriva/libkscreen openmandriva/libksysguard
 openmandriva/ksystemstats
 openmandriva/bluedevil
 openmandriva/kdecoration
-openmandriva/kde-gtk-config openmandriva/kinfocenter openmandriva/kmenuedit openmandriva/plasma-kscreen
+openmandriva/kde-gtk-config openmandriva/kinfocenter openmandriva/kmenuedit openmandriva/kscreen
 openmandriva/ksshaskpass
 openmandriva/breeze openmandriva/kwrited openmandriva/milou openmandriva/discover
 openmandriva/kscreenlocker
@@ -18,6 +18,6 @@ openmandriva/plasma-workspace
 openmandriva/kde-cli-tools
 openmandriva/plasma-desktop
 openmandriva/plasma-nm
-openmandriva/plasma-kdeplasma-addons openmandriva/polkit-kde-agent-1 openmandriva/powerdevil openmandriva/sddm-kcm openmandriva/systemsettings openmandriva/plasma-sdk openmandriva/plasma-integration openmandriva/plasma-workspace-wallpapers openmandriva/breeze-grub openmandriva/breeze-plymouth openmandriva/plasma-browser-integration openmandriva/plasma-vault openmandriva/plymouth-kcm openmandriva/xdg-desktop-portal-kde openmandriva/flatpak-kcm
+openmandriva/kdeplasma-addons openmandriva/polkit-kde-agent-1 openmandriva/powerdevil openmandriva/sddm-kcm openmandriva/systemsettings openmandriva/plasma-sdk openmandriva/plasma-integration openmandriva/plasma-workspace-wallpapers openmandriva/breeze-grub openmandriva/breeze-plymouth openmandriva/plasma-browser-integration openmandriva/plasma-vault openmandriva/plymouth-kcm openmandriva/xdg-desktop-portal-kde openmandriva/flatpak-kcm
 openmandriva/plasma-nano openmandriva/plasma-firewall openmandriva/plasma-systemmonitor openmandriva/qqc2-breeze-style openmandriva/plasma-thunderbolt openmandriva/plasma-welcome openmandriva/print-manager openmandriva/wacomtablet
 openmandriva/plasma-mobile openmandriva/spectacle
