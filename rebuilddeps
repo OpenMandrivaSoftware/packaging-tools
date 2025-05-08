@@ -77,7 +77,7 @@ while read r; do
 	fi
 
 	BUILDLIST="$BUILDLIST openmandriva/$r"
-done < <(dnf --refresh repoquery --whatrequires "$DEP" --qf '%{sourcerpm}' |rev |cut -d- -f3- |rev |sort |uniq)
+done < <(dnf --refresh repoquery --whatrequires "$DEP" --qf '%{sourcerpm}\n' |rev |cut -d- -f3- |rev |sort |uniq)
 if [ -n "$BUILDLIST" ]; then
 	if $LIST_ONLY; then
 		echo $BUILDLIST
