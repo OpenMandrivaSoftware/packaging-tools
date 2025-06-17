@@ -11,7 +11,7 @@ openmandriva/ksshaskpass
 openmandriva/breeze openmandriva/kwrited openmandriva/milou openmandriva/discover
 openmandriva/kscreenlocker
 openmandriva/oxygen openmandriva/oxygen-sounds openmandriva/sound-theme-ocean
-openmandriva/breeze-gtk openmandriva/kwin
+openmandriva/breeze-gtk openmandriva/kwin openmandriva/kwin-x11
 openmandriva/kactivitymanagerd
 openmandriva/plasma5support
 openmandriva/plasma-workspace
