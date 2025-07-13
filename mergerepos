@@ -1,0 +1,51 @@
+#!/bin/sh
+# WARNING
+# This script is DANGEROUS. Don't use it unless you know EXACTLY what you're doing!
+#
+# This script is designed for a situation where e.g. preview packages become
+# main packages (e.g. plasma6-konsole -> konsole):
+# - The old "main" package is committed to a branch of the new package
+# - The old package is deleted
+# - The new package is renamed to the name of the old package
+# - Spec files etc. are adjusted with the new(/old) name
+#
+# Usage:
+#	mergerepos OBSOLETE_PACKAGE BRANCHNAME GOOD_PACKAGE
+#	(where, in the previous example, OBSOLETE_PACKAGE would be plasma6-konsole,
+#	BRANCHNAME would be plasma5 (branch for the last Plasma 5 "konsole" build),
+#	GOOD_PACKAGE would be konsole (previous P5 build that gets the content of
+#	OBSOLETE_PACKAGE now)
+
+if [ "$#" != 3 ]; then
+	echo "Read the comments at the beginning of $0"
+	exit 1
+fi
+
+# Just for readability
+OBSOLETE_PACKAGE="$1"
+BRANCHNAME="$2"
+GOOD_PACKAGE="$3"
+
+set -e
+set -x
+
+rm -rf "$GOOD_PACKAGE"
+git clone git@github.com:OpenMandrivaAssociation/"$GOOD_PACKAGE"
+cd "$GOOD_PACKAGE"
+git push origin master:"$BRANCHNAME"
+git remote add new git@github.com:OpenMandrivaAssociation/"$OBSOLETE_PACKAGE"
+git fetch --all
+git checkout -b m new/master
+git mv "$OBSOLETE_PACKAGE.spec" "$GOOD_PACKAGE.spec"
+sed -i -E "s,(Name:\s*)$OBSOLETE_PACKAGE,\1$GOOD_PACKAGE," "$GOOD_PACKAGE.spec"
+git commit -am "Merge $OBSOLETE_PACKAGE into $GOOD_PACKAGE"
+git push --force origin m:master
+gh repo delete OpenMandrivaAssociation/"$OBSOLETE_PACKAGE" --yes
+# Renaming a repository is a (seemingly the only) way to get github
+# to redirect checkouts from the old name to the new name. So we have
+# to do it twice... Once to get the new package in the old position,
+# then back to have the old position linking to the new one.
+gh repo rename -R OpenMandrivaAssociation/"$GOOD_PACKAGE" "$OBSOLETE_PACKAGE"
+while ! gh repo rename -R OpenMandrivaAssociation/"$OBSOLETE_PACKAGE" "$GOOD_PACKAGE"; do
+	sleep 1s
+done

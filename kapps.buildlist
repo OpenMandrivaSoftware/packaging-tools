@@ -1,17 +1,24 @@
-openmandriva/akonadi openmandriva/khelpcenter openmandriva/kopeninghours
-openmandriva/kmime openmandriva/kontactinterface
-openmandriva/kimap openmandriva/kmbox openmandriva/kpimtextedit
-openmandriva/kldap openmandriva/kidentitymanagement
+openmandriva/akonadi
+openmandriva/khelpcenter
+openmandriva/kopeninghours
+openmandriva/kmime
+openmandriva/kontactinterface
+openmandriva/kimap
+openmandriva/kmbox
+openmandriva/kpimtextedit
+openmandriva/libkleo
+openmandriva/mimetreeparser
+openmandriva/kldap
+openmandriva/kidentitymanagement
 openmandriva/kcalutils
 openmandriva/ktnef
 openmandriva/akonadi-mime
 openmandriva/akonadi-search
-openmandriva/grantleetheme openmandriva/libkleo
+openmandriva/grantleetheme
 openmandriva/akonadi-contacts
 openmandriva/ksmtp
 openmandriva/libkgapi
 openmandriva/kmailtransport
-openmandriva/akonadi-notes
 openmandriva/libkdepim
 openmandriva/pimcommon
 openmandriva/libgravatar
@@ -21,42 +28,38 @@ openmandriva/akonadi-calendar
 openmandriva/mailcommon
 openmandriva/calendarsupport
 openmandriva/baloo-widgets
-openmandriva/dolphin openmandriva/akonadi-calendar-tools openmandriva/akonadi-import-wizard
-openmandriva/kdegraphics-mobipocket
-openmandriva/kdepim-runtime
+openmandriva/dolphin openmandriva/akonadi-calendar-tools openmandriva/akonadi-import-wizard openmandriva/kdegraphics-mobipocket openmandriva/kdepim-runtime
 openmandriva/eventviews
 openmandriva/incidenceeditor
-openmandriva/libksieve openmandriva/kpkpass
+openmandriva/libksieve
+openmandriva/kpkpass
 openmandriva/kitinerary
-openmandriva/kaddressbook 
+openmandriva/kaddressbook
 openmandriva/kdepim-addons
 openmandriva/kdeedu-data
 openmandriva/libkeduvocdocument
-openmandriva/libkipi
-openmandriva/kqtquickcharts openmandriva/artikulate openmandriva/marble openmandriva/konsole openmandriva/analitza openmandriva/ark openmandriva/blinken openmandriva/cantor openmandriva/filelight openmandriva/gwenview openmandriva/spectacle openmandriva/kalgebra openmandriva/kalzium openmandriva/kamera openmandriva/kanagram openmandriva/kate openmandriva/kbruch openmandriva/kcalc openmandriva/kcharselect openmandriva/kcolorchooser openmandriva/okular openmandriva/kdegraphics-thumbnailers openmandriva/kdf
-openmandriva/libkdegames
-openmandriva/libkmahjongg
-openmandriva/kmahjongg
-openmandriva/audiocd-kio openmandriva/bomber openmandriva/bovo openmandriva/cervisia openmandriva/dolphin-plugins openmandriva/dragon openmandriva/ffmpegthumbs openmandriva/granatier openmandriva/juk openmandriva/kajongg openmandriva/kapman openmandriva/kapptemplate openmandriva/katomic openmandriva/kleopatra openmandriva/akregator openmandriva/grantlee-editor openmandriva/keditbookmarks openmandriva/kfind openmandriva/kmail openmandriva/kmail-account-wizard openmandriva/konqueror openmandriva/kontact openmandriva/knotes openmandriva/korganizer openmandriva/kwave openmandriva/mbox-importer openmandriva/pim-data-exporter openmandriva/pim-sieve-editor openmandriva/kalarm openmandriva/kdialog openmandriva/akonadiconsole
-openmandriva/kblackbox openmandriva/kblocks openmandriva/kbounce openmandriva/kbreakout openmandriva/kcachegrind openmandriva/kcron openmandriva/kde-dev-scripts openmandriva/kde-dev-utils openmandriva/kdenetwork-filesharing openmandriva/kdenlive openmandriva/kdesdk-kioslaves openmandriva/kdesdk-thumbnailers openmandriva/kdiamond openmandriva/knights
-openmandriva/kfourinline openmandriva/kgeography openmandriva/kget openmandriva/kgoldrunner openmandriva/kgpg openmandriva/khangman openmandriva/kig openmandriva/kigo openmandriva/killbots openmandriva/kiriki openmandriva/kiten openmandriva/kjumpingcube
-openmandriva/klettres openmandriva/klickety openmandriva/klines openmandriva/kmag openmandriva/kmines openmandriva/kmix openmandriva/kmousetool openmandriva/kmouth openmandriva/kmplot openmandriva/knavalbattle openmandriva/knetwalk openmandriva/kolf openmandriva/kollision openmandriva/kolourpaint
-openmandriva/konquest openmandriva/kpat openmandriva/krdc openmandriva/kreversi openmandriva/krfb openmandriva/kruler openmandriva/kshisen openmandriva/ksirk openmandriva/ksnakeduel openmandriva/kspaceduel openmandriva/ksquares openmandriva/ksudoku
-openmandriva/ksystemlog openmandriva/kjournald openmandriva/kteatime openmandriva/ktimer openmandriva/ktouch openmandriva/ktuberling openmandriva/kturtle openmandriva/kubrick openmandriva/kwalletmanager openmandriva/kwordquiz openmandriva/libkomparediff2 openmandriva/lokalize
-openmandriva/lskat openmandriva/palapeli openmandriva/parley openmandriva/picmi openmandriva/poxml openmandriva/print-manager openmandriva/rocs openmandriva/step openmandriva/svgpart openmandriva/sweeper openmandriva/umbrello openmandriva/kio-extras openmandriva/zeroconf-ioslave openmandriva/kaccounts-integration openmandriva/kaccounts-providers openmandriva/kross-interpreters openmandriva/signon-kwallet-extension openmandriva/kdebugsettings openmandriva/minuet openmandriva/kompare openmandriva/k3b
-openmandriva/kamoso openmandriva/kopete openmandriva/kbackup openmandriva/kimagemapeditor
-openmandriva/kontrast openmandriva/konversation openmandriva/kpmcore
+openmandriva/libkexiv2 openmandriva/ksanecore openmandriva/konsole openmandriva/libkdcraw openmandriva/analitza openmandriva/ark openmandriva/blinken openmandriva/filelight openmandriva/gwenview openmandriva/kalgebra openmandriva/kalzium openmandriva/kamera openmandriva/kanagram openmandriva/kate openmandriva/kbruch openmandriva/kcalc openmandriva/kcharselect openmandriva/kcolorchooser openmandriva/okular openmandriva/kdegraphics-thumbnailers openmandriva/kdf openmandriva/libkdegames
+openmandriva/libkmahjongg openmandriva/kmahjongg
+openmandriva/libksane openmandriva/libkcddb openmandriva/libkcompactdisc
+openmandriva/audiocd-kio
+openmandriva/bomber openmandriva/bovo openmandriva/dolphin-plugins openmandriva/dragon openmandriva/ffmpegthumbs openmandriva/granatier openmandriva/juk openmandriva/kajongg openmandriva/kapman openmandriva/kapptemplate openmandriva/katomic openmandriva/kleopatra openmandriva/akregator openmandriva/grantlee-editor openmandriva/keditbookmarks openmandriva/kfind openmandriva/kmail openmandriva/kmail-account-wizard openmandriva/konqueror
+openmandriva/kontact
+openmandriva/korganizer
+openmandriva/mbox-importer
+openmandriva/pim-data-exporter
+openmandriva/pim-sieve-editor
+openmandriva/kalarm openmandriva/kdialog openmandriva/akonadiconsole
+openmandriva/kblackbox openmandriva/kblocks openmandriva/kbounce openmandriva/kbreakout openmandriva/kcachegrind openmandriva/kcron openmandriva/kde-dev-scripts openmandriva/kde-dev-utils openmandriva/kdenetwork-filesharing openmandriva/kdenlive openmandriva/kdesdk-kio openmandriva/kdesdk-thumbnailers openmandriva/kdiamond openmandriva/knights openmandriva/kfourinline openmandriva/kgeography openmandriva/kgoldrunner openmandriva/kgpg openmandriva/khangman openmandriva/kigo openmandriva/killbots openmandriva/kiriki openmandriva/kiten openmandriva/kjumpingcube openmandriva/klettres openmandriva/klickety openmandriva/klines openmandriva/kmag openmandriva/kmines openmandriva/kmousetool openmandriva/kmouth openmandriva/kmplot openmandriva/knavalbattle openmandriva/knetwalk openmandriva/kolf openmandriva/kollision openmandriva/kolourpaint openmandriva/konquest openmandriva/kpat openmandriva/krdc openmandriva/kreversi openmandriva/krfb openmandriva/kruler openmandriva/kshisen openmandriva/ksirk openmandriva/ksnakeduel openmandriva/kspaceduel openmandriva/ksquares openmandriva/ksudoku openmandriva/ksystemlog openmandriva/kjournald openmandriva/kteatime openmandriva/ktimer openmandriva/ktuberling openmandriva/kturtle openmandriva/kubrick openmandriva/kwalletmanager openmandriva/kwordquiz openmandriva/libkomparediff2 openmandriva/lskat openmandriva/palapeli openmandriva/parley openmandriva/picmi openmandriva/step openmandriva/svgpart openmandriva/sweeper openmandriva/kio-extras
+openmandriva/kaccounts-integration
+openmandriva/kaccounts-providers
+openmandriva/signon-kwallet-extension
+openmandriva/kdebugsettings openmandriva/minuet openmandriva/kompare openmandriva/k3b openmandriva/kbackup openmandriva/kimagemapeditor openmandriva/kontrast openmandriva/konversation openmandriva/kpmcore openmandriva/libktorrent
 openmandriva/partitionmanager
-openmandriva/libktorrent
-openmandriva/ktorrent openmandriva/elisa openmandriva/kdeconnect
-openmandriva/markdownpart
-openmandriva/kpublictransport
+openmandriva/ktorrent
+openmandriva/kget openmandriva/elisa openmandriva/kdeconnect openmandriva/markdownpart openmandriva/kpublictransport
 openmandriva/kosmindoormap
-openmandriva/itinerary
 openmandriva/kongress
-openmandriva/yakuake
-openmandriva/kdevelop
-openmandriva/kdev-php openmandriva/kdev-python
-openmandriva/falkon openmandriva/kio-gdrive openmandriva/skanlite openmandriva/koko openmandriva/colord-kde openmandriva/kipi-plugins
-openmandriva/alligator openmandriva/angelfish openmandriva/arianna openmandriva/audiotube openmandriva/calindori openmandriva/ghostwriter openmandriva/kalk openmandriva/kasts openmandriva/kclock openmandriva/kde-inotify-survey openmandriva/keysmith openmandriva/kio-admin openmandriva/kio-zeroconf openmandriva/kirigami-gallery  openmandriva/krecorder openmandriva/ktrip openmandriva/kweather openmandriva/neochat openmandriva/plasmatube openmandriva/qmlkonsole openmandriva/telly-skout openmandriva/merkuro openmandriva/skanpage openmandriva/tokodon
-openmandriva/zanshin
+openmandriva/yakuake openmandriva/falkon openmandriva/kio-gdrive openmandriva/skanlite openmandriva/koko openmandriva/colord-kde openmandriva/alligator openmandriva/angelfish openmandriva/arianna openmandriva/audiotube openmandriva/calindori openmandriva/ghostwriter openmandriva/kalk openmandriva/kasts openmandriva/kclock openmandriva/kde-inotify-survey openmandriva/keysmith openmandriva/kio-admin openmandriva/kio-zeroconf openmandriva/krecorder openmandriva/ktrip openmandriva/kweather openmandriva/neochat openmandriva/plasmatube openmandriva/qmlkonsole openmandriva/telly-skout openmandriva/merkuro openmandriva/skanpage openmandriva/tokodon openmandriva/kdevelop
+openmandriva/itinerary openmandriva/zanshin
+openmandriva/marble
+openmandriva/calligra
