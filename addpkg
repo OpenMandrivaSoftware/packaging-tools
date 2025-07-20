@@ -28,6 +28,14 @@ echo "Creating $NAME package: $SUMMARY"
 
 if ! [ -e .git ]; then
 	git init
+	if ! [ -e .onedev-buildspec.yml ]; then
+		cat >.onedev-buildspec.yml <<EOF
+version: 40
+imports:
+- projectPath: OpenMandriva/Packages
+  revision: mirroring
+EOF
+	fi
 	ls *.tar* &>/dev/null && abb store *.tar*
 	ls *.tbz* &>/dev/null && abb store *.tbz*
 	ls *.tgz* &>/dev/null && abb store *.tgz*
@@ -37,7 +45,7 @@ if ! [ -e .git ]; then
 	ls *.crate &>/dev/null && abb store *.crate
 	ls *.jar &>/dev/null && abb store *.jar
 	git add *.spec
-	git add .abf.yml &>/dev/null || :
+	git add .*.yml &>/dev/null || :
 	git add *.txt &>/dev/null || :
 	git add *.patch &>/dev/null || :
 	git add *.diff &>/dev/null || :
