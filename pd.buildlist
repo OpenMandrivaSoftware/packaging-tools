@@ -10,7 +10,7 @@ openmandriva/kde-gtk-config openmandriva/kinfocenter openmandriva/kmenuedit open
 openmandriva/ksshaskpass
 openmandriva/breeze openmandriva/kwrited openmandriva/milou openmandriva/discover
 openmandriva/kscreenlocker
-openmandriva/oxygen openmandriva/oxygen-sounds openmandriva/sound-theme-ocean
+openmandriva/oxygen openmandriva/oxygen-sounds openmandriva/sound-theme-ocean openmandriva/kwin-aurorae
 openmandriva/breeze-gtk openmandriva/kwin openmandriva/kwin-x11
 openmandriva/kactivitymanagerd
 openmandriva/plasma5support
