@@ -1,0 +1,35 @@
+#!/bin/sh
+# Check if the build lists contain all tarballs released upstream
+# so we can catch new components more easily
+# check-completeness kf6 6.18.0
+# check-completeness pd 6.4.5
+# check-completeness kapps 25.08.1
+#
+COMPONENT="$1"
+VERSION="$2"
+
+if [ -z "$COMPONENT" -o -z "$VERSION" ]; then
+	echo "Usage: $0 COMPONENT VERSION"
+	exit 1
+fi
+
+SUBDIR=""
+case ${COMPONENT} in
+kapps)
+	UPSTREAM_COMPONENT=release-service
+	SUBDIR=src/
+	;;
+pd)
+	UPSTREAM_COMPONENT=plasma
+	;;
+*)
+	UPSTREAM_COMPONENT="$COMPONENT"
+	;;
+esac
+
+wget -q -O - https://download.kde.org/stable/${UPSTREAM_COMPONENT}/${VERSION}/${SUBDIR} |grep -E "<a href=\"[^\"]*-${VERSION}.tar.xz\"" |sed -e 's,.*href=",,;s,".*,,' |while read r; do
+	i="$(echo $r |sed -e "s,-${VERSION}\.tar\.xz,,")"
+	if ! grep -qE "openmandriva/$i($| )" ${COMPONENT}.buildlist; then
+		echo "$r"
+	fi
+done
