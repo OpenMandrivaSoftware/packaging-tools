@@ -29,7 +29,20 @@ esac
 
 wget -q -O - https://download.kde.org/stable/${UPSTREAM_COMPONENT}/${VERSION}/${SUBDIR} |grep -E "<a href=\"[^\"]*-${VERSION}.tar.xz\"" |sed -e 's,.*href=",,;s,".*,,' |while read r; do
 	i="$(echo $r |sed -e "s,-${VERSION}\.tar\.xz,,")"
-	if ! grep -qE "openmandriva/$i($| )" ${COMPONENT}.buildlist; then
+	case "$i" in
+	aurorae)
+		PKG=kwin-aurorae
+		;;
+	ocean-sound-theme)
+		PKG=sound-theme-ocean
+		;;
+	kdeconnect-kde)
+		PKG=kdeconnect
+		;;
+	*)
+		PKG="$i"
+	esac
+	if ! grep -qE "openmandriva/${PKG}($| )" ${COMPONENT}.buildlist; then
 		echo "$r"
 	fi
 done
