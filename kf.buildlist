@@ -7,7 +7,7 @@ openmandriva/kservice
 openmandriva/kglobalaccel openmandriva/kjs openmandriva/kdnssd
 openmandriva/kauth openmandriva/kcompletion openmandriva/kjobwidgets openmandriva/kunitconversion openmandriva/kpty
 openmandriva/kjsembed openmandriva/kconfigwidgets
-openmandriva/kdesu openmandriva/kemoticons openmandriva/kiconthemes openmandriva/kapidox
+openmandriva/kdesu openmandriva/kemoticons openmandriva/kiconthemes
 openmandriva/knotifications openmandriva/ktextwidgets
 openmandriva/kxmlgui openmandriva/kwallet openmandriva/breeze-icons
 openmandriva/kbookmarks
