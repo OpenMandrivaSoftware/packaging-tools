@@ -44,6 +44,8 @@ EOF
 	ls *.7z &>/dev/null && abb store *.7z
 	ls *.crate &>/dev/null && abb store *.crate
 	ls *.jar &>/dev/null && abb store *.jar
+	ls *.crx &>/dev/null && abb store *.crx
+	ls *.onnx &>/dev/null && abb store *.onnx
 	git add *.spec
 	git add .*.yml &>/dev/null || :
 	git add *.txt &>/dev/null || :
