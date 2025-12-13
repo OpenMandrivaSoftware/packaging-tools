@@ -16,6 +16,14 @@ D=$(realpath $(dirname "$0"))
 
 is_qt6=false
 
+if [ "$1" = "-c" ]; then
+	IGNOREIT=true
+	shift
+	RESUMEAFTER=$1
+	shift
+else
+	IGNOREIT=false
+fi
 if [ "$1" = "-r" ]; then
 	DONT_BUMP=true
 	shift
@@ -35,7 +43,7 @@ shift
 if [ "$#" -gt 0 ]; then
 	REASON="$@"
 else
-	REASON="Rebuild for updated $(echo $DEP |sed -e 's,\.so\.[0-9].*,,;s,\(\)\(64bit\),,')"
+	REASON="Rebuild for updated $(echo $DEP |sed -e 's,\.so\.[0-9].*,,;s,\(\)\(64bit\),,;s, =.*,,')"
 fi
 
 if echo "$DEP" |grep -qE '^libQt6(Core|Gui|Network|Svg)'; then
@@ -43,6 +51,12 @@ if echo "$DEP" |grep -qE '^libQt6(Core|Gui|Network|Svg)'; then
 fi
 
 while read r; do
+	if [ "$r" = "$RESUMEAFTER" ]; then
+		IGNOREIT=false
+		continue
+	fi
+	$IGNOREIT && continue
+
 	echo "========== $r =========="
 	if $is_qt6; then
 		if grep -qE "openmandriva/$r($| )" $D/qt6.buildlist $D/kf6.buildlist $D/plasma6.buildlist $D/kapps6.buildlist; then
