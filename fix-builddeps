@@ -16,7 +16,11 @@ addDep() {
 	local i
 	for i in $DEPS; do
 		if ! grep -qE "^[Bb][Uu][Ii][Ll][Dd][Rr][Ee][Qq][Uu][Ii][Rr][Ee][Ss][[:space:]]*:.*$i.*" $SPEC; then
-			sed -i "0,/^[Bb][Uu][Ii][Ll][Dd][Rr][Ee][Qq][Uu][Ii][Rr][Ee][Ss][[:space:]]*:/s//BuildRequires:	$i\n&/" $SPEC
+			if grep -qE '^[Bb][Uu][Ii][Ll][Dd][Rr][Ee][Qq][Uu][Ii][Rr][Ee][Ss][[:space:]]*:' $SPEC; then
+				sed -i "0,/^[Bb][Uu][Ii][Ll][Dd][Rr][Ee][Qq][Uu][Ii][Rr][Ee][Ss][[:space:]]*:/s//BuildRequires:	$i\n&/" $SPEC
+			else
+				sed -i "0,/^%description/s//BuildRequires:	$i\n&/" $SPEC
+			fi
 		fi
 	done
 }
