@@ -1,0 +1,92 @@
+#!/bin/sh
+json() {
+	python -c "
+import json,sys
+try:
+	print(json.load(sys.stdin)$@)
+except IndexError:
+	pass
+"
+}
+
+addDep() {
+	local SPEC="$1"
+	shift
+	local DEPS="$(echo $@ |tr ' ' '\n' |tac |tr '\n' ' ')"
+	local i
+	for i in $DEPS; do
+		if ! grep -qE "^[Bb][Uu][Ii][Ll][Dd][Rr][Ee][Qq][Uu][Ii][Rr][Ee][Ss][[:space:]]*:.*$i.*" $SPEC; then
+			sed -i "0,/^[Bb][Uu][Ii][Ll][Dd][Rr][Ee][Qq][Uu][Ii][Rr][Ee][Ss][[:space:]]*:/s//BuildRequires:	$i\n&/" $SPEC
+		fi
+	done
+}
+
+if [ -z "$PACKAGES" ]; then
+	if [ "$#" -gt 0 ]; then
+		PACKAGES="$@"
+	else
+		if [ -z "$OAUTH_TOKEN" ]; then
+			echo "For updating all packages to work,"
+			echo "	export OAUTH_TOKEN=\"token\""
+			echo "where \"token\" is a github authentication token"
+			echo "generated at https://github.com/settings/token"
+			exit 1
+		fi
+
+		PACKAGES=""
+		PERPAGE=100
+		COUNT=0
+		START=""
+		org=OpenMandrivaAssociation
+		echo -n "Getting list of packages "
+		while true; do
+			echo -n .
+			QUERY="{\"query\": \"query {organization(login:\\\"$org\\\") { id name repositories(first:$PERPAGE $START) { edges { node { id name } cursor } pageInfo { endCursor hasNextPage } } } }\""
+			REPOS="$(curl -H "Authorization: token $OAUTH_TOKEN" -X POST -d "$QUERY" https://api.github.com/graphql 2>/dev/null)"
+			if [ -z "$REPOS" ]; then
+				 echo "$QUERY failed" >&2
+				 break
+			fi
+			for i in $(seq 0 $((PERPAGE-1))); do
+				R="$(echo $REPOS |json "['data']['organization']['repositories']['edges'][$i]['node']['name']").git"
+				if [ "$R" = ".git" ]; then
+					echo "No more repositories at $QUERY $i" >&2
+					break
+				fi
+				if [ "$R" = "abf-yml.git" -o "$R" = "secret-keys.git" -o "$R" = "OpenMandrivaAssociation.github.io.git" ]; then
+					# These repositories contain passwords and aren't public
+					# Since we aren't authenticated, can't mirror them
+					continue
+				fi
+				COUNT=$((COUNT+1))
+				PKG="$(echo $R |sed -e 's,\.git$,,')"
+				if ! echo " $BLACKLIST " |grep -q " $PKG "; then
+					PACKAGES="$PACKAGES $PKG"
+				fi
+			done
+			[ "$(echo $REPOS |json "['data']['organization']['repositories']['pageInfo']['hasNextPage']")" != "True" ] && break
+			START="after:\\\"$(echo $REPOS |json "['data']['organization']['repositories']['pageInfo']['endCursor']")\\\""
+		done
+		echo
+	fi
+fi
+
+TEMPDIR="$(mktemp -d /tmp/fix-builddepXXXXXX)"
+cd $TEMPDIR
+for i in $PACKAGES; do
+	git clone "git@github.com:OpenMandrivaAssociation/$i.git"
+	cd "$i"
+	if ! grep -qiE '^BuildSystem[[:space:]]+:' *.spec; then
+		if grep -qE '^(%configure|%{configure}|./configure|autoconf)' *.spec; then
+			addDep *.spec autoconf automake libtool-base slibtool make
+		elif grep -qE '^(make|%{make}|%make$|%make |%make_build|%{make_build})' *.spec; then
+			addDep *.spec make
+		fi
+		echo $i >>/tmp/not-declarative.list
+	fi
+	git commit -am "Add build dependencies that used to be implicit"
+	git push origin master
+	cd ..
+	rm -rf "$i"
+done
+rm -rf "$TEMPDIR"
