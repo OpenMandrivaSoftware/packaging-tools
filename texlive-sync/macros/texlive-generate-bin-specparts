@@ -1,0 +1,355 @@
+#!/usr/bin/python3
+"""Generate RPM .specpart files for texlive-*.bin subpackages.
+
+Used by the monorepo ``texlive`` SRPM at the end of %%install:
+
+  /usr/lib/rpm/texlive-generate-bin-specparts \\
+      %{buildroot} %{specpartsdir} /path/to/texlive.tlpdb %{version}
+
+Partition of %{_bindir} is driven by texlive.tlpdb platform ``binfiles``
+lists, so new engines/tools appear automatically on the next TL source
+bump without editing the monorepo spec.
+
+Each non-empty base yields::
+
+  %package -n texlive-<base>.bin
+  Provides: texlive(<base>.bin) = <version>
+  Provides: texlive-<base>.bin = %{EVRD}
+  %files -n texlive-<base>.bin
+  %{_bindir}/...
+
+Unmapped leftovers go to ``texlive-extras``. Empty packages are skipped.
+"""
+
+from __future__ import annotations
+
+import argparse
+import lzma
+import os
+import re
+import sys
+from collections import defaultdict
+from pathlib import Path
+
+# Historical OM package *name* Provides (renames only). Key = tlpdb base.
+LEGACY_NAME_PROVIDES: dict[str, list[str]] = {
+    "dvipdfmx": ["texlive-dvipdfm.bin"],
+    "latex-bin": ["texlive-latex.bin", "texlive-latex-bin.bin"],
+    "ps2pk": ["texlive-ps2pkm.bin"],
+    "gregoriotex": ["texlive-gregorio.bin"],
+    "axodraw2": ["texlive-axohelp.bin"],
+    "velthuis": ["texlive-devnag.bin"],
+    "musixtnt": ["texlive-msxlint.bin"],
+    "dviout-util": ["texlive-chkdvifont.bin", "texlive-dvispc.bin"],
+}
+
+# File provides (path as written in the specpart).
+LEGACY_FILE_PROVIDES: dict[str, list[str]] = {
+    "kpathsea": ["%{_bindir}/texhash"],
+    "luatex": ["%{_bindir}/texlua"],
+}
+
+
+# Non-bindir files that belong with a bin package (installed by monorepo).
+EXTRA_PACKAGE_FILES: dict[str, list[str]] = {
+    "xdvi": ["%{_datadir}/applications/xdvi.desktop"],
+}
+
+# When a bindir entry is a symlink to another tool in the same bindir and
+# has no tlpdb owner, inherit the target's package. Format links created
+# only in the monorepo install (not in tlpdb) are handled this way unless
+# FOLD_ALIASES_INTO_TARGET is True.
+FOLD_ALIASES_INTO_TARGET = True
+
+_ARCH_SUFFIX = re.compile(
+    r"\."
+    r"(?:"
+    r"windows|win32|universal-darwin|"
+    r"(?:x86_64|i386|amd64|aarch64|armhf|arm64|sparc|powerpc|mips|s390x)"
+    r"-"
+    r"[A-Za-z0-9_]+"
+    r")$"
+)
+
+
+def load_tlpdb_text(path: Path) -> str:
+    data = path.read_bytes()
+    if path.suffix == ".xz" or data[:6] == b"\xfd7zXZ\x00":
+        return lzma.decompress(data).decode("utf-8", errors="replace")
+    return data.decode("utf-8", errors="replace")
+
+
+def parse_bin_owners(tlpdb_text: str) -> dict[str, set[str]]:
+    """Return basename → set of TL base names that claim it."""
+    owners: dict[str, set[str]] = defaultdict(set)
+    name: str | None = None
+    in_bin = False
+    for raw in tlpdb_text.splitlines():
+        if not raw.strip():
+            name = None
+            in_bin = False
+            continue
+        if raw.startswith("name "):
+            name = raw.split(" ", 1)[1].strip()
+            in_bin = False
+            continue
+        if name is None:
+            continue
+        if raw.startswith("binfiles "):
+            in_bin = True
+            continue
+        if raw.startswith(" ") and in_bin:
+            path = raw.strip().split(" ", 1)[0]
+            base_fn = path.rsplit("/", 1)[-1]
+            if not base_fn:
+                continue
+            # platform package name.ARCH → base
+            if _ARCH_SUFFIX.search(name):
+                base = name.rsplit(".", 1)[0]
+            else:
+                base = name
+            owners[base_fn].add(base)
+            continue
+        # other keys end binfiles section
+        if not raw.startswith(" "):
+            in_bin = False
+    return owners
+
+
+def preferred_owner(candidates: set[str], basename: str) -> str:
+    """Pick one TL base when multiple claim a file (should be rare)."""
+    if len(candidates) == 1:
+        return next(iter(candidates))
+    # Prefer exact name match
+    if basename in candidates:
+        return basename
+    # Prefer shorter names (engine over collection-ish)
+    return sorted(candidates, key=lambda s: (len(s), s))[0]
+
+
+def list_bindir(buildroot: Path) -> list[str]:
+    bindir = buildroot / "usr" / "bin"
+    if not bindir.is_dir():
+        # try %{_bindir} alternative
+        for cand in bindir, buildroot / "bin":
+            if cand.is_dir():
+                bindir = cand
+                break
+        else:
+            return []
+    out = []
+    for p in sorted(bindir.iterdir()):
+        if p.is_file() or p.is_symlink():
+            out.append(p.name)
+    return out
+
+
+def resolve_symlink_target(buildroot: Path, name: str) -> str | None:
+    p = buildroot / "usr" / "bin" / name
+    if not p.is_symlink():
+        return None
+    tgt = os.readlink(p)
+    # only plain sibling names
+    if "/" in tgt or tgt.startswith("."):
+        # may be absolute into texmf — not a package fold
+        return None
+    return tgt
+
+
+def assign_packages(
+    basenames: list[str],
+    owners: dict[str, set[str]],
+    buildroot: Path,
+) -> dict[str, list[str]]:
+    """base → sorted list of bindir basenames."""
+    pkg_files: dict[str, list[str]] = defaultdict(list)
+    assigned: dict[str, str] = {}
+
+    # Pass 1: tlpdb ownership
+    for bn in basenames:
+        cands = owners.get(bn)
+        if not cands:
+            continue
+        base = preferred_owner(cands, bn)
+        assigned[bn] = base
+        pkg_files[base].append(bn)
+
+    # Pass 2: inherit via sibling symlink (possibly repeatedly)
+    changed = True
+    while changed:
+        changed = False
+        for bn in basenames:
+            if bn in assigned:
+                continue
+            tgt = resolve_symlink_target(buildroot, bn)
+            if tgt and tgt in assigned:
+                if FOLD_ALIASES_INTO_TARGET:
+                    base = assigned[tgt]
+                    assigned[bn] = base
+                    pkg_files[base].append(bn)
+                    changed = True
+
+    # Pass 3: leftovers
+    for bn in basenames:
+        if bn not in assigned:
+            assigned[bn] = "extras"
+            pkg_files["extras"].append(bn)
+
+    # stable sort
+    return {k: sorted(set(v)) for k, v in sorted(pkg_files.items())}
+
+
+def write_specpart(
+    specpartsdir: Path,
+    base: str,
+    files: list[str],
+    version: str,
+    owners: dict[str, set[str]] | None = None,
+    buildroot: Path | None = None,
+) -> Path:
+    if base == "extras":
+        pkg = "texlive-extras"
+        # main-style subpackage name without -n for historical
+        # Keep -n for consistency with other auto packages.
+        pkg_n = "texlive-extras"
+    else:
+        pkg_n = f"texlive-{base}.bin"
+
+    # RPM: one .specpart file per logical package unit
+    safe = pkg_n.replace("/", "_")
+    path = specpartsdir / f"{safe}.specpart"
+
+    lines: list[str] = [
+        f"%package -n {pkg_n}",
+        f"Summary:\tBinary files for TeX Live {base}",
+        "Group:\t\tPublishing",
+    ]
+    # Virtual capability used by texlive-sync modules
+    if base != "extras":
+        lines.append(f"Provides:\ttexlive({base}.bin) = {version}")
+        lines.append(f"Provides:\ttexlive-{base}.bin = %{{EVRD}}")
+    for extra in LEGACY_NAME_PROVIDES.get(base, []):
+        if extra == f"texlive-{base}.bin":
+            continue
+        lines.append(f"Provides:\t{extra} = %{{EVRD}}")
+    for extra in LEGACY_FILE_PROVIDES.get(base, []):
+        lines.append(f"Provides:\t{extra}")
+
+    # Folded sibling aliases (no tlpdb owner, or owner differs): Provide
+    # texlive(<alias>.bin) so .ARCH deps for format names still resolve when
+    # the file was merged into the engine package.
+    if owners and base != "extras":
+        seen_cap: set[str] = {f"texlive({base}.bin)"}
+        for bn in files:
+            cands = owners.get(bn) or set()
+            # only emit extra provides for names not primarily owned by this base
+            if base in cands and bn != base:
+                # tlpdb lists this basename under this base (e.g. etex→pdftex)
+                continue
+            if not cands or base not in cands:
+                cap = f"texlive({bn}.bin)"
+                if cap not in seen_cap:
+                    lines.append(f"Provides:\t{cap} = {version}")
+                    lines.append(f"Provides:\ttexlive-{bn}.bin = %{{EVRD}}")
+                    seen_cap.add(cap)
+
+    lines += [
+        "",
+        f"%description -n {pkg_n}",
+        f"Binaries/wrappers for TeX Live '{base}' from the source monorepo.",
+        "",
+        f"%files -n {pkg_n}",
+    ]
+    for bn in files:
+        lines.append(f"%{{_bindir}}/{bn}")
+    extras = (
+        _extra_files_present(buildroot, base)
+        if buildroot is not None
+        else list(EXTRA_PACKAGE_FILES.get(base, []))
+    )
+    for extra in extras:
+        lines.append(extra)
+
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return path
+
+
+def _extra_files_present(buildroot: Path, base: str) -> list[str]:
+    """Return EXTRA_PACKAGE_FILES entries that exist under buildroot."""
+    out: list[str] = []
+    for macro_path in EXTRA_PACKAGE_FILES.get(base, []):
+        rel = (
+            macro_path.replace("%{_datadir}", "usr/share")
+            .replace("%{_bindir}", "usr/bin")
+            .replace("%{_libdir}", "usr/lib64")
+        )
+        candidate = buildroot / rel.lstrip("/")
+        if candidate.is_file() or candidate.is_symlink():
+            out.append(macro_path)
+    return out
+
+
+def main(argv: list[str] | None = None) -> int:
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("buildroot", type=Path)
+    ap.add_argument("specpartsdir", type=Path)
+    ap.add_argument("tlpdb", type=Path, help="texlive.tlpdb or .xz")
+    ap.add_argument(
+        "version",
+        nargs="?",
+        default="0",
+        help="RPM version for Provides (default 0)",
+    )
+    ap.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Print plan to stdout, do not write specparts",
+    )
+    args = ap.parse_args(argv)
+
+    if not args.tlpdb.is_file():
+        print(f"tlpdb not found: {args.tlpdb}", file=sys.stderr)
+        return 1
+
+    owners = parse_bin_owners(load_tlpdb_text(args.tlpdb))
+    # invert for logging
+    basenames = list_bindir(args.buildroot)
+    if not basenames:
+        print("warning: no files in buildroot bindir", file=sys.stderr)
+
+    # owners map is basename → bases; parse_bin_owners returns that
+    # Wait - I defined owners as basename → set of bases. Good.
+    # But parse function used owners[base_fn].add(base) - yes basename key.
+
+    packages = assign_packages(basenames, owners, args.buildroot)
+
+    args.specpartsdir.mkdir(parents=True, exist_ok=True)
+
+    written = 0
+    for base, files in packages.items():
+        if not files:
+            continue
+        if args.dry_run:
+            print(f"{base}: {files}")
+            continue
+        write_specpart(
+            args.specpartsdir,
+            base,
+            files,
+            args.version,
+            owners=owners,
+            buildroot=args.buildroot,
+        )
+        written += 1
+
+    if not args.dry_run:
+        print(
+            f"texlive-generate-bin-specparts: {written} packages, "
+            f"{len(basenames)} bindir entries",
+            file=sys.stderr,
+        )
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

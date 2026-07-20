@@ -1,0 +1,40 @@
+# Quirks for texlive-sync. Expand from tlpobj2spec.pl as needed.
+
+# Packages we do not generate (core/manual, or broken upstream)
+block:
+  - "00texlive.config"
+  - "00texlive.installation"
+  - "00texlive.image"
+  - "00texlive.installer"
+  - "texlive.infra"
+
+# opbible: txs-gen/mod2tex is a real Sword-module export tool (not runtime TeX).
+# Prebuilt ELF under doc/ is stripped by BuildSystem macros. If we want the tool
+# packaged, build mod2tex.cpp with -lsword into an arch-specific subpackage —
+# do not ship the upstream binary.
+
+# Extra RPM Requires (tl name -> list of RPM requires lines without "Requires:")
+extra_requires: {}
+
+# Extra Provides
+extra_provides: {}
+
+# Epoch overrides (tl name -> epoch int)
+epoch: {}
+
+# Map TL package names to system RPMs instead of texlive-*
+system_packages:
+  lcdftypetools: lcdf-typetools
+  psutils: psutils
+  tex4ht: tex4ht
+
+# Monorepo TeX Live program sources (CTAN systems/texlive/Source/).
+# Used by generate --bin-source / texlive-bin SRPM — not per-package tlnet.
+texlive_source:
+  version: "20260301"
+  # Optional overrides:
+  # url: https://mirrors.ctan.org/systems/texlive/Source/texlive-20260301-source.tar.xz
+  # packrel: 1
+
+# Rename provides for Obsoletes/legacy (tl name -> list of %rename targets)
+renames: {}

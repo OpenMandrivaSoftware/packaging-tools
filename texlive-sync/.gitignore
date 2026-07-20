@@ -1,0 +1,11 @@
+data/
+out/
+logs/
+work/
+.pytest_cache/
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+*.log
+mass-state.json

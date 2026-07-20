@@ -1,0 +1,21 @@
+# Phase-0 spike set: mixed catalogue-version, revision-only, deps, collection
+acmart
+natbib
+babel
+etoolbox
+l3kernel
+l3packages
+pdfjam
+12many
+hyperref
+geometry
+fancyhdr
+booktabs
+xcolor
+pgf
+# tikz is not a separate TL package — it ships inside pgf
+collection-basic
+collection-latex
+a4wide
+abbr
+accfonts

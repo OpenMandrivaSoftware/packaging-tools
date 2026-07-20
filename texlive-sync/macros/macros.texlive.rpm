@@ -1,0 +1,17 @@
+# Path macros for TeX Live layout (also currently shipped by texlive-tlpkg
+# as macros.texlive). Keep in sync with texlive-tlpkg/texlive.macros.
+
+%_tlpkgdir                      /usr/share/tlpkg
+%_texmfdir                      /usr/share/texmf
+%_texmfdistdir                  /usr/share/texmf-dist
+%_texmflocaldir                 /usr/share/texmf-local
+%_texmfextradir                 /usr/share/texmf-extra
+%_texmffontsdir                 /usr/share/texmf-fonts
+%_texmfprojectdir               /usr/share/texmf-project
+%_texmfvardir                   /var/lib/texmf
+%_texmfconfdir                  /etc/texmf
+%_texmf_fmtutil_d               /usr/share/tlpkg/fmtutil.cnf.d
+%_texmf_updmap_d                /usr/share/tlpkg/updmap.cfg.d
+%_texmf_language_dat_d          /usr/share/tlpkg/language.dat.d
+%_texmf_language_def_d          /usr/share/tlpkg/language.def.d
+%_texmf_language_lua_d          /usr/share/tlpkg/language.lua.d

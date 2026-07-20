@@ -1,0 +1,12 @@
+[project]
+name = "texlive-sync"
+version = "0.1.0"
+description = "Automated TeX Live packaging for OpenMandriva"
+requires-python = ">=3.10"
+# PyYAML optional; quirks.py has a minimal fallback parser
+
+[project.scripts]
+texlive-sync = "texlive_sync.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["texlive_sync*"]

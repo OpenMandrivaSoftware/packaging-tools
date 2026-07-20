@@ -1,4 +1,5 @@
 #!/bin/sh
+# Legacy one-package helper. Prefer texlive-sync/ (see texlive-sync/README.md).
 P="$1"
 [ -z "$P" ] && exit 1
 rm -rf /tmp/texlive-$P

@@ -1,0 +1,185 @@
+#!/usr/bin/python3
+"""Fix monorepo texlive bindir for OpenMandriva split packaging.
+
+Runs at the end of %%install (before bin subpackage generation):
+
+1. Remove script wrappers that belong on noarch modules (symlinks into
+   texmf*/scripts, shebang scripts listed in the remove map, etc.).
+2. Create engine/format sibling symlinks from the engine-links map
+   (only when the target already exists in bindir).
+
+Maps are derived from TeX Live platform packages (basename ownership +
+symlink targets) and shipped as Sources next to texlive.tlpdb.xz so the
+monorepo build needs no network.
+"""
+
+from __future__ import annotations
+
+import argparse
+import os
+import sys
+from pathlib import Path
+
+
+def load_list(path: Path) -> list[str]:
+    out: list[str] = []
+    if not path.is_file():
+        return out
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        out.append(line.split()[0] if line.split() else line)
+    return out
+
+
+def load_links(path: Path) -> list[tuple[str, str]]:
+    """name\\ttarget lines."""
+    out: list[tuple[str, str]] = []
+    if not path.is_file():
+        return out
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        parts = line.split()
+        if len(parts) >= 2:
+            out.append((parts[0], parts[1]))
+    return out
+
+
+def is_script_symlink(target: str) -> bool:
+    t = target.replace("\\", "/")
+    if "texmf-dist/scripts" in t or "texmf/scripts" in t:
+        return True
+    if "/scripts/" in t:
+        return True
+    # monorepo relative form: ../../texmf-dist/scripts/...
+    if "texmf" in t and "script" in t:
+        return True
+    return False
+
+
+def has_shebang(path: Path) -> bool:
+    try:
+        with path.open("rb") as fh:
+            return fh.read(2) == b"#!"
+    except OSError:
+        return False
+
+
+def fixup(
+    bindir: Path,
+    *,
+    remove_map: Path,
+    links_map: Path,
+    extra_links: list[tuple[str, str]] | None = None,
+) -> int:
+    if not bindir.is_dir():
+        print(f"texlive-fixup-bindir: no bindir {bindir}", file=sys.stderr)
+        return 1
+
+    remove = set(load_list(remove_map))
+    # Always drop Windows leftovers if any
+    remove |= {n for n in remove if n.endswith(".exe")}
+
+    removed = 0
+    # Pass 1: map + script symlinks + shebang files listed in map
+    for p in list(bindir.iterdir()):
+        if not (p.is_file() or p.is_symlink()):
+            continue
+        name = p.name
+        drop = False
+        if name in remove:
+            drop = True
+        elif p.is_symlink():
+            try:
+                tgt = os.readlink(p)
+            except OSError:
+                tgt = ""
+            if is_script_symlink(tgt):
+                drop = True
+            # Dangling relative link into deleted texmf after later cleanup —
+            # also drop plain relative escapes to texmf
+            elif "texmf" in tgt.replace("\\", "/"):
+                drop = True
+        if drop:
+            p.unlink(missing_ok=True)
+            removed += 1
+
+    # Pass 2: any remaining shebang scripts that are not ELF tools and match
+    # remove map (already handled) — also drop obvious TL script copies left
+    # after install rewrote links to copies.
+    for p in list(bindir.iterdir()):
+        if p.is_symlink() or not p.is_file():
+            continue
+        if p.name in remove and has_shebang(p):
+            p.unlink(missing_ok=True)
+            removed += 1
+
+    # Pass 3: engine/format sibling links
+    links = load_links(links_map)
+    if extra_links:
+        links = list(links) + list(extra_links)
+    created = 0
+    skipped = 0
+    for name, target in links:
+        if name == target:
+            continue
+        dest = bindir / name
+        src = bindir / target
+        if not src.exists() and not src.is_symlink():
+            skipped += 1
+            continue
+        # Replace existing only if it's not a real ELF we built
+        if dest.exists() or dest.is_symlink():
+            if dest.is_symlink():
+                try:
+                    if os.readlink(dest) == target:
+                        continue
+                except OSError:
+                    pass
+                dest.unlink(missing_ok=True)
+            else:
+                # real file (engine binary) — do not overwrite
+                skipped += 1
+                continue
+        dest.symlink_to(target)
+        created += 1
+
+    print(
+        f"texlive-fixup-bindir: removed={removed} links_created={created} "
+        f"links_skipped={skipped}",
+        file=sys.stderr,
+    )
+    return 0
+
+
+def main(argv: list[str] | None = None) -> int:
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("buildroot", type=Path)
+    ap.add_argument(
+        "--bindir",
+        default=None,
+        help="Override bindir (default BUILDROOT/usr/bin)",
+    )
+    ap.add_argument("--remove-map", type=Path, required=True)
+    ap.add_argument("--links-map", type=Path, required=True)
+    args = ap.parse_args(argv)
+    bindir = Path(args.bindir) if args.bindir else args.buildroot / "usr" / "bin"
+    # OM-only aliases not always present as TL platform packages
+    extra = [
+        ("lamed", "aleph"),
+        ("cslatex", "pdftex"),
+        ("pdfcslatex", "pdftex"),
+    ]
+    return fixup(
+        bindir,
+        remove_map=args.remove_map,
+        links_map=args.links_map,
+        extra_links=extra,
+    )
+
+
+if __name__ == "__main__":
+    sys.exit(main())

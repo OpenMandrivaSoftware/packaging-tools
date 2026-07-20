@@ -1,0 +1,98 @@
+#!/bin/bash
+# Generate %{specpartsdir}/%{name}.files.specpart from installed buildroot.
+# Usage: texlive-generate-files-specpart BUILDROOT SPECPARTSDIR NAME
+set -euo pipefail
+
+buildroot=${1:?buildroot}
+specpartsdir=${2:?specpartsdir}
+name=${3:?name}
+
+sp="${specpartsdir}/${name}.files.specpart"
+mkdir -p "${specpartsdir}"
+echo "%files" > "$sp"
+
+# Macroize absolute paths for stable, reloc-friendly file lists.
+macroize() {
+	local p=$1
+	p=${p#/usr/share/texmf-dist}
+	if [ "$p" != "$1" ]; then
+		printf '%%{_texmfdistdir}%s\n' "$p"
+		return
+	fi
+	p=${1#/usr/share/texmf}
+	if [ "$p" != "$1" ]; then
+		# avoid matching texmf-dist again (already handled)
+		case "$1" in
+			/usr/share/texmf/*|/usr/share/texmf) printf '%%{_texmfdir}%s\n' "$p"; return ;;
+		esac
+	fi
+	p=${1#/usr/share/tlpkg}
+	if [ "$p" != "$1" ]; then
+		printf '%%{_tlpkgdir}%s\n' "$p"
+		return
+	fi
+	p=${1#/usr/bin}
+	if [ "$p" != "$1" ]; then
+		printf '%%{_bindir}%s\n' "$p"
+		return
+	fi
+	p=${1#/usr/share/man}
+	if [ "$p" != "$1" ]; then
+		printf '%%{_mandir}%s\n' "$p"
+		return
+	fi
+	p=${1#/usr/share/info}
+	if [ "$p" != "$1" ]; then
+		printf '%%{_infodir}%s\n' "$p"
+		return
+	fi
+	p=${1#/usr/share}
+	if [ "$p" != "$1" ]; then
+		printf '%%{_datadir}%s\n' "$p"
+		return
+	fi
+	printf '%s\n' "$1"
+}
+
+dirs_tmp=$(mktemp)
+files_tmp=$(mktemp)
+trap 'rm -f "$dirs_tmp" "$files_tmp"' EXIT
+
+if [ ! -d "$buildroot" ]; then
+	exit 0
+fi
+
+# List every file/symlink; collect parent dirs for %dir ownership.
+while IFS= read -r -d '' rel; do
+	[ -z "$rel" ] && continue
+	p="/${rel}"
+	case "$p" in
+		*/doc/*|*/source/*|*/man/*|*/info/*) pref='%doc ' ;;
+		*) pref='' ;;
+	esac
+	mp=$(macroize "$p")
+	printf '%s%s\n' "$pref" "$mp" >> "$files_tmp"
+
+	d=${p%/*}
+	while [ -n "$d" ] && [ "$d" != "/" ]; do
+		case "$d" in
+			/usr|/usr/share|/usr/bin|/usr/lib|/usr/lib64) break ;;
+		esac
+		printf '%s\n' "$d" >> "$dirs_tmp"
+		nd=${d%/*}
+		[ "$nd" = "$d" ] && break
+		d=$nd
+	done
+done < <(find "$buildroot" \( -type f -o -type l \) -printf '%P\0' 2>/dev/null | LC_ALL=C sort -z)
+
+if [ -s "$dirs_tmp" ]; then
+	LC_ALL=C sort -u "$dirs_tmp" | while IFS= read -r d; do
+		[ -z "$d" ] && continue
+		md=$(macroize "$d")
+		printf '%%dir %s\n' "$md" >> "$sp"
+	done
+fi
+
+if [ -s "$files_tmp" ]; then
+	cat "$files_tmp" >> "$sp"
+fi
