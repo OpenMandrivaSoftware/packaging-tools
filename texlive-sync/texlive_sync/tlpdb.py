@@ -43,6 +43,7 @@ class TLPackage:
     catalogue_license: str | None = None
     catalogue_ctan: str | None = None
     depends: list[str] = field(default_factory=list)
+    executes: list[str] = field(default_factory=list)
     runfiles: list[str] = field(default_factory=list)
     docfiles: list[str] = field(default_factory=list)
     srcfiles: list[str] = field(default_factory=list)
@@ -200,6 +201,8 @@ def _parse_block(block: str) -> TLPackage | None:
             longdesc_parts.append(val)
         elif key == "depend":
             pkg.depends.append(val)
+        elif key == "execute":
+            pkg.executes.append(val)
         elif key == "catalogue":
             pkg.catalogue = val
         elif key == "catalogue-version":

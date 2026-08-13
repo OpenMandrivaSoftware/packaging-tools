@@ -1,0 +1,98 @@
+#!/bin/bash
+# Assemble language.dat / language.def / language.dat.lua from the English
+# base (hyphen-base language.us*) plus drop-ins in
+# /usr/share/tlpkg/language.{dat,def,lua}.d/.
+#
+# Invoked by texlive-tlpkg filetriggers when a language fragment is added
+# or removed. Regenerable output goes to TEXMFSYSVAR so it wins over the
+# static English-only files in texmf-dist (!! path order).
+set -euo pipefail
+
+TEXMFDIST="${TEXMFDIST:-/usr/share/texmf-dist}"
+TEXMFSYSVAR="${TEXMFSYSVAR:-/var/lib/texmf}"
+CFG_DIST="${TEXMFDIST}/tex/generic/config"
+OUTDIR="${TEXMFSYSVAR}/tex/generic/config"
+DAT_D="${DAT_D:-/usr/share/tlpkg/language.dat.d}"
+DEF_D="${DEF_D:-/usr/share/tlpkg/language.def.d}"
+LUA_D="${LUA_D:-/usr/share/tlpkg/language.lua.d}"
+
+mkdir -p "${OUTDIR}"
+
+# --- language.dat ----------------------------------------------------------
+{
+	if [ -f "${CFG_DIST}/language.us" ]; then
+		cat "${CFG_DIST}/language.us"
+		echo
+	fi
+	if [ -d "${DAT_D}" ]; then
+		find "${DAT_D}" -maxdepth 1 -type f ! -name '.*' -print \
+			| LC_ALL=C sort \
+			| while IFS= read -r f; do
+				[ -s "$f" ] || continue
+				cat "$f"
+				# ensure newline between fragments
+				echo
+			done
+	fi
+} > "${OUTDIR}/language.dat.tmp"
+mv -f "${OUTDIR}/language.dat.tmp" "${OUTDIR}/language.dat"
+
+# --- language.def ----------------------------------------------------------
+{
+	if [ -f "${CFG_DIST}/language.us.def" ]; then
+		cat "${CFG_DIST}/language.us.def"
+		echo
+	fi
+	if [ -d "${DEF_D}" ]; then
+		find "${DEF_D}" -maxdepth 1 -type f ! -name '.*' -print \
+			| LC_ALL=C sort \
+			| while IFS= read -r f; do
+				[ -s "$f" ] || continue
+				cat "$f"
+				echo
+			done
+	fi
+	echo '%%% No changes may be made beyond this point.'
+	echo
+	echo '\uselanguage {USenglish}             %%% This MUST be the last line of the file.'
+} > "${OUTDIR}/language.def.tmp"
+mv -f "${OUTDIR}/language.def.tmp" "${OUTDIR}/language.def"
+
+# --- language.dat.lua ------------------------------------------------------
+{
+	if [ -f "${CFG_DIST}/language.us.lua" ]; then
+		# Drop the trailing "END" comment marker line; keep table open.
+		sed '/END of language\.us\.lua/d' "${CFG_DIST}/language.us.lua"
+	else
+		echo 'return {'
+	fi
+	if [ -d "${LUA_D}" ]; then
+		find "${LUA_D}" -maxdepth 1 -type f ! -name '.*' -print \
+			| LC_ALL=C sort \
+			| while IFS= read -r f; do
+				[ -s "$f" ] || continue
+				cat "$f"
+				echo
+			done
+	fi
+	echo '}'
+} > "${OUTDIR}/language.dat.lua.tmp"
+mv -f "${OUTDIR}/language.dat.lua.tmp" "${OUTDIR}/language.dat.lua"
+
+# Filename databases must see the new trees (paths use !!).
+if [ -x /usr/bin/mktexlsr ]; then
+	/usr/bin/mktexlsr "${TEXMFSYSVAR}" >/dev/null 2>&1 || :
+fi
+
+# Formats embed hyphenation; rebuild those that load language.dat.
+if [ -x /usr/bin/fmtutil-sys ]; then
+	# Prefer targeted rebuild; fall back to a full refresh.
+	if /usr/bin/fmtutil-sys --byhyphen "${OUTDIR}/language.dat" >/dev/null 2>&1; then
+		:
+	else
+		/usr/bin/fmtutil-sys --refresh >/dev/null 2>&1 || \
+			/usr/bin/fmtutil-sys --all >/dev/null 2>&1 || :
+	fi
+fi
+
+exit 0

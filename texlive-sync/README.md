@@ -81,8 +81,10 @@ python3 -m texlive_sync apply --all --jobs 8 --work "$HOME/texlive-abf-work"
 
 | Case | Version | Release |
 |------|---------|---------|
-| Has `catalogue-version` | sanitized catalogue version | `<tl_revision>.1` |
+| Has `catalogue-version` | sanitized catalogue version (`%global tl_version`) | `<tl_revision>.1` |
 | No catalogue-version | `<tl_revision>` | `1` |
+
+`Provides: texlive(name) = %{version}` follows RPM Version (catalogue identity, e.g. abntexto 1.1 — not the older 4.0.5-beta, and not the TL revision). Release still carries the tlnet revision.
 
 Sources: `name.r<revision>.tar.xz` on CTAN tlnet. No `%{?dist}`.
 
@@ -112,6 +114,35 @@ Rebuild **texlive-tlpkg** before mass-building modules if these change.
 
 - Monorepo engines package `OpenMandrivaAssociation/texlive` (source year bump by hand)
 - Blocked tlpdb names in `quirks.yaml` (`00texlive.*`, `texlive.infra`, …)
+
+`texlive.infra` is mapped to `texlive-tlpkg` in `system_packages`. That package
+must also `Provides: texlive(texlive.infra)` so already-published modules that
+still require the virtual capability can install.
+
+## Hyphenation / language.dat
+
+Hyphen language packs (`hyphen-french`, `dehyph-exptl`, …) install drop-in
+fragments under:
+
+| Drop-in dir | Assembled file (in `TEXMFSYSVAR`) |
+|-------------|-------------------------------------|
+| `/usr/share/tlpkg/language.dat.d/<pkg>` | `/var/lib/texmf/tex/generic/config/language.dat` |
+| `…/language.def.d/<pkg>` | `…/language.def` |
+| `…/language.lua.d/<pkg>` | `…/language.dat.lua` |
+
+`texlive-tlpkg` filetriggers run `/usr/lib/rpm/texlive-rebuild-hyphen` on
+install and uninstall of those fragments. The English base comes from
+`hyphen-base` (`language.us*`); the full upstream `language.dat` is not used
+as the live config (it lists every language and breaks partial installs).
+
+## Font maps / updmap.cfg
+
+Packages with `execute addMap` / `addMixedMap` / `addKanjiMap` install a
+fragment under `/usr/share/tlpkg/updmap.cfg.d/<pkg>`. Filetriggers run
+`/usr/lib/rpm/texlive-rebuild-maps`, which concatenates the header plus
+drop-ins into `/etc/texmf/web2c/updmap.cfg` and runs `updmap-sys` (this
+writes `psfonts.map` / `pdftex.map` under `TEXMFSYSVAR`). The full map
+catalogue shipped in `texlive-scripts` is stripped at package build time.
 
 ## Tests
 

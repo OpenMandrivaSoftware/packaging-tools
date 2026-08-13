@@ -336,6 +336,7 @@ def cmd_apply(args: argparse.Namespace) -> int:
         build=bool(args.build),
         limit=args.limit,
         jobs=int(args.jobs or 1),
+        skip_current=not bool(getattr(args, "force", False)),
         on_progress=progress,
     )
     print(

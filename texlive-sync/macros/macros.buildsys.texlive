@@ -111,6 +111,44 @@ if [ -n "%{?tl_bin_links}" ]; then \
 		ln -sfn "$_target" %{buildroot}%{_bindir}/"$_name" \
 	done \
 fi \
+# Distro layout: engines live in %{_bindir} (/usr/bin), not under a TL \
+# year tree. Upstream texmf.cnf sets TEXMFROOT=$SELFAUTOPARENT which is \
+# "/" for /usr/bin/* — break path search and fmtutil (@INC looks under \
+# //tlpkg). Rewrite core trees to OpenMandriva locations when present. \
+_cnf="%{buildroot}%{_texmfdistdir}/web2c/texmf.cnf" \
+if [ -f "$_cnf" ]; then \
+	perl -pi -e ' \
+		s|^(TEXMFROOT\s*=\s*).*|$1%{_datadir}|; \
+		s|^(TEXMFDIST\s*=\s*).*|$1%{_texmfdistdir}|; \
+		s|^(TEXMFMAIN\s*=\s*).*|$1%{_texmfdistdir}|; \
+		s|^(TEXMFLOCAL\s*=\s*).*|$1%{_texmflocaldir}|; \
+		s|^(TEXMFSYSVAR\s*=\s*).*|$1%{_texmfvardir}|; \
+		s|^(TEXMFSYSCONFIG\s*=\s*).*|$1%{_texmfconfdir}|; \
+		s|^(OSFONTDIR\s*=\s*).*|$1%{_datadir}/fonts|; \
+	' "$_cnf" \
+fi \
+# hyphen-base ships a full language.dat listing every TL hyphen package. \
+# Partial installs then fail format generation on missing loadhyph-*.tex. \
+# Keep only the English base (language.us*); extra languages belong in \
+# %%{_texmf_language_dat_d} fragments assembled by filetriggers later. \
+_lcfg="%{buildroot}%{_texmfdistdir}/tex/generic/config" \
+if [ -d "$_lcfg" ]; then \
+	[ -f "$_lcfg/language.us" ] && [ -f "$_lcfg/language.dat" ] && \
+		cp -f "$_lcfg/language.us" "$_lcfg/language.dat" \
+	[ -f "$_lcfg/language.us.def" ] && [ -f "$_lcfg/language.def" ] && \
+		cp -f "$_lcfg/language.us.def" "$_lcfg/language.def" \
+	[ -f "$_lcfg/language.us.lua" ] && [ -f "$_lcfg/language.dat.lua" ] && \
+		cp -f "$_lcfg/language.us.lua" "$_lcfg/language.dat.lua" \
+fi \
+# texlive-scripts ships a full updmap.cfg listing every TL map. Partial \
+# installs then have Map lines for missing files; --syncwithtrees comments \
+# them into /etc and those #! lines override enabled maps. Strip the \
+# catalogue; live Map lines come from %%{_texmf_updmap_d} via filetrigger. \
+_ucfg="%{buildroot}%{_texmfdistdir}/web2c/updmap.cfg" \
+if [ -f "$_ucfg" ]; then \
+	awk '!/^(Map|MixedMap|KanjiMap)[[:space:]]/ && !/^#![[:space:]]+(Map|MixedMap|KanjiMap)[[:space:]]/' \
+		"$_ucfg" > "$_ucfg.hdr" && mv -f "$_ucfg.hdr" "$_ucfg" \
+fi \
 /usr/lib/rpm/texlive-generate-files-specpart "%{buildroot}" "%{specpartsdir}" "%{name}" \
 %*
 

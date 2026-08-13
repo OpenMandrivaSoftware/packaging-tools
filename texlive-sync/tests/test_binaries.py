@@ -134,6 +134,67 @@ def test_tl_bin_links_global():
     assert s == "jadetex:pdftex epstopdf:%{_texmfdistdir}/scripts/epstopdf/epstopdf.pl"
 
 
+def test_wrapper_link_pairs_skips_man_doc_tree():
+    """Upstream texlive-scripts has man -> texmf-dist/doc/man; never fold it."""
+    from texlive_sync.binaries import all_bin_link_pairs, wrapper_link_pairs
+
+    ents = [
+        BinEntry(
+            "fmtutil",
+            "link",
+            "../../texmf-dist/scripts/texlive/fmtutil.pl",
+        ),
+        BinEntry("man", "link", "../../texmf-dist/doc/man"),
+        BinEntry("mktexfmt", "link", "fmtutil"),
+        BinEntry("texhash", "link", "mktexlsr"),
+    ]
+    pairs = wrapper_link_pairs(ents)
+    names = [n for n, _ in pairs]
+    assert "man" not in names
+    assert "fmtutil" in names
+    assert "mktexfmt" in names
+    assert "texhash" in names
+    assert all("/doc/man" not in t for _, t in pairs)
+    # Extras add the missing mktexlsr command (texhash target).
+    all_pairs = all_bin_link_pairs(ents, tl_name="texlive-scripts")
+    all_names = [n for n, _ in all_pairs]
+    assert "mktexlsr" in all_names
+    assert "man" not in all_names
+
+
+def test_generate_spec_does_not_fold_man_link():
+    from texlive_sync.generate import generate_spec
+    from texlive_sync.binaries import BinAnalysis, BinEntry
+    from texlive_sync.tlpdb import TLPackage
+
+    pkg = TLPackage(
+        name="texlive-scripts",
+        revision=79950,
+        depends=["texlive-scripts.ARCH", "texlive.infra"],
+        catalogue_license="LPPL",
+        shortdesc="TeX Live infrastructure programs",
+    )
+    analysis = BinAnalysis(
+        base="texlive-scripts",
+        kind="wrapper",
+        revision=64356,
+        entries=[
+            BinEntry(
+                "fmtutil",
+                "link",
+                "../../texmf-dist/scripts/texlive/fmtutil.pl",
+            ),
+            BinEntry("man", "link", "../../texmf-dist/doc/man"),
+            BinEntry("texhash", "link", "mktexlsr"),
+        ],
+    )
+    spec = generate_spec(pkg, {}, bin_analysis=analysis)
+    assert "man:" not in spec
+    assert "/doc/man" not in spec
+    assert "fmtutil:%{_texmfdistdir}/scripts/texlive/fmtutil.pl" in spec
+    assert "texhash:mktexlsr" in spec
+
+
 def test_generate_spec_folds_wrappers():
     from texlive_sync.generate import generate_spec
     from texlive_sync.binaries import BinAnalysis, BinEntry

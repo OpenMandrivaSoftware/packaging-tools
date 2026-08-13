@@ -31,6 +31,16 @@ ABF_GROUP = "openmandriva"
 DEFAULT_ARCHES = ("znver1", "x86_64", "aarch64")
 DEFAULT_SAVE = "cooker/main"
 
+# mirrors.ctan.org geo-redirects; some backends lag on brand-new revisions.
+# Fall back to known full mirrors on 404/403.
+_FALLBACK_MIRRORS = (
+    "https://mirrors.rit.edu/CTAN/systems/texlive/tlnet",
+    "https://ctan.math.illinois.edu/systems/texlive/tlnet",
+    "https://mirror.math.princeton.edu/pub/CTAN/systems/texlive/tlnet",
+    "https://ftp.tu-chemnitz.de/pub/tug/ctan/systems/texlive/tlnet",
+    "https://mirror.ctan.org/systems/texlive/tlnet",
+)
+
 
 def _run(
     cmd: list[str],
@@ -76,6 +86,66 @@ def sha1_file(path: Path) -> str:
     return h.hexdigest()
 
 
+def _download_url(url: str, path: Path, *, timeout: int = 120) -> None:
+    """Download *url* to *path* (atomic rename from .part)."""
+    tmp = path.with_suffix(path.suffix + ".part")
+    req = urllib.request.Request(url, headers={"User-Agent": "texlive-sync/0.1"})
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp, tmp.open("wb") as fh:
+            shutil.copyfileobj(resp, fh)
+        if tmp.stat().st_size <= 0:
+            tmp.unlink(missing_ok=True)
+            raise RuntimeError(f"empty download: {url}")
+        tmp.rename(path)
+    except Exception:
+        tmp.unlink(missing_ok=True)
+        raise
+
+
+def _mirror_candidates(primary: str) -> list[str]:
+    seen: set[str] = set()
+    out: list[str] = []
+    for m in (primary, DEFAULT_MIRROR, *_FALLBACK_MIRRORS):
+        m = m.rstrip("/")
+        if m not in seen:
+            seen.add(m)
+            out.append(m)
+    return out
+
+
+def download_url_with_fallback(
+    relative_path: str,
+    dest: Path,
+    *,
+    mirror: str = DEFAULT_MIRROR,
+    timeout: int = 120,
+    attempts_per_mirror: int = 2,
+) -> Path:
+    """
+    Download ``archive/...`` (or other path under tlnet) trying primary then
+    fallback mirrors. CTAN geo-DNS often returns a lagging backend for new
+    revisions; retrying other mirrors clears most 404s.
+    """
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    if dest.is_file() and dest.stat().st_size > 0:
+        return dest
+    rel = relative_path.lstrip("/")
+    errors: list[str] = []
+    for base in _mirror_candidates(mirror):
+        url = f"{base}/{rel}"
+        for attempt in range(1, attempts_per_mirror + 1):
+            try:
+                _download_url(url, dest, timeout=timeout)
+                return dest
+            except Exception as e:  # noqa: BLE001
+                errors.append(f"{url} try{attempt}: {e}")
+                time.sleep(min(3, attempt))
+    raise RuntimeError(
+        f"download failed for {rel} after trying {len(_mirror_candidates(mirror))} "
+        f"mirrors: {errors[-1] if errors else 'unknown'}"
+    )
+
+
 def download_sources(
     pkg: TLPackage,
     dest: Path,
@@ -95,12 +165,13 @@ def download_sources(
         if path.is_file() and path.stat().st_size > 0:
             out.append(path)
             continue
+        # archive/<name>.r<rev>.tar.xz relative to tlnet root
         url = archive_url(mirror, pkg.name, pkg.revision, kind)
-        tmp = path.with_suffix(path.suffix + ".part")
-        req = urllib.request.Request(url, headers={"User-Agent": "texlive-sync/0.1"})
-        with urllib.request.urlopen(req, timeout=120) as resp, tmp.open("wb") as fh:
-            shutil.copyfileobj(resp, fh)
-        tmp.rename(path)
+        # strip to path after /tlnet/ when possible; else use archive/fn
+        rel = f"archive/{fn}"
+        if "/archive/" in url:
+            rel = "archive/" + url.rsplit("/archive/", 1)[-1]
+        download_url_with_fallback(rel, path, mirror=mirror)
         out.append(path)
     return out
 
@@ -131,6 +202,29 @@ def already_applied(pkg: TLPackage, work_root: Path) -> bool:
     if "%texlive_base_requires" in body:
         return False
     if "Requires(pre)" in body:
+        return False
+    # texlive.infra is system-mapped to texlive-tlpkg; old specs that still
+    # require the virtual capability are stale.
+    if "texlive(texlive.infra)" in body:
+        return False
+    # TL install-tree convenience man -> doc/man must never be a bindir link.
+    if "man:%{_texmfdistdir}/doc/man" in body or "man:%{_texmfdir}/doc/man" in body:
+        return False
+    # texlive-scripts must ship /usr/bin/mktexlsr (texhash target; script is
+    # in this package, bindir link used to live in blocked texlive.infra).
+    if pkg.name == "texlive-scripts" and "mktexlsr:" not in body:
+        return False
+    # mktexpk defaults to gsftopk; extra_requires must be in the spec.
+    if pkg.name == "texlive-scripts" and "texlive(gsftopk)" not in body:
+        return False
+    # Hyphen packs must install language.dat.d drop-ins for filetriggers.
+    from .hyphen import has_hyphen_executes
+
+    if has_hyphen_executes(pkg) and "%{_texmf_language_dat_d}" not in body:
+        return False
+    from .maps import has_map_executes
+
+    if has_map_executes(pkg) and "%{_texmf_updmap_d}" not in body:
         return False
     # Wrapper modules (depend name.ARCH, pure bindir symlinks) must fold
     # texlive(name.bin) Provides + tl_bin_links. Natives correctly leave the

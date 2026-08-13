@@ -16,11 +16,14 @@ from .binaries import (
     is_external_native,
     source_tarball_filename,
     source_tarball_url,
+    all_bin_link_pairs,
     tl_bin_links_global,
     wrapper_bindir_target,
     wrapper_link_pairs,
     wrapper_requires,
 )
+from .hyphen import language_fragments
+from .maps import map_fragment
 from .tlpdb import (
     DEFAULT_MIRROR,
     TLPackage,
@@ -99,8 +102,9 @@ def generate_spec(
     version_num, _release_num = rpm_version_release(
         pkg.revision, pkg.catalogue_version, packrel=packrel
     )
-    if pkg.catalogue_version and version_num != str(pkg.revision):
-        version_tag = version_num
+    has_catalogue = bool(pkg.catalogue_version and version_num != str(pkg.revision))
+    if has_catalogue:
+        version_tag = "%{tl_version}"
         release_tag = f"%{{tl_revision}}.{packrel}"
     else:
         version_tag = "%{tl_revision}"
@@ -108,7 +112,7 @@ def generate_spec(
 
     # Catalogue versions are typically << old OM Version=revision; bump Epoch
     epoch = (quirks.get("epoch") or {}).get(pkg.name)
-    if epoch is None and pkg.catalogue_version and version_num != str(pkg.revision):
+    if epoch is None and has_catalogue:
         epoch = 1
     requires = rpm_requires(pkg, quirks)
 
@@ -135,15 +139,23 @@ def generate_spec(
     folded_bin = False
     bin_links_global = ""
     if bin_analysis is not None and bin_analysis.kind == "wrapper":
-        pairs = wrapper_link_pairs(bin_analysis.links)
+        pairs = all_bin_link_pairs(bin_analysis.links, tl_name=pkg.name)
         if pairs:
             bin_links_global = tl_bin_links_global(pairs)
             folded_bin = True
+    else:
+        # No platform companion, but module may still need extra bindir links
+        # (e.g. scripts-only packages). Rare; extras alone do not Provide .bin.
+        extra_only = all_bin_link_pairs([], tl_name=pkg.name)
+        if extra_only:
+            bin_links_global = tl_bin_links_global(extra_only)
 
     lines: list[str] = [
         f"%global tl_name {pkg.name}",
         f"%global tl_revision {pkg.revision}",
     ]
+    if has_catalogue:
+        lines.append(f"%global tl_version {version_num}")
     if bin_links_global:
         lines.append(f"%global tl_bin_links {bin_links_global}")
     lines += [
@@ -171,12 +183,21 @@ def generate_spec(
         # Runtime: no hard dep on tlpkg — filetriggers live there and fire if
         # it is installed; collections/schemes pull infrastructure as needed.
     ]
+    # Hyphen / font-map drop-ins for filetrigger assembly (dirs in tlpkg).
+    lang_frags = language_fragments(pkg)
+    map_body = map_fragment(pkg)
+    if (lang_frags or map_body) and "texlive-tlpkg" not in requires:
+        requires.append("texlive-tlpkg")
+
     for req in requires:
         lines.append(f"Requires:\t{req}")
 
-    lines.append(f"Provides:\ttexlive(%{{tl_name}}) = %{{tl_revision}}")
+    # Capability version follows RPM Version (catalogue when present, else
+    # TL revision). Do not use tl_revision here: after upstream resets such
+    # as abntexto 4.0.5-beta → 1.1 that would hide the real identity.
+    lines.append(f"Provides:\ttexlive(%{{tl_name}}) = %{{version}}")
     if folded_bin:
-        lines.append(f"Provides:\ttexlive(%{{tl_name}}.bin) = %{{tl_revision}}")
+        lines.append(f"Provides:\ttexlive(%{{tl_name}}.bin) = %{{version}}")
         lines.append(f"Provides:\ttexlive-%{{tl_name}}.bin = %{{EVRD}}")
     for prov in (quirks.get("extra_provides") or {}).get(pkg.name, []) or []:
         lines.append(f"Provides:\t{prov}")
@@ -188,9 +209,37 @@ def generate_spec(
         "",
         # BuildSystem: texlive supplies %prep/%conf/%build/%install and
         # writes %files via %{specpartsdir}. No %post (filetriggers).
-        "",
     ]
+    dropins: list[tuple[str, str]] = []
+    if lang_frags:
+        dirs = {
+            "dat": "%{_texmf_language_dat_d}",
+            "def": "%{_texmf_language_def_d}",
+            "lua": "%{_texmf_language_lua_d}",
+        }
+        for kind, body in lang_frags.items():
+            dropins.append((dirs[kind], body))
+    if map_body:
+        dropins.append(("%{_texmf_updmap_d}", map_body))
+    if dropins:
+        lines.append("")
+        lines.append("%install -a")
+        lines.extend(_dropin_install_append(dropins))
+    lines.append("")
     return "\n".join(lines)
+
+
+def _dropin_install_append(items: list[tuple[str, str]]) -> list[str]:
+    """``%install -a`` lines writing filetrigger drop-ins (dir_macro, body)."""
+    out: list[str] = []
+    for dest_dir, body in items:
+        out.append(f"mkdir -p %{{buildroot}}{dest_dir}")
+        out.append(
+            f"cat > %{{buildroot}}{dest_dir}/%{{tl_name}} <<'TL_DROPIN_EOF'"
+        )
+        out.append(body.rstrip("\n"))
+        out.append("TL_DROPIN_EOF")
+    return out
 
 
 def generate_abf_yml_placeholder(pkg: TLPackage) -> str:
@@ -293,7 +342,7 @@ def generate_bin_spec(
         f"License:\t{lic}",
         # No Source*: wrappers are generated; platform tarballs are never shipped.
         "BuildArch:\tnoarch",
-        f"Provides:\ttexlive(%{{tl_name}}.bin) = %{{tl_revision}}",
+        f"Provides:\ttexlive(%{{tl_name}}.bin) = %{{version}}",
         f"Provides:\ttexlive-%{{tl_name}}.bin = %{{EVRD}}",
     ]
     for r in reqs:
@@ -311,14 +360,13 @@ def generate_bin_spec(
         "mkdir -p %{buildroot}%{_bindir}",
     ]
     file_list: list[str] = []
-    for e in links:
-        assert e.target is not None
-        dest = wrapper_bindir_target(e.target)
+    for name, dest in wrapper_link_pairs(links):
         # Explicit link; names are from tlpdb (safe path segments).
+        # wrapper_link_pairs drops doc-tree / system-name collisions (e.g. man).
         lines.append(
-            f'ln -sfn {dest} %{{buildroot}}%{{_bindir}}/{e.name}'
+            f'ln -sfn {dest} %{{buildroot}}%{{_bindir}}/{name}'
         )
-        file_list.append(f"%{{_bindir}}/{e.name}")
+        file_list.append(f"%{{_bindir}}/{name}")
 
     lines += [
         "",

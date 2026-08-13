@@ -101,6 +101,8 @@ def main() -> int:
             done += 1
             if status == "ok":
                 applied_set.add(name)
+                # Re-apply (new revision / generator shape) must rebuild.
+                built_set.discard(name)
                 st.get("apply_failed", {}).pop(name, None)
                 log(APPLY_LOG, f"applied {name} ({done}/{len(todo)})")
             else:

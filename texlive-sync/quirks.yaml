@@ -14,7 +14,13 @@ block:
 # do not ship the upstream binary.
 
 # Extra RPM Requires (tl name -> list of RPM requires lines without "Requires:")
-extra_requires: {}
+extra_requires:
+  # mktexpk defaults ps_to_pk=gsftopk and also calls gftopk after Metafont.
+  # Upstream tlpdb does not express those (optional converters in a full TL
+  # tree). Distro installs of texlive-scripts alone then fail at runtime.
+  texlive-scripts:
+    - texlive(gsftopk)
+    - texlive(mfware)
 
 # Extra Provides
 extra_provides: {}
@@ -27,6 +33,9 @@ system_packages:
   lcdftypetools: lcdf-typetools
   psutils: psutils
   tex4ht: tex4ht
+  # Blocked above; content + macros ship in texlive-tlpkg (also Provides
+  # texlive(texlive.infra) so already-built modules resolve).
+  texlive.infra: texlive-tlpkg
 
 # Monorepo TeX Live program sources (CTAN systems/texlive/Source/).
 # Used by generate --bin-source / texlive-bin SRPM — not per-package tlnet.

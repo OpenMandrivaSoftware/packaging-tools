@@ -129,13 +129,13 @@ def download_platform_archive(
     path = dest / fn
     if path.is_file() and path.stat().st_size > 0:
         return path
-    url = platform_archive_url(mirror, full)
-    tmp = path.with_suffix(path.suffix + ".part")
-    req = urllib.request.Request(url, headers={"User-Agent": "texlive-sync/0.1"})
-    with urllib.request.urlopen(req, timeout=300) as resp, tmp.open("wb") as fh:
-        fh.write(resp.read())
-    tmp.rename(path)
-    return path
+    # Reuse apply's multi-mirror download (CTAN geo-mirrors lag).
+    from .apply import download_url_with_fallback
+
+    rel = f"archive/{fn}"
+    return download_url_with_fallback(
+        rel, path, mirror=mirror, timeout=300
+    )
 
 
 def analyze_bin_base(
@@ -238,12 +238,13 @@ def wrapper_requires(base: str, entries: list[BinEntry]) -> list[str]:
     reqs: list[str] = []
     seen: set[str] = set()
     needs_main = False
+    # Only foldable links are installed; same set for Requires.
+    foldable = [e for e in entries if is_foldable_wrapper_link(e)]
     # Names this package itself installs — sibling aliases must not
     # Require themselves (repstopdf -> epstopdf in the same .bin).
-    provided = {e.name for e in entries if e.kind == "link"}
-    for e in entries:
-        if e.kind != "link" or not e.target:
-            continue
+    provided = {e.name for e in foldable}
+    for e in foldable:
+        assert e.target is not None
         t = e.target
         if "texmf-dist/" in t or (
             "texmf/" in t and "texmf-dist/" not in t
@@ -390,14 +391,102 @@ def is_external_native(base: str) -> bool:
     return base in EXTERNAL_NATIVE_BASES
 
 
+# Never install these as %{_bindir}/NAME — they collide with core system tools
+# or are TL install-tree conveniences, not commands.
+_FORBIDDEN_BINDIR_NAMES = frozenset(
+    {
+        "man",  # TL links this to texmf-dist/doc/man (manpage tree), not a binary
+        "sh",
+        "bash",
+        "cat",
+        "ls",
+        "cp",
+        "mv",
+        "rm",
+        "true",
+        "false",
+        "test",
+        "echo",
+        "pwd",
+        "env",
+        "sed",
+        "awk",
+        "grep",
+        "find",
+        "make",
+        "perl",
+        "python",
+        "python3",
+    }
+)
+
+
+def is_foldable_wrapper_link(entry: BinEntry) -> bool:
+    """
+    True if this bindir symlink is safe to install under %{_bindir}.
+
+    Upstream TL sometimes puts convenience links in bin/ that are not commands
+    (notably ``man -> ../../texmf-dist/doc/man``). Folding those would
+    clobber system tools.
+    """
+    if entry.kind != "link" or not entry.target:
+        return False
+    if entry.name in _FORBIDDEN_BINDIR_NAMES:
+        return False
+    t = entry.target.replace("\\", "/")
+    # Doc/info trees and bare manpage directories are not executables.
+    if "/doc/" in t or "/source/" in t:
+        return False
+    if t.rstrip("/").endswith("/man") or t.rstrip("/").endswith("/info"):
+        return False
+    return True
+
+
 def wrapper_link_pairs(entries: list[BinEntry]) -> list[tuple[str, str]]:
-    """(bindir_name, install_target) for wrapper-only packages."""
+    """(bindir_name, install_target) for foldable wrapper-only links."""
     out: list[tuple[str, str]] = []
     for e in entries:
-        if e.kind != "link" or not e.target:
+        if not is_foldable_wrapper_link(e):
             continue
+        assert e.target is not None
         out.append((e.name, wrapper_bindir_target(e.target)))
     return out
+
+
+# Extra bindir links that are not present (or not complete) in a platform
+# companion but whose script payload ships in the noarch module. Keyed by
+# TL package name.
+#
+# texlive-scripts: texhash -> mktexlsr, but mktexlsr itself lives in blocked
+# texlive.infra upstream; the .pl is in this package's runfiles.
+_EXTRA_BIN_LINKS: dict[str, list[tuple[str, str]]] = {
+    "texlive-scripts": [
+        (
+            "mktexlsr",
+            "%{_texmfdistdir}/scripts/texlive/mktexlsr.pl",
+        ),
+    ],
+}
+
+
+def extra_bin_link_pairs(tl_name: str) -> list[tuple[str, str]]:
+    """Additional (name, target) pairs to fold for *tl_name*."""
+    return list(_EXTRA_BIN_LINKS.get(tl_name) or [])
+
+
+def all_bin_link_pairs(
+    entries: list[BinEntry], *, tl_name: str | None = None
+) -> list[tuple[str, str]]:
+    """Foldable platform links plus package-specific extras (no name clashes)."""
+    pairs = wrapper_link_pairs(entries)
+    if not tl_name:
+        return pairs
+    seen = {n for n, _ in pairs}
+    for name, target in extra_bin_link_pairs(tl_name):
+        if name not in seen:
+            pairs.append((name, target))
+            seen.add(name)
+    return pairs
 
 
 def tl_bin_links_global(pairs: list[tuple[str, str]]) -> str:

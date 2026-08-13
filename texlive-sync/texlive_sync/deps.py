@@ -15,14 +15,24 @@ def map_depend(dep: str, quirks: dict[str, Any]) -> str | None:
     Prefer virtual provides ``texlive(name)`` so a dep can be satisfied by a
     differently named package (e.g. a collection or the monolithic texlive
     SRPM). System packages stay as plain RPM names.
+
+    Blocked TL names (``quirks.block``) are skipped unless remapped via
+    ``system_packages`` (e.g. ``texlive.infra`` → ``texlive-tlpkg``). Emitting
+    ``texlive(blocked)`` with nothing providing it breaks installs.
     """
     if is_skippable_depend(dep):
         return None
     system = quirks.get("system_packages") or {}
+    base = dep[: -len(".ARCH")] if dep.endswith(".ARCH") else dep
     if dep in system:
         return system[dep]
+    if base in system:
+        # Platform companion of a system-mapped package: no separate capability.
+        return None if dep.endswith(".ARCH") else system[base]
+    block = set(quirks.get("block") or [])
+    if base in block or dep in block:
+        return None
     if dep.endswith(".ARCH"):
-        base = dep[: -len(".ARCH")]
         # Binary companions: texlive(name.bin) — provided by texlive-*.bin
         return f"texlive({base}.bin)"
     # collection-foo / scheme-bar / plain TL package name
