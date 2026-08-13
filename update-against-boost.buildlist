@@ -28,9 +28,6 @@ openmandriva/cemu
 openmandriva/snapper
 openmandriva/kopeninghours
 openmandriva/msgpack-cpp
-openmandriva/plasma6-akonadi
-openmandriva/plasma6-kopeninghours
-openmandriva/plasma6-libktorrent
 openmandriva/mkvtoolnix
 openmandriva/OpenImageIO
 openmandriva/azmq
